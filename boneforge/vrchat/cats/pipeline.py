@@ -22,6 +22,7 @@ STATE_KEY = "boneforge_cats_pipeline_state"
 
 PIPELINE_PHASES = [
     "fix_model",
+    "material_atlas",
     "visemes",
     "eye_tracking",
     "pose_to_shape",

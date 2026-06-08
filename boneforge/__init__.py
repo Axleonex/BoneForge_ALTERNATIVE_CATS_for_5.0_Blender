@@ -94,12 +94,13 @@ logger = logging.getLogger(__name__)
 
 # Feature packages. Order matters:
 #   1. The registry registers manifests in this order.
-#   2. UI parents (taskboard) come last so the panels they expect to
-#      attach to already exist.
+#   2. Shared UI parents (taskboard) come first so child panels using
+#      bl_parent_id can register against existing parent idnames.
 #   3. The IDs inside each manifest (e.g. ``phase1_panels``) are
 #      stable across the v7.2.1 rename — the package name on disk
 #      changed; the manifest id on the user's preference CSV did not.
 _FEATURE_PACKAGES = (
+    'taskboard',
     'ui_panels',         # was phase1
     'animation',         # was phase2
     'weights',           # was phase2b
@@ -110,7 +111,6 @@ _FEATURE_PACKAGES = (
     'io_hub',
     'vrm',
     'mmd',
-    'taskboard',
 )
 
 # Backwards-compat alias for any external script that imported the

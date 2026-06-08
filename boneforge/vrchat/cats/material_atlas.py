@@ -17,6 +17,7 @@ Unanimous additions from design review:
 Category: VRChat Cats Tools.
 """
 
+import json
 import logging
 import os
 import time
@@ -32,6 +33,7 @@ from boneforge.i18n import T
 from bpy.types import Operator, Panel, PropertyGroup, UIList
 
 from boneforge.core import active_armature
+from boneforge.vrchat.cats import pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -105,6 +107,133 @@ def _dominant_render_type(obj) -> str:
         if priority in types:
             return priority
     return "Opaque"
+
+
+def _target_meshes(context, settings=None):
+    """Return meshes for the current atlas scope."""
+    scope = getattr(settings, "target_scope", "ACTIVE_ARMATURE") if settings else "ACTIVE_ARMATURE"
+
+    if scope == "SELECTED_MESHES":
+        return [o for o in context.selected_objects if o.type == "MESH"]
+
+    if scope == "VISIBLE_SCENE":
+        return [
+            o for o in context.scene.objects
+            if o.type == "MESH" and o.visible_get()
+        ]
+
+    arm = active_armature(context)
+    if arm:
+        return [c for c in arm.children if c.type == "MESH"]
+
+    active = context.view_layer.objects.active
+    if active is not None and active.type == "MESH":
+        return [active]
+
+    return [
+        o for o in context.scene.objects
+        if o.type == "MESH" and o.visible_get()
+    ]
+
+
+def _iter_texture_images(mat):
+    """Yield image datablocks used by texture nodes in a material."""
+    if not mat or not mat.use_nodes or not mat.node_tree:
+        return
+    for node in mat.node_tree.nodes:
+        if node.type == "TEX_IMAGE":
+            yield node.image
+
+
+def _build_debug_report(meshes, settings) -> str:
+    """Build a copyable diagnostic report for mixed material/texture atlasing."""
+    lines = [
+        "BoneForge CATS Material Atlas Debug Report",
+        f"Scope: {getattr(settings, 'target_scope', 'ACTIVE_ARMATURE')}",
+        f"Meshes scanned: {len(meshes)}",
+        f"Output: {settings.output_format} -> {bpy.path.abspath(settings.output_path)}",
+        "",
+    ]
+
+    if not meshes:
+        lines.append("ERROR: No mesh objects were found for the current scope.")
+        return "\n".join(lines)
+
+    seen_images = {}
+    total_materials = 0
+    problem_count = 0
+
+    for obj in meshes:
+        mesh = obj.data
+        uv_state = "OK" if mesh.uv_layers else "MISSING"
+        if not mesh.uv_layers:
+            problem_count += 1
+        lines.append(f"Mesh: {obj.name} | materials={len(mesh.materials)} | uv={uv_state}")
+
+        for slot_index, mat in enumerate(mesh.materials):
+            total_materials += 1
+            if mat is None:
+                problem_count += 1
+                lines.append(f"  [{slot_index}] ERROR: empty material slot")
+                continue
+
+            render_type = _classify_material(mat)
+            if not mat.use_nodes or not mat.node_tree:
+                problem_count += 1
+                lines.append(
+                    f"  [{slot_index}] {mat.name} | {render_type} | WARNING: material has no node tree"
+                )
+                continue
+
+            images = [img for img in _iter_texture_images(mat)]
+            if not images:
+                problem_count += 1
+                lines.append(
+                    f"  [{slot_index}] {mat.name} | {render_type} | WARNING: no image texture nodes"
+                )
+                continue
+
+            for img in images:
+                if img is None:
+                    problem_count += 1
+                    lines.append(f"  [{slot_index}] {mat.name} | ERROR: image node has no image")
+                    continue
+                key = img.name
+                seen_images[key] = img
+                packed = "packed" if img.packed_file else "external"
+                path = bpy.path.abspath(img.filepath) if img.filepath else "<unsaved or generated>"
+                lines.append(
+                    f"  [{slot_index}] {mat.name} | {render_type} | "
+                    f"image={img.name} {img.size[0]}x{img.size[1]} {packed} | {path}"
+                )
+
+    sizes = sorted({(img.size[0], img.size[1]) for img in seen_images.values() if img})
+    color_spaces = sorted({
+        img.colorspace_settings.name for img in seen_images.values()
+        if img and img.colorspace_settings
+    })
+
+    lines.extend([
+        "",
+        f"Materials scanned: {total_materials}",
+        f"Images scanned: {len(seen_images)}",
+        f"Image sizes: {', '.join(f'{w}x{h}' for w, h in sizes) if sizes else 'none'}",
+        f"Color spaces: {', '.join(color_spaces) if color_spaces else 'none'}",
+        f"Warnings/errors: {problem_count}",
+    ])
+
+    if len(sizes) > 1:
+        lines.append("NOTE: Mixed source image sizes are supported, but small images may soften in a large atlas.")
+    if len(color_spaces) > 1:
+        lines.append("NOTE: Mixed color spaces detected. Verify the baked atlas visually before Accept.")
+
+    return "\n".join(lines)
+
+
+def _store_debug_report(context, meshes, settings):
+    if not getattr(settings, "debug_enabled", True):
+        return
+    settings.last_debug_report = _build_debug_report(meshes, settings)
 
 
 def _has_high_emission(obj) -> bool:
@@ -265,10 +394,33 @@ class BF_AtlasSettings(PropertyGroup):
     total_mats_before: IntProperty(default=0)
     rank_before: StringProperty(default="")
     last_bake_result: StringProperty(default="")
+    last_debug_report: StringProperty(default="")
 
     # Backup state
     has_backup: BoolProperty(default=False)
     backup_collection_name: StringProperty(default="")
+
+    # Friendly defaults
+    target_scope: EnumProperty(
+        name="Target",
+        description="Which meshes are included when Analyze or Smart Combine runs",
+        items=[
+            ("ACTIVE_ARMATURE", "Active Avatar", "Use mesh children of the active armature, or the active mesh if no armature is active"),
+            ("SELECTED_MESHES", "Selected Meshes", "Use only selected mesh objects"),
+            ("VISIBLE_SCENE", "Visible Scene", "Use every visible mesh in the scene"),
+        ],
+        default="ACTIVE_ARMATURE",
+    )
+    auto_analyze_before_bake: BoolProperty(
+        name="Auto Analyze",
+        description="Automatically rebuild atlas groups before one-click baking",
+        default=True,
+    )
+    debug_enabled: BoolProperty(
+        name="Debug Report",
+        description="Build a copyable report of source meshes, material slots, texture images, UV state, image sizes, and color spaces",
+        default=True,
+    )
 
     # Advanced options
     preserve_originals: BoolProperty(
@@ -300,13 +452,21 @@ class BF_AtlasSettings(PropertyGroup):
         default="BEST_FIT",
     )
     bake_albedo: BoolProperty(name="Albedo (Color)", default=True)
-    bake_normal: BoolProperty(name="Normal Map", default=True)
+    bake_normal: BoolProperty(
+        name="Normal Map",
+        description="Reserved for a future multi-pass atlas bake. The current combiner bakes albedo/color only",
+        default=False,
+    )
     bake_emission: BoolProperty(
         name="Emission",
-        description="Bake emission channel. Values > 1.0 will clamp to 1.0 in PNG/TGA. Use EXR to preserve HDR emission",
-        default=True,
+        description="Reserved for a future multi-pass atlas bake. The current combiner bakes albedo/color only",
+        default=False,
     )
-    bake_roughness: BoolProperty(name="Metallic / Roughness", default=False)
+    bake_roughness: BoolProperty(
+        name="Metallic / Roughness",
+        description="Reserved for a future multi-pass atlas bake. The current combiner bakes albedo/color only",
+        default=False,
+    )
     output_format: EnumProperty(
         name="Output Format",
         items=[
@@ -380,16 +540,13 @@ class BF_OT_VRC_AtlasAnalyze(Operator):
         settings = context.scene.boneforge_atlas_settings
         settings.atlas_groups.clear()
         settings.last_bake_result = ""
+        settings.last_debug_report = ""
 
-        arm = active_armature(context)
-        if arm:
-            meshes = [c for c in arm.children if c.type == "MESH"]
-        else:
-            meshes = [o for o in context.scene.objects if o.type == "MESH"
-                      and o.visible_get()]
+        meshes = _target_meshes(context, settings)
 
         if not meshes:
             self.report({"WARNING"}, "No mesh objects found")
+            _store_debug_report(context, meshes, settings)
             return {"CANCELLED"}
 
         # Classify each mesh
@@ -444,12 +601,19 @@ class BF_OT_VRC_AtlasAnalyze(Operator):
                 or has_high_em
             )
 
+        _store_debug_report(context, meshes, settings)
         projected = _projected_mat_count(settings)
         rank_after = _get_rank(projected)
         self.report(
             {"INFO"},
             f"Found {total_mats} materials in {len(settings.atlas_groups)} groups — "
             f"estimated result: {projected} mats ({rank_after})"
+        )
+        pipeline.append_ledger(
+            context.scene,
+            "atlas_analyze",
+            pipeline.OUTCOME_CLEAN,
+            f"Found {total_mats} materials in {len(settings.atlas_groups)} atlas groups",
         )
         return {"FINISHED"}
 
@@ -487,6 +651,50 @@ class BF_OT_VRC_AtlasRemoveGroup(Operator):
 
 # ── Bake operator (with pre-flight invoke + modal progress) ──────
 
+class BF_OT_VRC_AtlasSmartCombine(Operator):
+    """Analyze and bake atlas materials with safe default settings"""
+    bl_idname = "boneforge.vrc_atlas_smart_combine"
+    bl_label = "Smart Combine Materials"
+    bl_options = {"REGISTER", "UNDO"}
+
+    def execute(self, context):
+        settings = context.scene.boneforge_atlas_settings
+
+        if settings.auto_analyze_before_bake or not settings.atlas_groups:
+            analyze_result = bpy.ops.boneforge.vrc_atlas_analyze()
+            if "FINISHED" not in analyze_result:
+                self.report({"ERROR"}, "Smart Combine could not find materials to combine")
+                return {"CANCELLED"}
+
+        bake_result = bpy.ops.boneforge.vrc_atlas_bake()
+        if "FINISHED" not in bake_result:
+            self.report({"ERROR"}, "Smart Combine failed during bake. Copy the debug report for details")
+            return {"CANCELLED"}
+
+        self.report({"INFO"}, "Smart Combine finished. Review the atlas, then Accept or Revert")
+        return {"FINISHED"}
+
+
+class BF_OT_VRC_AtlasCopyDebugReport(Operator):
+    """Copy the latest atlas diagnostic report to the clipboard"""
+    bl_idname = "boneforge.vrc_atlas_copy_debug"
+    bl_label = "Copy Debug Report"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        settings = context.scene.boneforge_atlas_settings
+        if not settings.last_debug_report:
+            _store_debug_report(context, _target_meshes(context, settings), settings)
+
+        if not settings.last_debug_report:
+            self.report({"WARNING"}, "No atlas debug report available")
+            return {"CANCELLED"}
+
+        context.window_manager.clipboard = settings.last_debug_report
+        self.report({"INFO"}, "Atlas debug report copied")
+        return {"FINISHED"}
+
+
 class BF_OT_VRC_AtlasBake(Operator):
     """Bake atlas textures for all enabled groups with pre-flight check"""
     bl_idname = "boneforge.vrc_atlas_bake"
@@ -510,6 +718,25 @@ class BF_OT_VRC_AtlasBake(Operator):
 
         arm = active_armature(context)
         bake_groups = []
+
+        if settings.has_backup:
+            errors.append("Accept or Revert the current atlas result before baking another atlas.")
+
+        if not settings.bake_albedo:
+            errors.append("Albedo (Color) must be enabled. Multi-pass texture atlasing is not implemented yet.")
+        unsupported_passes = []
+        if settings.bake_normal:
+            unsupported_passes.append("Normal Map")
+        if settings.bake_emission:
+            unsupported_passes.append("Emission")
+        if settings.bake_roughness:
+            unsupported_passes.append("Metallic / Roughness")
+        if unsupported_passes:
+            errors.append(
+                "Unsupported bake pass selected: "
+                + ", ".join(unsupported_passes)
+                + ". Current atlas bake supports albedo/color only."
+            )
 
         for group in settings.atlas_groups:
             if not group.enabled:
@@ -627,11 +854,23 @@ class BF_OT_VRC_AtlasBake(Operator):
 
     def execute(self, context):
         settings = context.scene.boneforge_atlas_settings
-        bake_groups = self._groups_to_bake
-        if not bake_groups:
-            self.report({"ERROR"}, "No groups to bake")
+        pf = self._build_preflight(context)
+        bake_groups = pf["bake_groups"]
+        if pf["errors"]:
+            for e in pf["errors"]:
+                self.report({"ERROR"}, e)
+            pipeline.append_ledger(
+                context.scene,
+                "atlas_bake",
+                pipeline.OUTCOME_FAILED,
+                "; ".join(pf["errors"]),
+            )
+            self._groups_to_bake = []
             return {"CANCELLED"}
+        self._preflight_lines = pf
+        self._groups_to_bake = bake_groups
 
+        _store_debug_report(context, _target_meshes(context, settings), settings)
         wm = context.window_manager
         total_steps = len(bake_groups)
         wm.progress_begin(0, total_steps)
@@ -670,11 +909,32 @@ class BF_OT_VRC_AtlasBake(Operator):
             settings.total_mats_before = mats_after_count
 
             self.report({"INFO"}, authority)
+            pipeline.append_ledger(
+                context.scene,
+                "atlas_bake",
+                pipeline.OUTCOME_CHANGED,
+                authority,
+                {
+                    "groups": len(results),
+                    "scope": settings.target_scope,
+                    "format": settings.output_format,
+                    "output_path": settings.output_path,
+                },
+            )
+            pipeline.set_phase_complete(context.scene, "material_atlas", pipeline.OUTCOME_CHANGED)
+            self._groups_to_bake = []
 
         except Exception as e:
             wm.progress_end()
             logger.exception("[BoneForge Atlas] Bake failed")
             self.report({"ERROR"}, f"Atlas bake failed: {e}")
+            pipeline.append_ledger(
+                context.scene,
+                "atlas_bake",
+                pipeline.OUTCOME_FAILED,
+                f"Atlas bake failed: {e}",
+            )
+            pipeline.set_phase_complete(context.scene, "material_atlas", pipeline.OUTCOME_FAILED)
             return {"CANCELLED"}
 
         return {"FINISHED"}
@@ -750,6 +1010,7 @@ class BF_OT_VRC_AtlasBake(Operator):
 
         if not source_objs:
             return None
+        source_names = [obj.name for obj in source_objs]
 
         # ── Create working duplicates ──────────────────────────
         bpy.ops.object.select_all(action="DESELECT")
@@ -757,6 +1018,9 @@ class BF_OT_VRC_AtlasBake(Operator):
         for obj in source_objs:
             dup = obj.copy()
             dup.data = obj.data.copy()
+            for mat_index, mat in enumerate(dup.data.materials):
+                if mat is not None:
+                    dup.data.materials[mat_index] = mat.copy()
             dup.name = f"__BF_ATLAS_WORK_{obj.name}"
             scene.collection.objects.link(dup)
             dup.select_set(True)
@@ -916,13 +1180,18 @@ class BF_OT_VRC_AtlasBake(Operator):
 
         # ── Hide original source objects ──────────────────────
         for obj in source_objs:
-            obj.hide_set(True)
-            obj.hide_render = True
+            if settings.preserve_originals:
+                obj.hide_set(True)
+                obj.hide_render = True
+            else:
+                bpy.data.objects.remove(obj, do_unlink=True)
 
         # Clean up working name
         joined.name = (
             f"ATLAS_{group.render_type.replace(' ', '_')}_{res}px"
         )
+        joined["boneforge_atlas_backup"] = settings.backup_collection_name
+        joined["boneforge_atlas_sources"] = json.dumps(source_names)
 
         return joined.name
 
@@ -946,6 +1215,21 @@ class BF_OT_VRC_AtlasAccept(Operator):
             return {"CANCELLED"}
 
         coll = bpy.data.collections.get(settings.backup_collection_name)
+        source_names = set()
+        for obj in context.scene.objects:
+            if obj.get("boneforge_atlas_backup") != settings.backup_collection_name:
+                continue
+            raw_sources = obj.get("boneforge_atlas_sources", "[]")
+            try:
+                source_names.update(json.loads(raw_sources))
+            except (TypeError, ValueError):
+                pass
+
+        for name in source_names:
+            obj = bpy.data.objects.get(name)
+            if obj is not None:
+                bpy.data.objects.remove(obj, do_unlink=True)
+
         if coll:
             # Remove all objects in collection
             for obj in list(coll.objects):
@@ -976,21 +1260,30 @@ class BF_OT_VRC_AtlasRevert(Operator):
             settings.has_backup = False
             return {"CANCELLED"}
 
-        # Remove atlas meshes (objects starting with ATLAS_)
+        # Remove atlas meshes created by this backup/session.
         scene = context.scene
         to_remove = [
             obj for obj in scene.objects
-            if obj.name.startswith("ATLAS_")
+            if obj.get("boneforge_atlas_backup") == settings.backup_collection_name
         ]
         for obj in to_remove:
             bpy.data.objects.remove(obj, do_unlink=True)
 
-        # Restore originals: unhide, move to scene collection
+        # Restore originals first; backup duplicates are a fallback if a source was removed.
         for obj in list(coll.objects):
-            # Strip PRE_ATLAS_ prefix to restore original name
             orig_name = obj.name.replace("PRE_ATLAS_", "", 1)
+            original = bpy.data.objects.get(orig_name)
+            if original is not None:
+                original.hide_set(False)
+                original.hide_render = False
+                bpy.data.objects.remove(obj, do_unlink=True)
+                continue
+
             obj.name = orig_name
-            scene.collection.objects.link(obj)
+            try:
+                scene.collection.objects.link(obj)
+            except RuntimeError:
+                pass
             obj.hide_set(False)
             obj.hide_render = False
 
@@ -1012,10 +1305,9 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
 
     bl_label = " "
     bl_idname = "BONEFORGE_PT_vrc_w2_atlas"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_category = "BoneForge"
-    bl_parent_id = "BF_PT_sb_vrchat"
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = 'scene'
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw_header(self, context):
@@ -1061,7 +1353,18 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
             row.label(text=f"→  {after} mats  [{rank_after}]")
 
         col.separator()
-        col.operator("boneforge.vrc_atlas_analyze", text=T("Analyze Materials"), icon="VIEWZOOM")
+        col.prop(settings, "target_scope")
+        smart_row = col.row()
+        smart_row.scale_y = 1.35
+        smart_row.operator(
+            "boneforge.vrc_atlas_smart_combine",
+            text=T("Smart Combine Materials"),
+            icon="MATERIAL",
+        )
+
+        tool_row = col.row(align=True)
+        tool_row.operator("boneforge.vrc_atlas_analyze", text=T("Analyze"), icon="VIEWZOOM")
+        tool_row.operator("boneforge.vrc_atlas_copy_debug", text=T("Copy Debug"), icon="COPYDOWN")
 
         layout.separator()
 
@@ -1189,14 +1492,22 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
         if settings.show_advanced:
             adv_col = adv_box.column(align=True)
 
+            adv_col.label(text=T("Workflow:"))
+            adv_col.prop(settings, "auto_analyze_before_bake")
+            adv_col.prop(settings, "debug_enabled")
+            adv_col.operator("boneforge.vrc_atlas_copy_debug", text=T("Copy Debug Report"), icon="COPYDOWN")
+            adv_col.separator()
+
             adv_col.label(text=T("Bake Passes:"))
             adv_col.prop(settings, "bake_albedo")
             adv_col.prop(settings, "bake_normal")
             emission_row = adv_col.row()
             emission_row.prop(settings, "bake_emission")
-            if settings.bake_emission and settings.output_format != "EXR":
-                emission_row.label(text=T("[!] Values > 1.0 clamp"), icon="ERROR")
             adv_col.prop(settings, "bake_roughness")
+            adv_col.label(
+                text=T("Only Albedo is active in this version."),
+                icon="INFO",
+            )
 
             adv_col.separator()
             adv_col.label(text=T("UV Packing:"))
@@ -1235,6 +1546,8 @@ _classes = (
     BF_OT_VRC_AtlasAnalyze,
     BF_OT_VRC_AtlasAddGroup,
     BF_OT_VRC_AtlasRemoveGroup,
+    BF_OT_VRC_AtlasSmartCombine,
+    BF_OT_VRC_AtlasCopyDebugReport,
     BF_OT_VRC_AtlasBake,
     BF_OT_VRC_AtlasAccept,
     BF_OT_VRC_AtlasRevert,

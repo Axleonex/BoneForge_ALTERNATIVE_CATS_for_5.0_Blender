@@ -438,6 +438,3 @@ _classes = [
 def register():
     for cls in _classes:
         bpy.utils.register_class(cls)
-
-    # Add scene properties for UIList
-    bpy.types.Scene.boneforge

@@ -259,6 +259,31 @@ class CATS_PT_pose_shape(Panel):
 
 # ── Sub-panel: Mesh Tools ───────────────────────────────────────────────────
 
+class CATS_PT_material_atlas(Panel):
+    """Material atlas combiner, delegated to the shared atlas panel."""
+
+    bl_label = " "
+    bl_idname = "CATS_PT_material_atlas"
+    bl_space_type = _SPACE
+    bl_region_type = _REGION
+    bl_category = _CATEGORY
+    bl_parent_id = "CATS_PT_main"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, context):
+        self.layout.label(text=T("Material Atlas"), icon='MATERIAL')
+
+    @classmethod
+    def poll(cls, context):
+        return active_armature(context) is not None or (
+            context.active_object is not None and context.active_object.type == 'MESH'
+        )
+
+    def draw(self, context):
+        from boneforge.vrchat.cats import material_atlas
+        material_atlas.BONEFORGE_PT_vrc_w2_atlas.draw(self, context)
+
+
 class CATS_PT_mesh_tools(Panel):
     """Mesh separation utilities."""
 
@@ -479,6 +504,7 @@ classes = (
     CATS_PT_visemes,
     CATS_PT_eye_tracking,
     CATS_PT_pose_shape,
+    CATS_PT_material_atlas,
     CATS_PT_mesh_tools,
     CATS_PT_transforms,
     CATS_PT_bone_tools,
