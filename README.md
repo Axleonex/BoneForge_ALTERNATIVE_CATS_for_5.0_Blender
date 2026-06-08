@@ -1,0 +1,1 @@
+This is an Ai coded project to bring the original CATS to 5.1. It includes all of CATS original features plus Mixamo-like autorigging. Supports VRM/VRoid import/export, VRM 1.0/0.x, VRChat FBX, Unreal FBX import/export, MMD PMX/PMD/X import, PMX export, VMD motion import/export, and VPD pose import.
