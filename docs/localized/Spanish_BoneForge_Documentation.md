@@ -1,5 +1,5 @@
 # Documentación de BoneForge
-### Versión 8.3.1 | Para usuarios de VRChat
+### Versión 8.5.0 | Para usuarios de VRChat
 
 ---
 
@@ -41,6 +41,10 @@ BoneForge es un complemento de Blender que te ayuda a preparar avatares 3D para 
 **Lo que hace Blender:** Blender es el software 3D donde editas la forma de tu avatar, texturas y sistema de movimiento antes de cargar a VRChat. Es gratuito y poderoso, pero puede parecer confuso al principio.
 
 **Lo que añade BoneForge:** BoneForge añade paneles y botones a Blender que automatizan los pasos más tediosos — cosas como organizar huesos, corregir nombres, configurar física y exportar en el formato correcto.
+
+**Nuevo en 8.5.0:** La versión Open Blender queda alineada con la versión B4Artists, pero sigue siendo el paquete estándar para Blender. Incluye el conjunto completo de variaciones UV de CATS Material Atlas para el flujo CATS/Material Combiner/UVToolkit, incluyendo **Advanced Variation** y **Rotation Step**. No incluye las herramientas exclusivas de B4Artists como rigging de producción, control picker, bloqueo de host ni contenido específico de Bforartists.
+
+8.5.0 también actualiza la exportación y la validación. Los exports de VRChat, VRM, MMD y Unreal ahora muestran controles de carpeta y nombre de archivo dentro de los paneles de BoneForge. Los exports FBX de VRChat/Unity y Unreal activan **Embed Textures** de forma predeterminada para facilitar la importación de materiales, mientras que el export de VRChat excluye mallas auxiliares y formas de control salvo que **Helper Meshes** esté activado. El panel VRM añade **Lint Now** y **Fix Humanoid Map**, que puede reparar una asignación humanoide antigua sin renombrar los huesos.
 
 **Nuevo en 8.3.1 (actualización de IK de Auto-Rig y densidad de controles):** El generador de cuerpo de Auto-Rig ahora crea huesos objetivo de IK dedicados y no deformantes llamados hand_ik.L, hand_ik.R, oot_ik.L y oot_ik.R cuando IK está habilitado. Esto da a manos y pies controles de extremo adecuados en lugar de usar huesos deformantes como objetivos IK. El asistente también expone opciones de densidad de control para **Spine Segments** y **Neck Segments**, de modo que los rigs generados pueden usar cadenas de torso y cuello más suaves cuando sea necesario.
 
@@ -1708,9 +1712,14 @@ Consulta [Guía 9: Mejora el rendimiento de tu avatar](#guía-9-mejora-el-rendim
 **Lo que hace:** Exporta tu avatar terminado como un archivo FBX formateado específicamente para el SDK de VRChat.
 
 **Configuraciones clave:**
-- **Merge All Meshes** — Combina en una malla al exportar (recomendado)
-- **Apply Shape Keys to Basis** — Fusiona todas las claves de forma activas en la forma de malla base antes de exportar
-- **Include Armature / Mesh / Materials / Animations** — Alterna qué datos se incluyen en la exportación
+- **Folder** — Elige la carpeta de exportación para el `.fbx` y el sidecar `.bfvrc` opcional
+- **Avatar** — Define el nombre del archivo exportado
+- **Sidecar** — Escribe un archivo de metadatos `.bfvrc` junto al FBX
+- **Merge Meshes** — Combina copias de malla durante la exportación cuando quieres una sola malla
+- **Separate Clothing** — Mantiene la ropa como objetos de malla separados cuando está activado
+- **Bake Shape Keys** — Aplica las shape keys a la copia de exportación antes de escribir el FBX
+- **Embed Textures** — Empaqueta texturas de imagen dentro del FBX para facilitar la importación de materiales en Unity
+- **Helper Meshes** — Incluye mallas ocultas, desactivadas para render o usadas como formas de control solo cuando está activado; déjalo desactivado para exports normales de avatar
 
 **Dónde encontrarlo:** VRChat tab → Export section
 
@@ -1737,9 +1746,12 @@ Consulta [Guía 9: Mejora el rendimiento de tu avatar](#guía-9-mejora-el-rendim
 **Lo que hace:** Exporta tu personaje rigeado de vuelta a formato VRM para usarlo en aplicaciones compatibles con VRoid, Virtual Cast o Resonite.
 
 **Configuraciones clave:**
-- **Model Name** — Nombre de pantalla de tu avatar
+- **Folder** — Elige dónde se escribirá el VRM o FBX de destino
+- **File** — Define el nombre de salida; BoneForge elige la extensión según el destino
+- **Target** — Elige VRM 1.0, VRM 0.x, VRChat FBX, VSeeFace, Warudo o Resonite
+- **Scope** — Exporta la armadura activa o todas las armaduras con metadatos VRM preservados
+- **Skip Lint on Export** — Omite la validación del destino; úsalo solo si entiendes el riesgo indicado
 - **Author / License** — Información del creador almacenada en los metadatos de VRM
-- **VRM Version** — Típicamente 1.0 para aplicaciones actuales
 
 **Dónde encontrarlo:** VRM tab → Export section
 
@@ -1747,9 +1759,11 @@ Consulta [Guía 9: Mejora el rendimiento de tu avatar](#guía-9-mejora-el-rendim
 
 ### Pelusa de VRM
 
-**Lo que hace:** Valida tu escena contra los requisitos de exportación de VRM — verifica huesos humanoides requeridos, integridad de metadatos y configuración de materiales.
+**Lo que hace:** Valida la armadura activa contra el destino seleccionado antes de exportar. El linter comprueba la asignación humanoide requerida, los metadatos VRM, los visemas específicos del destino y las expectativas de VRM 1.0, VRM 0.x, VRChat FBX, VSeeFace, Warudo y Resonite.
 
-Haz clic en **Run VRM Lint** para ver resultados.
+Haz clic en **Lint Now** para ejecutar la comprobación sin exportar ni cambiar el modelo. Los errores bloquean la exportación salvo que **Skip Lint on Export** esté activado; las advertencias explican problemas que pueden importar igualmente, pero podrían comportarse peor en la aplicación de destino.
+
+Si el linter dice que faltan huesos humanoides requeridos aunque los huesos existan, haz clic en **Fix Humanoid Map**. BoneForge detecta automáticamente los slots humanoides, guarda la asignación y marca `boneforge_humanoid_alias` en los huesos correctos. Esto arregla datos de mapeo obsoletos sin renombrar los huesos reales.
 
 **Dónde encontrarlo:** VRM tab → Lint section
 
@@ -1778,6 +1792,12 @@ Haz clic en **Run VRM Lint** para ver resultados.
 
 **Lo que hace:** Exporta tu trabajo de vuelta a formato PMX/VMD/VPD para usarlo en MMD Studio u otro software compatible con MMD.
 
+**Configuraciones clave:**
+- **Folder** — Elige la carpeta de destino para exports PMX, VMD y VPD
+- **PMX File / PMX Scope** — Exporta el modelo MMD activo o todos los modelos MMD de la escena
+- **VMD File / VMD Scope** — Exporta el movimiento de la escena para uno o todos los modelos MMD
+- **VPD File / VPD Scope** — Exporta la pose actual para uno o todos los modelos MMD
+
 **Dónde encontrarlo:** MMD tab → Export section
 
 ---
@@ -1793,16 +1813,17 @@ Haz clic en **Run VRM Lint** para ver resultados.
 **Lo que hace:** Un panel central para todos los formatos de exportación — VRChat (FBX), VRM, MMD (PMX), Unreal Engine (FBX) y Unity.
 
 **Opciones de destino:**
-- **VRChat (Unity FBX)** — Exportación estándar de VRChat
-- **VRM** — Delega al exportador VRM
-- **MMD (PMX)** — Delega al exportador MMD
-- **Unreal Engine FBX** — FBX con configuraciones específicas de Unreal y compatibilidad LOD
-- **Unity General** — FBX + archivo de metadatos secundario para proyectos de Unity
+- **VRChat (Unity FBX)** — Export estándar de VRChat con carpeta/nombre, sidecar, texturas embebidas y filtrado de mallas auxiliares
+- **VRM** — Delega al exportador VRM con destino, carpeta, archivo, alcance y controles de lint
+- **MMD (PMX/VMD/VPD)** — Delega a MMD Tools con carpeta, archivo y alcance para exports de modelo, movimiento y pose
+- **Unreal Engine FBX** — FBX con escala para Unreal, selección única, leaf bones, animación y texturas embebidas
+- **Unity General** — Usa la ruta FBX de VRChat/Unity para importar al SDK; las texturas embebidas ayudan a Unity a encontrar las imágenes de materiales
 
 **Configuraciones comunes de FBX:**
-- **Include Armature / Mesh / Materials / Animations** — Alterna componentes de exportación
-- **Bake Animation** — Convierte la animación conducida por restricción a fotogramas clave sin procesar para compatibilidad
-- **FBX Version** — Formato ASCII o Binary
+- **Folder / File** — Elige la ubicación de salida y el nombre de archivo antes de exportar
+- **Selected Only / Scope** — Elige si se exporta el rig activo, los objetos seleccionados o todos los modelos compatibles
+- **Bake Animation** — Convierte la animación en keyframes FBX cuando el destino lo necesita
+- **Embed Textures** — Empaqueta texturas de imagen en archivos FBX para facilitar la importación en Unity/Unreal
 
 **Dónde encontrarlo:** En la barra lateral bajo la pestaña del centro de I/O (registrado en la parte inferior de la barra lateral)
 
@@ -2246,6 +2267,9 @@ Usa esta sección cuando algo ha salido mal y necesitas encontrar la respuesta r
 | No puedo encontrar paneles de BoneForge | Presiona **N** en la ventana gráfica 3D, busca pestañas de BoneForge |
 | FBX de exportación falta huesos | Verifica que la armadura esté seleccionada antes de exportar; habilita "Include Armature" |
 | Las claves de forma desaparecieron después de exportar | Habilita "Include Shape Keys" en configuraciones de exportación |
+| La exportación queda bloqueada por huesos humanoides faltantes | Ejecuta **Auto-Map Humanoid** y luego **Fix Humanoid Map** en la sección VRM Lint |
+| El FBX exportado muestra formas auxiliares enormes o tubos | Mantén **Helper Meshes** desactivado salvo que necesites mallas de control intencionalmente |
+| Unity o Unreal importa materiales grises | Exporta con **Embed Textures** activado y luego usa las opciones de importar/extraer materiales de Unity o la importación de materiales FBX de Unreal |
 | Los pesos están en los huesos incorrectos | Re-ejecuta Auto-Weight en el Wizard, o usa Transferencia de peso |
 | Dos rigs necesitan ser uno | [Guía 11: Fusiona dos esqueletos juntos](#guía-11-fusiona-dos-esqueletos-juntos) |
 | La forma correctiva no se activa | Verifica eje de hueso y ángulo de activación en [Claves de forma correctivas](#claves-de-forma-correctivas) |
@@ -2344,6 +2368,6 @@ Usa esta sección cuando algo ha salido mal y necesitas encontrar la respuesta r
 
 ---
 
-*Documentación de BoneForge | Versión 8.3.1*
+*Documentación de BoneForge | Versión 8.5.0*
 *Para soporte, verifica la página de BoneForge GitHub o Discord comunitario.*
 

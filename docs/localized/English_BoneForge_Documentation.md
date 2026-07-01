@@ -1,5 +1,5 @@
 # BoneForge Documentation
-### Version 8.3.1 | For VRChat Users
+### Version 8.5.0 | For VRChat Users
 
 ---
 
@@ -7,6 +7,7 @@
 
 - [Getting Started](#getting-started)
   - [What is BoneForge?](#what-is-boneforge)
+  - [Open Blender vs B4Artists Build Split](#open-blender-vs-b4artists-build-split)
   - [Installing BoneForge](#installing-boneforge)
   - [Finding BoneForge in Blender](#finding-boneforge-in-blender)
   - [Where Should I Start?](#where-should-i-start)
@@ -42,6 +43,10 @@ BoneForge is a Blender add-on that helps you prepare 3D avatars for VRChat, VRoi
 
 **What BoneForge adds:** BoneForge adds panels and buttons to Blender that automate the most tedious steps — things like organizing bones, fixing names, setting up physics, and exporting in the right format.
 
+**New in 8.5.0:** The open Blender build is version-aligned with the B4Artists release while remaining the standard Blender package. It exposes the complete CATS Material Atlas UV variation set for the CATS/Material Combiner/UVToolkit workflow, including **Advanced Variation** and **Rotation Step**, but it does not include B4Artists-exclusive rigging, control picker, lockout, or host-specific content.
+
+8.5.0 also updates the export and validation workflow. VRChat, VRM, MMD, and Unreal exports now expose folder and file-name controls in the BoneForge panels instead of forcing you to rely only on Blender's file browser defaults. VRChat/Unity and Unreal FBX exports default to **Embed Textures** for easier material import, while VRChat export keeps helper/control-shape meshes out of the FBX unless **Helper Meshes** is enabled. The VRM panel now includes **Lint Now** plus **Fix Humanoid Map**, which can repair stale humanoid alias mapping before export without renaming your bones.
+
 **New in 8.3.1 (Auto-Rig IK and control density update):** The Auto-Rig body generator now creates dedicated, non-deforming IK target bones named `hand_ik.L`, `hand_ik.R`, `foot_ik.L`, and `foot_ik.R` when IK is enabled. This gives hands and feet proper endpoint controls instead of using deform bones as IK targets. The wizard also exposes controller-density options for **Spine Segments** and **Neck Segments**, so generated rigs can use smoother torso and neck chains when needed.
 
 **New in 8.2.1:** BoneForge continues the 8.x Auto-Rig and avatar-prep line with the reorganized 7.2.1 source layout and later rig-generation improvements. Existing 7.x documentation remains broadly applicable, but the Auto-Rig generation controls documented here reflect the 8.3.1 build.
@@ -54,6 +59,33 @@ BoneForge is a Blender add-on that helps you prepare 3D avatars for VRChat, VRoi
 - It cannot model or sculpt your avatar's body shape
 - It cannot create textures or materials from scratch
 - It cannot upload to VRChat directly (you still need the VRChat Creator Companion / SDK)
+
+---
+
+## Open Blender vs B4Artists Build Split
+
+BoneForge has two 8.5.0 builds with different package boundaries. Matching version numbers do not mean the same payload.
+
+| Area | Open Blender BoneForge 8.5.0 | BoneForge BFA 8.5.0 |
+| --- | --- | --- |
+| Host | Standard Blender | Bforartists only |
+| Add-on identity | `BoneForge` | `BoneForge BFA` |
+| Repository | `Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender` | `Axleonex/BoneForge_B4Artists` |
+| Release zip | `BoneForge-8.5.0.zip` | `BoneForge-BFA-8.5.0.zip` |
+| CATS avatar cleanup | Included | Included |
+| Material Combiner | Included | Included |
+| UVToolkit-derived Material Combiner controls | Included, including Advanced Variation and Rotation Step | Included, same CATS / Material Combiner / UVToolkit behavior |
+| Basic BoneForge and Mixamo-style avatar helpers | Included | Included |
+| BFA host lockout | Not included | Included |
+| Production control-rig construction | Not included | B4Artists-exclusive |
+| Smart landmark / joint detection suite | Not included as a BFA production suite | B4Artists-exclusive |
+| Animator control layer | Not included | B4Artists-exclusive |
+| Control Picker / rig UI | Not included | B4Artists-exclusive |
+| Advanced retargeting core and source maps | Not included as a BFA production suite | B4Artists-exclusive |
+| Profile-driven game export | Not included as a BFA production suite | B4Artists-exclusive |
+| BFA marker files | Must not contain `bfa_guard.py` or `BFA_EXCLUSIVE.md` | Must contain `bfa_guard.py` and `BFA_EXCLUSIVE.md` |
+
+The open Blender build is the non-exclusive standard-Blender package. It now receives the complete CATS, Material Combiner, and UVToolkit-derived workflow. The B4Artists build remains the exclusive package for the production rigging suite, host lockout, control rig builder, animator controls, control picker, advanced retarget/export systems, and Bforartists-specific packaging.
 
 ---
 
@@ -1704,9 +1736,14 @@ See [Guide 9: Improve Your Avatar's Performance](#guide-9-improve-your-avatars-p
 **What it does:** Exports your finished avatar as an FBX file formatted specifically for VRChat's SDK.
 
 **Key settings:**
-- **Merge All Meshes** — Combines into one mesh on export (recommended)
-- **Apply Shape Keys to Basis** — Merges all active shape keys into the base mesh shape before exporting
-- **Include Armature / Mesh / Materials / Animations** — Toggle which data is included in the export
+- **Folder** — Choose the export folder for the `.fbx` and optional `.bfvrc` sidecar
+- **Avatar** — Set the exported file name
+- **Sidecar** — Writes a `.bfvrc` metadata file next to the FBX
+- **Merge Meshes** — Combines mesh copies during export when you want a single mesh
+- **Separate Clothing** — Keeps clothing as separate mesh objects when enabled
+- **Bake Shape Keys** — Applies shape keys to the export copy before writing the FBX
+- **Embed Textures** — Packs image textures into the FBX for easier Unity material import
+- **Helper Meshes** — Includes hidden/render-disabled/custom-shape helper meshes only when enabled; leave this off for normal avatar exports
 
 **Where to find it:** VRChat tab → Export section
 
@@ -1733,9 +1770,12 @@ See [Guide 9: Improve Your Avatar's Performance](#guide-9-improve-your-avatars-p
 **What it does:** Exports your rigged character back to VRM format for use in VRoid-compatible apps, Virtual Cast, or Resonite.
 
 **Key settings:**
-- **Model Name** — Your avatar's display name
+- **Folder** — Choose where the exported VRM or target FBX is written
+- **File** — Set the output file name; BoneForge chooses the extension from the target
+- **Target** — Choose VRM 1.0, VRM 0.x, VRChat FBX, VSeeFace, Warudo, or Resonite
+- **Scope** — Export the active armature, or every armature with preserved VRM metadata
+- **Skip Lint on Export** — Bypasses target validation; use only when you understand the reported risk
 - **Author / License** — Creator information stored in the VRM metadata
-- **VRM Version** — Typically 1.0 for current apps
 
 **Where to find it:** VRM tab → Export section
 
@@ -1743,9 +1783,11 @@ See [Guide 9: Improve Your Avatar's Performance](#guide-9-improve-your-avatars-p
 
 ### VRM Linter
 
-**What it does:** Validates your scene against VRM export requirements — checks for required humanoid bones, metadata completeness, and material setup.
+**What it does:** Validates the active armature against the selected target before export. The linter checks required humanoid mapping, VRM metadata, target-specific visemes, and host-specific expectations for VRM 1.0, VRM 0.x, VRChat FBX, VSeeFace, Warudo, and Resonite.
 
-Click **Run VRM Lint** to see results.
+Click **Lint Now** to run the check without exporting or changing your model. Errors block export unless **Skip Lint on Export** is enabled; warnings explain issues that may still import but could behave worse in the target app.
+
+If the linter says required humanoid bones are missing even though the bones exist, click **Fix Humanoid Map**. BoneForge auto-detects the humanoid slots, saves the mapping, and stamps `boneforge_humanoid_alias` on the correct bones. This fixes stale mapping data without renaming the actual bones.
 
 **Where to find it:** VRM tab → Lint section
 
@@ -1774,6 +1816,12 @@ Click **Run VRM Lint** to see results.
 
 **What it does:** Exports your work back to PMX/VMD/VPD format for use in MMD Studio or other MMD-compatible software.
 
+**Key settings:**
+- **Folder** — Choose the destination folder for PMX, VMD, and VPD exports
+- **PMX File / PMX Scope** — Export the active MMD model or every MMD model in the scene
+- **VMD File / VMD Scope** — Export active-scene motion for one or all MMD models
+- **VPD File / VPD Scope** — Export the current pose for one or all MMD models
+
 **Where to find it:** MMD tab → Export section
 
 ---
@@ -1789,16 +1837,17 @@ Click **Run VRM Lint** to see results.
 **What it does:** A central panel for all export formats — VRChat (FBX), VRM, MMD (PMX), Unreal Engine (FBX), and Unity.
 
 **Target options:**
-- **VRChat (Unity FBX)** — Standard VRChat export
-- **VRM** — Delegates to VRM exporter
-- **MMD (PMX)** — Delegates to MMD exporter
-- **Unreal Engine FBX** — FBX with Unreal-specific settings and LOD support
-- **Unity General** — FBX + metadata sidecar for Unity projects
+- **VRChat (Unity FBX)** — Standard VRChat export with folder/name settings, sidecar output, embedded textures, and helper mesh filtering
+- **VRM** — Delegates to the VRM exporter with target, folder, file, scope, and lint controls
+- **MMD (PMX/VMD/VPD)** — Delegates to MMD Tools with folder, file, and scope controls for model, motion, and pose exports
+- **Unreal Engine FBX** — FBX with Unreal-specific scale, selected-only, leaf-bone, animation, and embedded-texture settings
+- **Unity General** — Use the VRChat/Unity FBX path for SDK import; embedded textures help Unity's material import find image data
 
 **Common FBX settings:**
-- **Include Armature / Mesh / Materials / Animations** — Toggle export components
-- **Bake Animation** — Converts constraint-driven animation to raw keyframes for compatibility
-- **FBX Version** — ASCII or Binary format
+- **Folder / File** — Pick the output location and file name before pressing export
+- **Selected Only / Scope** — Choose whether the active rig, selected objects, or all matching models are exported
+- **Bake Animation** — Converts animation to FBX keyframes when the target needs it
+- **Embed Textures** — Packs image textures into FBX files for easier Unity/Unreal material import
 
 **Where to find it:** In the sidebar under the I/O Hub tab (registered at the bottom of the sidebar)
 
@@ -2241,6 +2290,9 @@ Use this section when something has gone wrong and you need to find the answer f
 | Can't find BoneForge panels | Press **N** in 3D viewport, look for BoneForge tabs |
 | Export FBX is missing bones | Check armature is selected before exporting; enable "Include Armature" |
 | Shape keys disappeared after export | Enable "Include Shape Keys" in export settings |
+| Export blocked by missing humanoid bones | Run **Auto-Map Humanoid**, then **Fix Humanoid Map** in the VRM Lint section |
+| Exported FBX shows giant helper shapes or tubes | Keep **Helper Meshes** off unless you intentionally need control/custom-shape meshes |
+| Unity or Unreal imports gray materials | Export with **Embed Textures** enabled, then use Unity's material import/extract options or Unreal's FBX material import |
 | Weights are all on the wrong bones | Re-run Auto-Weight in the Wizard, or use Weight Transfer |
 | Two rigs need to be one | [Guide 11: Merge Two Rigs Together](#guide-11-merge-two-rigs-together) |
 | Corrective shape not activating | Check bone axis and activation angle in [Corrective Shape Keys](#corrective-shape-keys) |
@@ -2339,5 +2391,5 @@ Use this section when something has gone wrong and you need to find the answer f
 
 ---
 
-*BoneForge Documentation | Version 8.3.1*
+*BoneForge Documentation | Version 8.5.0*
 *For support, check the BoneForge GitHub page or community Discord.*
