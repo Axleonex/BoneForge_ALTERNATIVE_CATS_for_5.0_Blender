@@ -15,7 +15,7 @@ B4Artists-exclusive files must not be committed here.
 - CATS Material Combiner integration for building an atlas from selected materials and textures instead of blindly combining everything.
 - Material and texture review before baking, including source material inspection, texture role labels, duplicate/shared source markers, and per-material controls.
 - UVToolkit-derived atlas variation controls inside the CATS Material Combiner workflow, including selectable packing methods, Advanced Variation, Rotation Step, UV margin, seeded variation, oriented packing, and 0-1 bounds fitting.
-- Basic BoneForge and Mixamo-style rigging helpers for the standard Blender package.
+- Basic Rigify and Mixamo-style rigging helpers for the standard Blender package.
 - Blender 5.0-oriented packaging for the non-exclusive/open Blender release.
 
 ## Import And Export Features
@@ -30,20 +30,6 @@ Many VRChat artists look for CATS-style tools because the hard part is not just 
 - CATS cleanup, material atlas, and UV packing tools intended to reduce material and texture friction before export.
 
 BoneForge does not upload avatars directly to VRChat. The final Unity/VRChat upload still belongs in the VRChat Creator Companion and SDK workflow.
-
-## What Is Not Included Here
-
-This repository is not the B4Artists-exclusive BoneForge package. The open Blender build should not include:
-
-- B4Artists host lockout or BFA marker files.
-- Production control-rig construction.
-- Smart landmark/joint detection suite.
-- Animator control layer.
-- Control Picker / rig UI.
-- Advanced B4Artists-only retargeting source maps.
-- Profile-driven B4Artists production export suite.
-
-Those features belong only in the separate B4Artists-exclusive repository.
 
 ## Credits And Lineage
 
