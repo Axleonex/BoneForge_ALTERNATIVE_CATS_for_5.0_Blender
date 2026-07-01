@@ -40,15 +40,8 @@ def _draw_bridge_inline(box, b, context):
 
     elif bridge_id == "mmd":
         try:
-            from boneforge.mmd.bridge import mmd_addon_status
-            status = mmd_addon_status()
-            col = box.column(align=True)
-            row = col.row(align=True)
-            row.enabled = status.get("import_pmx_available", False)
-            row.operator("mmd_tools.import_model", text=T("Import PMX…"), icon="IMPORT")
-            row2 = col.row(align=True)
-            row2.enabled = status.get("export_pmx_available", False)
-            row2.operator("mmd_tools.export_pmx", text=T("Export PMX…"), icon="EXPORT")
+            from boneforge.mmd.ui import draw_panel_content
+            draw_panel_content(box, context)
         except Exception:
             box.label(text=T("MMD ops unavailable"), icon="INFO")
 
@@ -156,9 +149,11 @@ class BF_PT_sb_io(Panel):
 
         unity_box = layout.box()
         unity_box.label(text=T("Unity / VRChat"), icon='COMMUNITY')
-        ucol = unity_box.column(align=True)
-        ucol.scale_y = 1.1
         try:
+            from boneforge.vrchat.export.vrchat_export import draw_export_settings
+            draw_export_settings(unity_box, context)
+            ucol = unity_box.column(align=True)
+            ucol.scale_y = 1.1
             ucol.operator(
                 "boneforge.vrc_export_to_unity",
                 text=T("Export to VRChat (Unity)"),
@@ -174,13 +169,25 @@ class BF_PT_sb_io(Panel):
 
         ue_box = layout.box()
         ue_box.label(text=T("Unreal Engine 5"), icon='OUTLINER_OB_ARMATURE')
+        from boneforge.io_hub import game_export
+        game_export.draw_unreal_export_settings(ue_box, context)
         ue_col = ue_box.column(align=True)
         ue_col.scale_y = 1.1
-        ue_col.operator(
+        settings = context.scene.boneforge_game_export_settings
+        export_path = game_export.build_unreal_export_filepath(settings, context)
+        ue_col.operator_context = 'EXEC_DEFAULT'
+        op = ue_col.operator(
             "boneforge.export_unreal_fbx",
             text=T("Export to Unreal (FBX)"),
             icon='EXPORT',
         )
+        op.filepath = export_path
+        op.use_selection = settings.unreal_use_selection
+        op.apply_unit_scale = settings.unreal_apply_unit_scale
+        op.add_leaf_bones = settings.unreal_add_leaf_bones
+        op.bake_anim = settings.unreal_bake_anim
+        op.embed_textures = settings.unreal_embed_textures
+        ue_col.operator_context = 'INVOKE_DEFAULT'
         ue_col.operator(
             "boneforge.import_unreal_fbx",
             text=T("Import from Unreal (FBX)"),

@@ -287,7 +287,6 @@ _classes = (
     BF_OT_CATS_CreateBoneRoot,
     BF_OT_CATS_MergeBones,
     BF_OT_CATS_DuplicateBones,
-    CATS_PT_bone_tools_standalone,
 )
 
 

@@ -12,8 +12,25 @@ from typing import Optional
 
 # ── Armature queries ────────────────────────────────────────────
 
+def _scene_target_armature(context: bpy.types.Context) -> Optional[bpy.types.Object]:
+    scene = getattr(context, "scene", None)
+    target_name = getattr(scene, "boneforge_cats_target_armature_name", "") if scene else ""
+    obj = bpy.data.objects.get(target_name) if target_name else None
+    if obj is not None and obj.type == 'ARMATURE' and scene.objects.get(obj.name) == obj:
+        return obj
+
+    obj = getattr(scene, "boneforge_cats_target_armature", None) if scene else None
+    if obj is not None and obj.type == 'ARMATURE' and scene.objects.get(obj.name) == obj:
+        return obj
+    return None
+
+
 def active_armature(context: bpy.types.Context) -> Optional[bpy.types.Object]:
     """Return the active armature object, or None."""
+    target = _scene_target_armature(context)
+    if target is not None:
+        return target
+
     obj = context.active_object
     if obj is not None and obj.type == 'ARMATURE':
         return obj
@@ -271,4 +288,3 @@ def find_avatar_armature(context) -> "Optional[bpy.types.Object]":
             if target is not None and target.type == "ARMATURE":
                 return target
     return None
-

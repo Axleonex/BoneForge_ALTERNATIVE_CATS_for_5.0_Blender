@@ -1,19 +1,22 @@
 """BoneForge VRChat — Fix Model One-Click.
 
 Apply common model fixes: merge by distance, recalculate normals,
-remove loose geometry, remove empty vertex groups, and apply
-non-armature modifiers. Shows checklist of operations before running.
+remove loose geometry, remove empty vertex groups, optionally remove
+zero-weight bones, and apply non-armature modifiers. Shows checklist
+of operations before running.
 
 Category: VRChat Cats Tools.
 """
+
+import logging
 
 import bpy
 from bpy.props import BoolProperty
 from bpy.types import Operator, Panel, PropertyGroup
 
 from boneforge.core import active_armature
-import logging
 from boneforge.i18n import T
+from boneforge.vrchat.cats.cleanup import _remove_zero_weight_bones
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +52,11 @@ class BF_VRCFixModelSettings(PropertyGroup):
         name="Remove Empty Groups",
         description="Delete vertex groups with zero weight influence",
         default=True,
+    )
+    remove_zero_weight_bones: BoolProperty(
+        name="Remove Zero-Weight Bones",
+        description="Delete deform bones with no meaningful mesh influence",
+        default=False,
     )
     remove_constraints: BoolProperty(
         name="Remove Constraints",
@@ -164,6 +172,11 @@ class BF_OT_VRC_FixModel(Operator):
 
                 operations_done.append("Removed empty vertex groups")
 
+            if settings.remove_zero_weight_bones:
+                removed_count = _remove_zero_weight_bones(context, arm)
+                if removed_count:
+                    operations_done.append(f"Removed {removed_count} zero-weight bones")
+
             # ─ Remove pose constraints ─
             if settings.remove_constraints:
                 if arm.pose:
@@ -243,6 +256,7 @@ class BONEFORGE_PT_vrc_fix_model(Panel):
         layout.prop(settings, "recalculate_normals", toggle=True)
         layout.prop(settings, "remove_loose", toggle=True)
         layout.prop(settings, "remove_empty_groups", toggle=True)
+        layout.prop(settings, "remove_zero_weight_bones", toggle=True)
         layout.prop(settings, "remove_constraints", toggle=True)
         layout.prop(settings, "remove_rigidbodies", toggle=True)
 
@@ -259,7 +273,6 @@ def register():
     """Register fix model classes."""
     bpy.utils.register_class(BF_VRCFixModelSettings)
     bpy.utils.register_class(BF_OT_VRC_FixModel)
-    bpy.utils.register_class(BONEFORGE_PT_vrc_fix_model)
 
     # Add property to scene
     bpy.types.Scene.boneforge_vrc_fix_model_settings = bpy.props.PointerProperty(
@@ -269,7 +282,6 @@ def register():
 
 def unregister():
     """Unregister fix model classes."""
-    bpy.utils.unregister_class(BONEFORGE_PT_vrc_fix_model)
     bpy.utils.unregister_class(BF_OT_VRC_FixModel)
     bpy.utils.unregister_class(BF_VRCFixModelSettings)
 

@@ -2,7 +2,7 @@
 
 Open-Blender BoneForge package for standard Blender users.
 
-This repository is the non-exclusive Blender build. It is centered on the CATS-style VRChat avatar workflow and packages the CATS-compatible BoneForge 8.4.6 add-on for standard Blender. Matching the B4Artists version number does not make this the B4Artists-exclusive payload.
+This repository is the non-exclusive Blender build. It is centered on the CATS-style VRChat avatar workflow and packages the CATS-compatible BoneForge 8.5.0 add-on for standard Blender. Matching the B4Artists version number does not make this the B4Artists-exclusive payload.
 
 This build is an attempted revival and continuation of no-longer-maintained free Blender avatar tools that helped VRChat artists prepare, clean, optimize, and export avatars. The focus is CATS first, because CATS is the core workflow named by this repository, with Material Combiner and UVToolkit-derived atlas controls integrated where they support that CATS workflow.
 
@@ -57,7 +57,7 @@ Additional detailed UV integration credits live in `boneforge/vrchat/cats/uv_too
 
 ## Release Package
 
-- `releases/BoneForge-8.4.6.zip`
+- `releases/BoneForge-8.5.0.zip`
 
 ## Source Package
 

@@ -22,6 +22,84 @@ from boneforge.vrchat.cats import pipeline
 _SPACE = 'VIEW_3D'
 _REGION = 'UI'
 _CATEGORY = "CATS"  # Proper noun — never wrapped in T()
+_CATS_ARMATURE_ENUM_ITEMS = []
+
+
+def _is_scene_armature(scene, obj) -> bool:
+    return obj is not None and obj.type == 'ARMATURE' and scene.objects.get(obj.name) == obj
+
+
+def _scene_armatures(scene) -> list:
+    return sorted(
+        (obj for obj in scene.objects if obj.type == 'ARMATURE'),
+        key=lambda obj: obj.name.lower(),
+    )
+
+
+def _cats_armature_items(scene, context):
+    global _CATS_ARMATURE_ENUM_ITEMS
+    armatures = _scene_armatures(scene)
+    if not armatures:
+        _CATS_ARMATURE_ENUM_ITEMS = [
+            ('__NONE__', T("No armatures found"), T("No armatures in scene"), 'ERROR', 0),
+        ]
+        return _CATS_ARMATURE_ENUM_ITEMS
+
+    _CATS_ARMATURE_ENUM_ITEMS = [
+        (obj.name, obj.name, obj.name, 'OUTLINER_OB_ARMATURE', index)
+        for index, obj in enumerate(armatures)
+    ]
+    return _CATS_ARMATURE_ENUM_ITEMS
+
+
+def _cats_armature_by_name(scene, name):
+    if not name or name == '__NONE__':
+        return None
+
+    obj = scene.objects.get(name)
+    if _is_scene_armature(scene, obj):
+        return obj
+    return None
+
+
+def _cats_target_armature_update(scene, context):
+    arm = _cats_armature_by_name(
+        scene,
+        getattr(scene, "boneforge_cats_target_armature_name", ""),
+    )
+    if arm is None:
+        return
+
+    try:
+        for obj in context.selected_objects:
+            if obj != arm and obj.type == 'ARMATURE':
+                obj.select_set(False)
+        arm.select_set(True)
+        context.view_layer.objects.active = arm
+    except Exception:
+        pass
+
+
+def _cats_target_armature(context):
+    scene = context.scene
+    arm = _cats_armature_by_name(
+        scene,
+        getattr(scene, "boneforge_cats_target_armature_name", ""),
+    )
+    if arm is not None:
+        return arm
+
+    active = context.active_object
+    if _is_scene_armature(scene, active):
+        scene.boneforge_cats_target_armature_name = active.name
+        return active
+
+    armatures = _scene_armatures(scene)
+    if armatures:
+        scene.boneforge_cats_target_armature_name = armatures[0].name
+        return armatures[0]
+
+    return None
 
 
 # ── Status icon helpers ─────────────────────────────────────────────────────
@@ -56,11 +134,30 @@ class CATS_PT_main(Panel):
         return True  # Tab always visible; sub-panels gate per armature
 
     def draw(self, context):
+        pass
+
+
+class CATS_PT_target_armature(Panel):
+    """Scene armature target used by all CATS tools."""
+
+    bl_label = " "
+    bl_idname = "CATS_PT_target_armature"
+    bl_space_type = _SPACE
+    bl_region_type = _REGION
+    bl_category = _CATEGORY
+    bl_parent_id = "CATS_PT_main"
+    bl_order = 0
+    bl_options = {'HIDE_HEADER'}
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def draw(self, context):
         layout = self.layout
-        arm = active_armature(context)
-        if arm is not None:
-            layout.row().label(text=arm.name, icon='OUTLINER_OB_ARMATURE')
-        else:
+        arm = _cats_target_armature(context)
+        layout.prop(context.scene, "boneforge_cats_target_armature_name", text=T("Armature"))
+        if arm is None:
             layout.label(text=T("Select an armature to begin"), icon='ARMATURE_DATA')
 
 
@@ -127,6 +224,8 @@ class CATS_PT_fix_model(Panel):
             col.prop(settings, "recalculate_normals", toggle=True)
             col.prop(settings, "remove_loose", toggle=True)
             col.prop(settings, "remove_empty_groups", toggle=True)
+            if hasattr(settings, "remove_zero_weight_bones"):
+                col.prop(settings, "remove_zero_weight_bones", toggle=True)
             if hasattr(settings, "remove_constraints"):
                 col.prop(settings, "remove_constraints", toggle=True)
             if hasattr(settings, "remove_rigidbodies"):
@@ -134,8 +233,31 @@ class CATS_PT_fix_model(Panel):
             layout.separator(factor=0.5)
         layout.operator("boneforge.vrc_fix_model", text=T("Fix Model"), icon='MODIFIER')
 
+# -- Sub-panel: Translate Bone Names
 
-# ── Sub-panel: Visemes ──────────────────────────────────────────────────────
+class CATS_PT_translate(Panel):
+    """Bone-name translation and language-specific rename prep."""
+
+    bl_label = " "
+    bl_idname = "CATS_PT_translate"
+    bl_space_type = _SPACE
+    bl_region_type = _REGION
+    bl_category = _CATEGORY
+    bl_parent_id = "CATS_PT_main"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, context):
+        self.layout.label(text=T("Translate Bone Names"), icon='FILE_REFRESH')
+
+    @classmethod
+    def poll(cls, context):
+        return active_armature(context) is not None
+
+    def draw(self, context):
+        from boneforge.vrchat.cats import translate
+        translate.BONEFORGE_PT_vrc_translate.draw(self, context)
+
+# -- Sub-panel: Visemes
 
 class CATS_PT_visemes(Panel):
     """Viseme generator and shape-key mapper operators."""
@@ -257,7 +379,7 @@ class CATS_PT_pose_shape(Panel):
         )
 
 
-# ── Sub-panel: Mesh Tools ───────────────────────────────────────────────────
+# -- Sub-panel: Material Atlas
 
 class CATS_PT_material_atlas(Panel):
     """Material atlas combiner, delegated to the shared atlas panel."""
@@ -283,6 +405,7 @@ class CATS_PT_material_atlas(Panel):
         from boneforge.vrchat.cats import material_atlas
         material_atlas.BONEFORGE_PT_vrc_w2_atlas.draw(self, context)
 
+# -- Sub-panel: Mesh Tools
 
 class CATS_PT_mesh_tools(Panel):
     """Mesh separation utilities."""
@@ -322,7 +445,31 @@ class CATS_PT_mesh_tools(Panel):
         )
 
 
-# ── Sub-panel: Transforms & FBT ─────────────────────────────────────────────
+# -- Sub-panel: Join Meshes
+
+class CATS_PT_join_meshes(Panel):
+    """Shape-key-safe mesh joining workflow."""
+
+    bl_label = " "
+    bl_idname = "CATS_PT_join_meshes"
+    bl_space_type = _SPACE
+    bl_region_type = _REGION
+    bl_category = _CATEGORY
+    bl_parent_id = "CATS_PT_main"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, context):
+        self.layout.label(text=T("Join Meshes"), icon='MESH_DATA')
+
+    @classmethod
+    def poll(cls, context):
+        return active_armature(context) is not None
+
+    def draw(self, context):
+        from boneforge.vrchat.cats import join_meshes
+        join_meshes.BONEFORGE_PT_vrc_join_meshes.draw(self, context)
+
+# -- Sub-panel: Transforms & FBT
 
 class CATS_PT_transforms(Panel):
     """Apply transforms and Full Body Tracking bone adjustments."""
@@ -413,7 +560,7 @@ class CATS_PT_bone_tools(Panel):
 # ── Sub-panel: Armature Tools ───────────────────────────────────────────────
 
 class CATS_PT_armature_tools(Panel):
-    """Merge armatures (standalone modal)."""
+    """Object-picker armature merge."""
 
     bl_label = " "
     bl_idname = "CATS_PT_armature_tools"
@@ -431,19 +578,8 @@ class CATS_PT_armature_tools(Panel):
         return active_armature(context) is not None
 
     def draw(self, context):
-        layout = self.layout
-        settings = getattr(context.scene, "boneforge_cats_armature_tools_settings", None)
-        if settings is not None:
-            col = layout.column(align=True)
-            col.prop(settings, "source_armature", text=T("Source"))
-            col.prop(settings, "auto_parent_bones")
-            col.prop(settings, "join_meshes_after")
-            layout.separator(factor=0.5)
-        layout.operator(
-            "boneforge.cats_merge_armatures",
-            text=T("Merge Armatures"),
-            icon='ARMATURE_DATA',
-        )
+        from boneforge.vrchat.cats import armature_tools
+        armature_tools.draw_merge_armatures_ui(self.layout, context)
 
 
 # ── Sub-panel: Operation Ledger ─────────────────────────────────────────────
@@ -499,13 +635,16 @@ class CATS_PT_ledger(Panel):
 
 classes = (
     CATS_PT_main,
+    CATS_PT_target_armature,
     CATS_PT_pipeline_status,
     CATS_PT_fix_model,
+    CATS_PT_translate,
     CATS_PT_visemes,
     CATS_PT_eye_tracking,
     CATS_PT_pose_shape,
     CATS_PT_material_atlas,
     CATS_PT_mesh_tools,
+    CATS_PT_join_meshes,
     CATS_PT_transforms,
     CATS_PT_bone_tools,
     CATS_PT_armature_tools,
@@ -514,6 +653,17 @@ classes = (
 
 
 def register():
+    if hasattr(bpy.types.Scene, "boneforge_cats_target_armature"):
+        del bpy.types.Scene.boneforge_cats_target_armature
+    if hasattr(bpy.types.Scene, "boneforge_cats_target_armature_name"):
+        del bpy.types.Scene.boneforge_cats_target_armature_name
+
+    bpy.types.Scene.boneforge_cats_target_armature_name = bpy.props.EnumProperty(
+        name="Armature",
+        description="Armature used by CATS tools",
+        items=_cats_armature_items,
+        update=_cats_target_armature_update,
+    )
     for cls in classes:
         bpy.utils.register_class(cls)
 
@@ -521,3 +671,7 @@ def register():
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
+    if hasattr(bpy.types.Scene, "boneforge_cats_target_armature_name"):
+        del bpy.types.Scene.boneforge_cats_target_armature_name
+    if hasattr(bpy.types.Scene, "boneforge_cats_target_armature"):
+        del bpy.types.Scene.boneforge_cats_target_armature

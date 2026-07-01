@@ -275,7 +275,6 @@ def register():
     bpy.utils.register_class(BF_VRCJoinMeshesSettings)
     bpy.utils.register_class(BF_OT_VRC_JoinMeshes)
     bpy.utils.register_class(BF_OT_VRC_RefreshMeshList)
-    bpy.utils.register_class(BONEFORGE_PT_vrc_join_meshes)
 
     # Add property to scene
     bpy.types.Scene.boneforge_vrc_join_meshes_settings = bpy.props.PointerProperty(
@@ -285,7 +284,6 @@ def register():
 
 def unregister():
     """Unregister join meshes classes."""
-    bpy.utils.unregister_class(BONEFORGE_PT_vrc_join_meshes)
     bpy.utils.unregister_class(BF_OT_VRC_RefreshMeshList)
     bpy.utils.unregister_class(BF_OT_VRC_JoinMeshes)
     bpy.utils.unregister_class(BF_VRCJoinMeshesSettings)

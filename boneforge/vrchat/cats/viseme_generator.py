@@ -337,7 +337,6 @@ _classes = (
     BF_VisemeGenSettings,
     BF_OT_CATS_AutoDetectShapes,
     BF_OT_CATS_GenerateVisemes,
-    CATS_PT_viseme_generator,
 )
 
 

@@ -14,6 +14,7 @@ from bpy.props import StringProperty, BoolProperty
 from bpy.types import Operator, PropertyGroup
 
 from boneforge.core import active_armature, read_custom_json
+from boneforge.vrchat.humanoid.mapper import HumanoidMapping, REQUIRED_SLOTS
 
 import logging
 
@@ -58,6 +59,16 @@ class BF_VRCExportSettings(PropertyGroup):
         description="Generate .bfvrc JSON sidecar with metadata",
         default=True,
     )
+    embed_textures: BoolProperty(
+        name="Embed Textures",
+        description="Pack image textures into the FBX for easier Unity material import",
+        default=True,
+    )
+    include_helper_meshes: BoolProperty(
+        name="Include Helper Meshes",
+        description="Include hidden/render-disabled/custom-shape helper meshes in the FBX",
+        default=False,
+    )
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -85,7 +96,7 @@ def _check_required_armature(armature) -> List[str]:
 def _check_required_meshes(armature) -> List[str]:
     """Check that armature has at least one skinned mesh child."""
     failures = []
-    mesh_children = [c for c in armature.children if c.type == 'MESH']
+    mesh_children = _exportable_mesh_children(armature)
 
     if not mesh_children:
         failures.append("Armature has no mesh children to export")
@@ -101,29 +112,74 @@ def _check_required_meshes(armature) -> List[str]:
     return failures
 
 
+def _custom_shape_object_names(armature) -> set:
+    pose = getattr(armature, "pose", None)
+    if pose is None:
+        return set()
+    names = set()
+    for pose_bone in pose.bones:
+        custom_shape = getattr(pose_bone, "custom_shape", None)
+        if custom_shape is not None:
+            names.add(custom_shape.name)
+    return names
+
+
+def _exportable_mesh_children(armature, include_helper_meshes=False) -> List:
+    """Return avatar meshes, excluding rig helper/control shapes by default."""
+    helper_names = _custom_shape_object_names(armature)
+    meshes = []
+    for child in armature.children:
+        if child.type != 'MESH':
+            continue
+        if not include_helper_meshes:
+            if child.name in helper_names:
+                continue
+            if getattr(child, "hide_render", False):
+                continue
+            if child.get("boneforge_export") is False:
+                continue
+        meshes.append(child)
+    return meshes
+
+
 def _check_required_humanoid(armature) -> List[str]:
     """Check Unity humanoid mapping completeness."""
     failures = []
     humanoid_data = read_custom_json(armature, "boneforge_vrchat_humanoid", {})
 
-    if isinstance(humanoid_data, dict):
-        mapped_slots = len([v for v in humanoid_data.values() if v])
-        if mapped_slots < 15:
-            failures.append(
-                f"Unity humanoid mapping incomplete: only {mapped_slots}/15 required slots mapped"
-            )
+    mapping = HumanoidMapping(humanoid_data if isinstance(humanoid_data, dict) else {})
+    missing = mapping.validate_required(armature)
+    if missing:
+        mapped_slots = len(REQUIRED_SLOTS) - len(missing)
+        preview = ", ".join(missing[:5])
+        suffix = "..." if len(missing) > 5 else ""
+        failures.append(
+            f"Unity humanoid mapping incomplete or invalid: only "
+            f"{mapped_slots}/{len(REQUIRED_SLOTS)} required slots mapped "
+            f"(missing/invalid: {preview}{suffix})"
+        )
 
     return failures
+
+
+def _resolve_export_dir(settings) -> str:
+    """Resolve the scene export folder, keeping unsaved // paths invalid."""
+    raw_path = (settings.export_path or "").strip()
+    if not raw_path:
+        return ""
+    if raw_path.startswith("//") and not bpy.data.filepath:
+        return ""
+    return bpy.path.abspath(raw_path)
 
 
 def _check_required_export_path() -> List[str]:
     """Check that an export path has been configured."""
     failures = []
     settings = bpy.context.scene.boneforge_vrc_export_settings
-    export_path = bpy.path.abspath(settings.export_path)
+    export_path = _resolve_export_dir(settings)
 
-    if not export_path or export_path == bpy.path.abspath("//"):
-        failures.append("FBX export path is not set")
+    if not export_path:
+        failures.append("FBX export path is not set (save the .blend or choose an export folder)")
 
     return failures
 
@@ -350,7 +406,7 @@ class BF_OT_VRC_ExportToUnity(Operator):
             logger.warning(f"[BoneForge] Export warnings (non-blocking):\n{warn_text}")
 
         # ─ Step 2: Validate paths ─
-        export_dir = bpy.path.abspath(settings.export_path)
+        export_dir = _resolve_export_dir(settings)
         if not os.path.isdir(export_dir):
             self.report({'ERROR'}, f"Export directory does not exist: {export_dir}")
             return {'CANCELLED'}
@@ -367,18 +423,23 @@ class BF_OT_VRC_ExportToUnity(Operator):
 
         try:
             # Collect all children
-            all_children = list(arm.children)
-            mesh_children = [c for c in all_children if c.type == 'MESH']
+            mesh_children = _exportable_mesh_children(
+                arm,
+                settings.include_helper_meshes,
+            )
 
             # ─ Step 4-5: Prepare temp duplicates for destructive ops ─
             temp_meshes = []
             try:
                 for mesh_obj in mesh_children:
+                    world_matrix = mesh_obj.matrix_world.copy()
                     dup = mesh_obj.copy()
                     dup.data = mesh_obj.data.copy()
                     dup.name = f"__BF_EXPORT_TMP_{mesh_obj.name}"
                     context.scene.collection.objects.link(dup)
-                    dup.parent = arm
+                    dup.parent = mesh_obj.parent
+                    dup.matrix_parent_inverse = mesh_obj.matrix_parent_inverse.copy()
+                    dup.matrix_world = world_matrix
                     temp_meshes.append(dup)
 
                 if not settings.merge_all_meshes and temp_meshes:
@@ -413,7 +474,7 @@ class BF_OT_VRC_ExportToUnity(Operator):
                 primary_bone_axis='Y',
                 secondary_bone_axis='X',
                 path_mode='COPY',
-                embed_textures=False,
+                embed_textures=settings.embed_textures,
                 mesh_smooth_type='FACE',
                 bake_anim=False,
             )
@@ -449,6 +510,71 @@ class BF_OT_VRC_ExportToUnity(Operator):
             context.scene.frame_current = saved_frame
 
         return {'FINISHED'}
+
+
+def draw_export_settings(layout, context):
+    """Draw VRChat export settings next to any export button."""
+    settings = getattr(context.scene, "boneforge_vrc_export_settings", None)
+    if settings is None:
+        layout.label(text="Export settings unavailable", icon='ERROR')
+        return
+
+    box = layout.box()
+    box.label(text="Export Settings", icon='EXPORT')
+    box.prop(settings, "export_path", text="Folder")
+    box.prop(settings, "avatar_name", text="Avatar")
+
+    row = box.row(align=True)
+    row.prop(settings, "export_sidecar", text="Sidecar")
+    row.prop(settings, "merge_all_meshes", text="Merge Meshes")
+
+    row = box.row(align=True)
+    row.prop(settings, "include_clothing_separate", text="Separate Clothing")
+    row.prop(settings, "apply_shape_keys_to_basis", text="Bake Shape Keys")
+
+    row = box.row(align=True)
+    row.prop(settings, "embed_textures", text="Embed Textures")
+    row.prop(settings, "include_helper_meshes", text="Helper Meshes")
+
+    armature = active_armature(context)
+    box.separator(factor=0.5)
+    if armature is None:
+        box.label(text="Humanoid: select an armature to map", icon='ERROR')
+        return
+
+    humanoid_data = read_custom_json(armature, "boneforge_vrchat_humanoid", {})
+    if not isinstance(humanoid_data, dict):
+        humanoid_data = {}
+    mapping = HumanoidMapping(humanoid_data)
+    missing = mapping.validate_required(armature)
+    mapped = len(REQUIRED_SLOTS) - len(missing)
+
+    row = box.row(align=True)
+    row.label(
+        text=f"Humanoid: {mapped}/{len(REQUIRED_SLOTS)} required slots",
+        icon='CHECKMARK' if not missing else 'ERROR',
+    )
+
+    if missing:
+        box.label(text=f"Missing/invalid: {', '.join(missing[:5])}", icon='INFO')
+
+    row = box.row(align=True)
+    row.operator(
+        "boneforge.vrc_auto_map_humanoid",
+        text="Auto-Map Humanoid",
+        icon='ARMATURE_DATA',
+    )
+    row.operator(
+        "boneforge.vrc_normalize_humanoid_names",
+        text="Normalize Names",
+        icon='FILE_REFRESH',
+    )
+    row = box.row(align=True)
+    row.operator(
+        "boneforge.vrc_validate_humanoid_mapping",
+        text="Validate",
+        icon='CHECKMARK',
+    )
 
 
 # ─────────────────────────────────────────────────────────────────

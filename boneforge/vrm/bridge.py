@@ -44,6 +44,28 @@ _KNOWN_MODULE_NAMES = (
 )
 
 
+def _op_registered(group_name: str, op_name: str) -> bool:
+    op_group = getattr(bpy.ops, group_name, None)
+    if op_group is None:
+        return False
+    op_func = getattr(op_group, op_name, None)
+    if op_func is None:
+        return False
+    try:
+        op_func.get_rna_type()
+    except (AttributeError, KeyError):
+        return False
+    return True
+
+
+def is_vrm_import_op_available() -> bool:
+    return _op_registered("import_scene", "vrm")
+
+
+def is_vrm_export_op_available() -> bool:
+    return _op_registered("export_scene", "vrm")
+
+
 def find_vrm_addon() -> Optional[object]:
     """Return the addon_utils module object if installed AND enabled."""
     import addon_utils
@@ -91,8 +113,8 @@ def vrm_addon_status() -> dict:
             break
 
     if status["installed"] and status["enabled"]:
-        status["import_op_available"] = hasattr(bpy.ops.import_scene, "vrm")
-        status["export_op_available"] = hasattr(bpy.ops.export_scene, "vrm")
+        status["import_op_available"] = is_vrm_import_op_available()
+        status["export_op_available"] = is_vrm_export_op_available()
 
     return status
 

@@ -43,7 +43,7 @@ BoneForge is a Blender add-on that helps you prepare 3D avatars for VRChat, VRoi
 
 **What BoneForge adds:** BoneForge adds panels and buttons to Blender that automate the most tedious steps — things like organizing bones, fixing names, setting up physics, and exporting in the right format.
 
-**New in 8.4.6:** The open Blender build is version-aligned with the B4Artists release while remaining the standard Blender package. It exposes the complete CATS Material Atlas UV variation set for the CATS/Material Combiner/UVToolkit workflow, including **Advanced Variation** and **Rotation Step**, but it does not include B4Artists-exclusive rigging, control picker, lockout, or host-specific content.
+**New in 8.5.0:** The open Blender build is version-aligned with the B4Artists release while remaining the standard Blender package. It exposes the complete CATS Material Atlas UV variation set for the CATS/Material Combiner/UVToolkit workflow, including **Advanced Variation** and **Rotation Step**, but it does not include B4Artists-exclusive rigging, control picker, lockout, or host-specific content.
 
 **New in 8.3.6:** Smart Combine now makes `atlas_uv` the export UV0 by default after baking. The pre-atlas source UV map is removed from the generated atlas mesh unless **Keep Source UV Maps** is enabled in Advanced settings.
 
@@ -68,15 +68,15 @@ BoneForge is a Blender add-on that helps you prepare 3D avatars for VRChat, VRoi
 
 ## Open Blender vs B4Artists Build Split
 
-BoneForge has two 8.4.6 builds with different package boundaries. Matching
+BoneForge has two 8.5.0 builds with different package boundaries. Matching
 version numbers do not mean the same payload.
 
-| Area | Open Blender BoneForge 8.4.6 | BoneForge BFA 8.4.6 |
+| Area | Open Blender BoneForge 8.5.0 | BoneForge BFA 8.5.0 |
 | --- | --- | --- |
 | Host | Standard Blender | Bforartists only |
 | Add-on identity | `BoneForge` | `BoneForge BFA` |
 | Repository | `Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender` | `Axleonex/BoneForge_B4Artists` |
-| Release zip | `BoneForge-8.4.6.zip` | `BoneForge-BFA-8.4.6.zip` |
+| Release zip | `BoneForge-8.5.0.zip` | `BoneForge-BFA-8.5.0.zip` |
 | CATS avatar cleanup | Included | Included |
 | Material Combiner | Included | Included |
 | UVToolkit-derived Material Combiner controls | Included, including Advanced Variation and Rotation Step | Included, same CATS / Material Combiner / UVToolkit behavior |

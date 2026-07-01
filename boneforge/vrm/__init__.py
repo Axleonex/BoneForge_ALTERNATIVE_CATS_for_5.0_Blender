@@ -25,6 +25,7 @@ _classes = (
     importer.BF_OT_VRMImport,
     exporter.BF_OT_VRMExport,
     lint.BF_OT_VRMLint,
+    lint.BF_OT_VRMFixHumanoidAliases,
     bridge.BF_OT_InstallVRMAddon,
     bridge.BF_OT_VRMInstallFromDisk,
     bridge.BF_OT_VRMOpenWebsite,
@@ -82,4 +83,3 @@ def _get_manifest():
         register_fn=register,
         unregister_fn=unregister,
     )
-

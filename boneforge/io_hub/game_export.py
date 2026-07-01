@@ -7,9 +7,91 @@ surfaced here in the panel for discoverability.
 
 from __future__ import annotations
 
+import os
+
 import bpy
-from bpy.props import BoolProperty, StringProperty
+from bpy.props import BoolProperty, PointerProperty, StringProperty
+from bpy.types import PropertyGroup
 from bpy_extras.io_utils import ExportHelper, ImportHelper
+
+
+def _sanitize_filename(name: str, fallback: str) -> str:
+    cleaned = "".join("_" if ch in '<>:"/\\|?*' else ch for ch in (name or ""))
+    cleaned = cleaned.strip(" .")
+    return cleaned or fallback
+
+
+def _resolve_export_dir(raw_path: str) -> str:
+    raw_path = (raw_path or "").strip()
+    if not raw_path:
+        return ""
+    if raw_path.startswith("//") and not bpy.data.filepath:
+        return ""
+    return bpy.path.abspath(raw_path)
+
+
+def _with_extension(filename: str, extension: str) -> str:
+    base, ext = os.path.splitext(filename)
+    if ext.lower() == extension:
+        return filename
+    return f"{base or filename}{extension}"
+
+
+def _default_unreal_export_name(context) -> str:
+    obj = context.active_object
+    if obj is not None:
+        return _sanitize_filename(obj.name, "UnrealExport")
+    return "UnrealExport"
+
+
+def build_unreal_export_filepath(settings, context) -> str:
+    export_dir = _resolve_export_dir(settings.unreal_export_path)
+    if not export_dir:
+        return ""
+    name = _sanitize_filename(
+        settings.unreal_export_name,
+        _default_unreal_export_name(context),
+    )
+    return os.path.join(export_dir, _with_extension(name, ".fbx"))
+
+
+class BF_GameExportSettings(PropertyGroup):
+    unreal_export_path: StringProperty(
+        name="Export Folder",
+        description="Folder for Unreal FBX exports",
+        subtype='DIR_PATH',
+        default="//",
+    )
+    unreal_export_name: StringProperty(
+        name="File Name",
+        description="FBX file name for Unreal export",
+        default="UnrealExport",
+    )
+    unreal_use_selection: BoolProperty(
+        name="Selected Only",
+        description="Export only selected objects",
+        default=True,
+    )
+    unreal_apply_unit_scale: BoolProperty(
+        name="Apply Unit Scale",
+        description="Apply Blender unit conversion so UE imports at correct scale",
+        default=True,
+    )
+    unreal_add_leaf_bones: BoolProperty(
+        name="Add Leaf Bones",
+        description="Append a terminal bone to each chain",
+        default=False,
+    )
+    unreal_bake_anim: BoolProperty(
+        name="Bake Animation",
+        description="Include baked NLA/action animation data",
+        default=False,
+    )
+    unreal_embed_textures: BoolProperty(
+        name="Embed Textures",
+        description="Pack image textures into the FBX for easier engine material import",
+        default=True,
+    )
 
 
 class BF_OT_ExportUnrealFBX(bpy.types.Operator, ExportHelper):
@@ -42,6 +124,11 @@ class BF_OT_ExportUnrealFBX(bpy.types.Operator, ExportHelper):
         description="Include baked NLA/action animation data",
         default=False,
     )
+    embed_textures: BoolProperty(
+        name="Embed Textures",
+        description="Pack image textures into the FBX for easier engine material import",
+        default=True,
+    )
 
     @classmethod
     def poll(cls, context):
@@ -49,6 +136,14 @@ class BF_OT_ExportUnrealFBX(bpy.types.Operator, ExportHelper):
         return obj is not None and obj.type in {'ARMATURE', 'MESH'}
 
     def execute(self, context):
+        if not self.filepath:
+            settings = getattr(context.scene, "boneforge_game_export_settings", None)
+            if settings is not None:
+                self.filepath = build_unreal_export_filepath(settings, context)
+        if not self.filepath:
+            self.report({'ERROR'}, "FBX export path is not set (save the .blend or choose an export folder)")
+            return {'CANCELLED'}
+
         try:
             bpy.ops.export_scene.fbx(
                 filepath=self.filepath,
@@ -66,7 +161,8 @@ class BF_OT_ExportUnrealFBX(bpy.types.Operator, ExportHelper):
                 bake_anim=self.bake_anim,
                 bake_anim_use_all_actions=False,
                 bake_anim_force_startend_keying=True,
-                path_mode='AUTO',
+                path_mode='COPY' if self.embed_textures else 'AUTO',
+                embed_textures=self.embed_textures,
             )
         except RuntimeError as exc:
             self.report({'ERROR'}, f"FBX export failed: {exc}")
@@ -110,7 +206,29 @@ class BF_OT_ImportUnrealFBX(bpy.types.Operator, ImportHelper):
         return {'FINISHED'}
 
 
+def draw_unreal_export_settings(layout, context):
+    settings = getattr(context.scene, "boneforge_game_export_settings", None)
+    if settings is None:
+        layout.label(text="Unreal export settings unavailable", icon='ERROR')
+        return
+
+    layout.prop(settings, "unreal_export_path", text="Folder")
+    layout.prop(settings, "unreal_export_name", text="File")
+
+    row = layout.row(align=True)
+    row.prop(settings, "unreal_use_selection", text="Selected Only")
+    row.prop(settings, "unreal_apply_unit_scale", text="Unit Scale")
+    row = layout.row(align=True)
+    row.prop(settings, "unreal_add_leaf_bones", text="Leaf Bones")
+    row.prop(settings, "unreal_bake_anim", text="Bake Anim")
+    layout.prop(settings, "unreal_embed_textures", text="Embed Textures")
+
+    if not build_unreal_export_filepath(settings, context):
+        layout.label(text="Save the .blend or choose an export folder", icon='INFO')
+
+
 _classes = (
+    BF_GameExportSettings,
     BF_OT_ExportUnrealFBX,
     BF_OT_ImportUnrealFBX,
 )
@@ -122,9 +240,15 @@ def register():
             bpy.utils.register_class(cls)
         except ValueError:
             pass
+    if not hasattr(bpy.types.Scene, "boneforge_game_export_settings"):
+        bpy.types.Scene.boneforge_game_export_settings = PointerProperty(
+            type=BF_GameExportSettings
+        )
 
 
 def unregister():
+    if hasattr(bpy.types.Scene, "boneforge_game_export_settings"):
+        del bpy.types.Scene.boneforge_game_export_settings
     for cls in reversed(_classes):
         try:
             bpy.utils.unregister_class(cls)

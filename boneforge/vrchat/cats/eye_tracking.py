@@ -377,7 +377,6 @@ _classes = (
     BF_EyeTrackingSettings,
     BF_OT_CATS_AutoDetectEyeBones,
     BF_OT_CATS_CreateEyeTracking,
-    CATS_PT_eye_tracking_props,
 )
 
 

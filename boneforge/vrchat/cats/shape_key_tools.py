@@ -234,7 +234,6 @@ class CATS_PT_shape_key_tools(Panel):
 _classes = (
     BF_OT_CATS_PoseToShape,
     BF_OT_CATS_ShapeKeyToBasis,
-    CATS_PT_shape_key_tools,
 )
 
 

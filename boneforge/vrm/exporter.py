@@ -54,6 +54,40 @@ def _suggest_extension(target_id: str) -> str:
     return ".fbx" if target_id == "VRCHAT_FBX" else ".vrm"
 
 
+def _sanitize_filename(name: str, fallback: str) -> str:
+    cleaned = "".join("_" if ch in '<>:"/\\|?*' else ch for ch in (name or ""))
+    cleaned = cleaned.strip(" .")
+    return cleaned or fallback
+
+
+def _resolve_export_dir(raw_path: str) -> str:
+    raw_path = (raw_path or "").strip()
+    if not raw_path:
+        return ""
+    if raw_path.startswith("//") and not bpy.data.filepath:
+        return ""
+    return bpy.path.abspath(raw_path)
+
+
+def _with_extension(filename: str, extension: str) -> str:
+    base, ext = _os.path.splitext(filename)
+    if ext.lower() == extension:
+        return filename
+    return f"{base or filename}{extension}"
+
+
+def build_export_filepath(settings, armature=None) -> str:
+    export_dir = _resolve_export_dir(settings.export_path)
+    if not export_dir:
+        return ""
+    fallback = armature.name if armature is not None else "Avatar"
+    filename = _sanitize_filename(settings.export_name, fallback)
+    return _os.path.join(
+        export_dir,
+        _with_extension(filename, _suggest_extension(settings.export_target)),
+    )
+
+
 # ── Dispatcher entry points ──────────────────────────────────────
 
 def _export_vrm(filepath: str, *, vrm_spec: str) -> None:
@@ -65,7 +99,7 @@ def _export_vrm(filepath: str, *, vrm_spec: str) -> None:
     surfaces a spec selector we should read it; for now we log a hint
     when the chosen spec doesn't match upstream's default.
     """
-    if not hasattr(bpy.ops.export_scene, "vrm"):
+    if not bridge.is_vrm_export_op_available():
         raise RuntimeError("VRM Add-on export operator unavailable")
     bpy.ops.export_scene.vrm(filepath=filepath)
     logger.info("[BoneForge] VRM (%s) exported to %s", vrm_spec, filepath)
@@ -77,24 +111,48 @@ def _export_fbx_vrchat(filepath: str, armature) -> None:
     Settings mirror the ones already used in
     ``vrchat/export/vrchat_export.py``.
     """
-    bpy.ops.export_scene.fbx(
-        filepath=filepath,
-        use_selection=False,
-        use_visible=True,
-        object_types={"ARMATURE", "MESH"},
-        apply_scale_options="FBX_SCALE_ALL",
-        global_scale=1.0,
-        axis_forward="-Z",
-        axis_up="Y",
-        bake_anim=False,
-        add_leaf_bones=False,
-        primary_bone_axis="Y",
-        secondary_bone_axis="X",
-        armature_nodetype="NULL",
-        path_mode="COPY",
-        embed_textures=True,
-        mesh_smooth_type="FACE",
-    )
+    if armature is None or getattr(armature, "type", None) != "ARMATURE":
+        raise RuntimeError("No armature selected for VRChat FBX export")
+
+    view_layer = bpy.context.view_layer
+    prev_active = view_layer.objects.active
+    prev_selection = [obj for obj in bpy.context.selected_objects]
+
+    try:
+        bpy.ops.object.select_all(action="DESELECT")
+        armature.select_set(True)
+        for child in armature.children:
+            if child.type == "MESH":
+                child.select_set(True)
+        view_layer.objects.active = armature
+
+        bpy.ops.export_scene.fbx(
+            filepath=filepath,
+            use_selection=True,
+            object_types={"ARMATURE", "MESH"},
+            apply_scale_options="FBX_SCALE_ALL",
+            global_scale=1.0,
+            axis_forward="-Z",
+            axis_up="Y",
+            bake_anim=False,
+            add_leaf_bones=False,
+            primary_bone_axis="Y",
+            secondary_bone_axis="X",
+            armature_nodetype="NULL",
+            path_mode="COPY",
+            embed_textures=True,
+            mesh_smooth_type="FACE",
+        )
+    finally:
+        try:
+            bpy.ops.object.select_all(action="DESELECT")
+            for obj in prev_selection:
+                if obj.name in bpy.data.objects:
+                    obj.select_set(True)
+            if prev_active is not None and prev_active.name in bpy.data.objects:
+                view_layer.objects.active = prev_active
+        except RuntimeError:
+            pass
     logger.info("[BoneForge] FBX (VRChat preset) exported to %s", filepath)
 
 
@@ -109,6 +167,7 @@ _SCOPE_ITEMS = [
      "Export every armature in the scene that has VRM-preserved meta "
      "to a separate file. Filenames get the armature's name appended"),
 ]
+SCOPE_ITEMS = _SCOPE_ITEMS
 
 
 def _find_vrm_armatures() -> list:
@@ -188,8 +247,13 @@ class BF_OT_VRMExport(Operator):
 
     def execute(self, context):
         if not self.filepath:
-            self.report({"ERROR"}, "No file path")
+            settings = getattr(context.scene, "boneforge_vrm_settings", None)
+            if settings is not None:
+                self.filepath = build_export_filepath(settings, active_armature(context))
+        if not self.filepath:
+            self.report({"ERROR"}, "Export path is not set (save the .blend or choose an export folder)")
             return {"CANCELLED"}
+        self.filepath = _with_extension(self.filepath, _suggest_extension(self.target))
 
         if self.scope == "ACTIVE":
             return self._export_one(context, self.filepath,

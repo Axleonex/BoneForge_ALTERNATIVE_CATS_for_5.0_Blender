@@ -918,7 +918,6 @@ class BONEFORGE_PT_vrc_translate(Panel):
 
 def register():
     bpy.utils.register_class(BF_OT_VRC_TranslateBoneNames)
-    bpy.utils.register_class(BONEFORGE_PT_vrc_translate)
 
     bpy.types.Scene.boneforge_translate_language = bpy.props.EnumProperty(
         name="Translate From",
@@ -932,5 +931,4 @@ def unregister():
     if hasattr(bpy.types.Scene, "boneforge_translate_language"):
         del bpy.types.Scene.boneforge_translate_language
 
-    bpy.utils.unregister_class(BONEFORGE_PT_vrc_translate)
     bpy.utils.unregister_class(BF_OT_VRC_TranslateBoneNames)

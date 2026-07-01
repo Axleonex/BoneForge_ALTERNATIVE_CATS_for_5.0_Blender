@@ -39,6 +39,7 @@ _classes = (
     bridge.BF_OT_MMDInstallAuto,
     bone_names.BF_OT_MMDConvertBoneNames,
     physics_convert.BF_OT_MMDConvertPhysics,
+    ui.BF_MMDSettings,
     ui.BONEFORGE_PT_mmd,
 )
 
@@ -50,10 +51,16 @@ def register():
             bpy.utils.register_class(cls)
         except ValueError:
             pass
+    if not hasattr(bpy.types.Scene, "boneforge_mmd_settings"):
+        bpy.types.Scene.boneforge_mmd_settings = bpy.props.PointerProperty(
+            type=ui.BF_MMDSettings
+        )
 
 
 def unregister():
     """Unregister in reverse order; tolerate missing classes on reload."""
+    if hasattr(bpy.types.Scene, "boneforge_mmd_settings"):
+        del bpy.types.Scene.boneforge_mmd_settings
     for cls in reversed(_classes):
         try:
             bpy.utils.unregister_class(cls)

@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import List
+from typing import Dict, List
 
 import bpy
 from bpy.props import EnumProperty
@@ -25,6 +25,17 @@ from boneforge.core import active_armature
 from . import meta as meta_mod
 
 logger = logging.getLogger(__name__)
+
+_HUMANOID_ALIAS_PROP = "boneforge_humanoid_alias"
+
+_TARGET_ITEMS = [
+    ("VRM_1_0", "VRM 1.0", "Modern VRM spec"),
+    ("VRM_0_X", "VRM 0.x", "Legacy VRM spec"),
+    ("VRCHAT_FBX", "VRChat FBX", "VRChat Avatar 3.0"),
+    ("VSEEFACE", "VSeeFace", "VSeeFace VTuber host"),
+    ("WARUDO", "Warudo", "Warudo VTuber host"),
+    ("RESONITE", "Resonite", "Resonite social VR"),
+]
 
 
 @dataclass(frozen=True)
@@ -65,6 +76,91 @@ _REQUIRED_HUMANOID_FOR_VRM = (
 )
 
 _RECOMMENDED_VISEMES = ("a", "i", "u", "e", "o")
+
+
+def _store_lint_results(context, issues: List[LintIssue]) -> None:
+    context.scene["boneforge_vrm_lint_results"] = [
+        {"target": i.target, "severity": i.severity,
+         "message": i.message, "fix_hint": i.fix_hint}
+        for i in issues
+    ]
+
+
+def _known_humanoid_slots() -> set:
+    slots = set(_REQUIRED_HUMANOID_FOR_VRM)
+    try:
+        from boneforge.vrchat.humanoid import mapper as humanoid_mapper
+        slots.update(humanoid_mapper.ALL_SLOTS)
+    except Exception as exc:
+        logger.debug("[BoneForge] VRChat humanoid mapper unavailable: %s", exc)
+    return slots
+
+
+def _detect_humanoid_mapping(armature_obj) -> Dict[str, str]:
+    """Return slot -> bone name using current mapping, auto-detect, and aliases."""
+    bone_names = {bone.name for bone in armature_obj.data.bones}
+    mapping: Dict[str, str] = {}
+    humanoid_mapper = None
+
+    try:
+        from boneforge.vrchat.humanoid import mapper as humanoid_mapper
+        detected = humanoid_mapper.auto_map_humanoid(armature_obj).to_dict()
+        current = humanoid_mapper.get_mapping(armature_obj).to_dict()
+        mapping.update({
+            slot: bone for slot, bone in detected.items()
+            if bone in bone_names
+        })
+        mapping.update({
+            slot: bone for slot, bone in current.items()
+            if bone in bone_names
+        })
+    except Exception as exc:
+        logger.debug("[BoneForge] humanoid auto-map unavailable: %s", exc)
+
+    for bone in armature_obj.data.bones:
+        alias = bone.get(_HUMANOID_ALIAS_PROP)
+        if alias and alias not in mapping:
+            mapping[alias] = bone.name
+
+    for slot in _REQUIRED_HUMANOID_FOR_VRM:
+        if slot not in mapping and slot in bone_names:
+            mapping[slot] = slot
+
+    known_slots = _known_humanoid_slots()
+    mapping = {
+        slot: bone for slot, bone in mapping.items()
+        if slot in known_slots and bone in bone_names
+    }
+
+    if humanoid_mapper is not None and mapping:
+        try:
+            humanoid_mapper.save_mapping(
+                armature_obj,
+                humanoid_mapper.HumanoidMapping(mapping),
+            )
+        except Exception as exc:
+            logger.debug("[BoneForge] could not save humanoid mapping: %s", exc)
+
+    return mapping
+
+
+def fix_humanoid_aliases(armature_obj) -> Dict[str, str]:
+    """Auto-detect humanoid bones and stamp aliases consumed by VRM lint."""
+    mapping = _detect_humanoid_mapping(armature_obj)
+
+    for slot, bone_name in mapping.items():
+        target = armature_obj.data.bones.get(bone_name)
+        if target is None:
+            continue
+        for bone in armature_obj.data.bones:
+            if bone.name != target.name and bone.get(_HUMANOID_ALIAS_PROP) == slot:
+                try:
+                    del bone[_HUMANOID_ALIAS_PROP]
+                except Exception:
+                    pass
+        target[_HUMANOID_ALIAS_PROP] = slot
+
+    return mapping
 
 
 def _lint_vrm_common(arm) -> List[LintIssue]:
@@ -247,6 +343,7 @@ class BF_OT_VRMLint(Operator):
 
         issues = lint_for_target(arm, self.target)
         if not issues:
+            _store_lint_results(context, [])
             self.report({"INFO"}, f"{self.target}: no issues found")
             return {"FINISHED"}
 
@@ -267,4 +364,54 @@ class BF_OT_VRMLint(Operator):
             {"INFO" if not errors else "WARNING"},
             f"{self.target}: {len(errors)} error(s), {len(warns)} warning(s)",
         )
+        return {"FINISHED"}
+
+
+class BF_OT_VRMFixHumanoidAliases(Operator):
+    """Auto-map the active armature and stamp VRM lint humanoid aliases."""
+
+    bl_idname = "boneforge.vrm_fix_humanoid_aliases"
+    bl_label = "Fix VRM Humanoid Map"
+    bl_description = (
+        "Auto-detect humanoid bones, save the BoneForge mapping, stamp "
+        "VRM lint aliases, and rerun lint"
+    )
+    bl_options = {"REGISTER", "UNDO"}
+
+    target: EnumProperty(
+        name="Target",
+        items=_TARGET_ITEMS,
+        default="VRM_1_0",
+    )
+
+    def execute(self, context):
+        arm = active_armature(context)
+        if arm is None:
+            self.report({"ERROR"}, "No active armature")
+            return {"CANCELLED"}
+
+        mapping = fix_humanoid_aliases(arm)
+        if not mapping:
+            self.report({"ERROR"}, "Could not detect humanoid bones")
+            return {"CANCELLED"}
+
+        issues = lint_for_target(arm, self.target)
+        _store_lint_results(context, issues)
+        missing = [
+            i.message.rsplit(": ", 1)[-1]
+            for i in issues
+            if i.severity == "ERROR"
+            and i.message.startswith("Required humanoid bone missing:")
+        ]
+        if missing:
+            self.report(
+                {"WARNING"},
+                f"Stamped {len(mapping)} humanoid alias(es); still missing: "
+                f"{', '.join(missing[:6])}",
+            )
+        else:
+            self.report(
+                {"INFO"},
+                f"Stamped {len(mapping)} humanoid alias(es); humanoid lint passed",
+            )
         return {"FINISHED"}

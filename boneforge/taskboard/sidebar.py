@@ -12,8 +12,7 @@
                    Weight Tools, Correctives
 
   [VRChat]         (order=35, bl_category=CATS — moved to CATS tab)
-                   Cluster A — Foundation:     A-Clean Up Mesh,
-                                               A-Fix Bone Names,
+                   Cluster A — VRChat Setup:   A-Naming Extras,
                                                A-Set Up Humanoid Bones
                    Cluster B — Body & Physics: B-Add Hair Physics,
                                                B-Attach Clothing,
@@ -52,9 +51,8 @@ BF_PT_sb_skin          "Skin"        order=20
     BF_PT_sb_correctives "Correctives"
 
 BF_PT_sb_vrchat        "VRChat"      order=35
-    BF_PT_sb_vrc_prepare   "Clean Up Mesh"        order=1  (cluster A)
-    BF_PT_sb_vrc_naming    "Fix Bone Names"        order=2  (cluster A)
-    BF_PT_sb_vrc_humanoid  "Set Up Humanoid Bones" order=3  (cluster A)
+    BF_PT_sb_vrc_naming    "VRChat Naming Extras" order=1  (cluster A)
+    BF_PT_sb_vrc_humanoid  "Set Up Humanoid Bones" order=2  (cluster A)
     BF_PT_sb_vrc_hair      "Add Hair Physics"      order=4  (cluster B)
     BF_PT_sb_vrc_clothing  "Attach Clothing"       order=5  (cluster B)
     BF_PT_sb_vrc_visemes   "Create Visemes"        order=6  (cluster B)
@@ -68,6 +66,11 @@ BF_PT_sb_animate       "Review"      order=40   (bl_idname kept for child links)
     BF_PT_sb_rig_validator "Rig Validator"
     BF_PT_sb_rig_readme    "Rig Readme"
     BONEFORGE_PT_bone_inspector     <- bone_inspector.py
+    BONEFORGE_PT_control_layer      <- advanced_rigging/control_layer.py
+    BONEFORGE_PT_picker             <- control_ui/picker.py
+
+BF_PT_sb_io            "Import / Export"      <- io_hub/panel.py
+    BONEFORGE_PT_profile_export     <- io_hub/profile_export.py
 """
 
 import bpy
@@ -916,7 +919,7 @@ class BF_PT_sb_correctives(Panel):
 # =============================================================
 # HUB: VRChat  (order=35)
 # 3 clusters communicated through panel naming and explainer text:
-#   A — Foundation   (panels ordered 1-3)
+#   A — VRChat Setup (panels ordered 1-2)
 #   B — Body & Physics (panels ordered 4-6)
 #   C — Finalize     (panels ordered 7-8)
 # =============================================================
@@ -962,7 +965,7 @@ class BF_PT_sb_vrchat(Panel):
         layout.separator(factor=0.3)
         col = layout.column(align=True)
         col.scale_y = 0.8
-        col.label(text=T("A — Foundation: clean up, name, humanoid setup."), icon='STRIP_COLOR_01')
+        col.label(text=T("A — VRChat setup: naming extras and humanoid."), icon='STRIP_COLOR_01')
         col.label(text=T("B — Body & Physics: hair, clothing, visemes."),    icon='STRIP_COLOR_04')
         col.label(text=T("C — Finalize: performance check, then export."),   icon='STRIP_COLOR_05')
 
@@ -973,47 +976,10 @@ class BF_PT_sb_vrchat(Panel):
             text=T("Cats users: Fix Model / Join Meshes / Cleanup /"),
             icon='INFO',
         )
-        cats_hint.label(text=T("Translate live in 'A — Clean Up Mesh' below."))
+        cats_hint.label(text=T("Translate live in the main CATS tool stack."))
 
 
-# ── Cluster A — Foundation ─────────────────────────────────────
-
-class BF_PT_sb_vrc_prepare(Panel):
-    """Cats-style model prep: fix model, join meshes, cleanup, translate, material atlas."""
-    bl_label       = " "
-    bl_idname      = "BF_PT_sb_vrc_prepare"
-    bl_space_type  = _SPACE
-    bl_region_type = _REGION
-    bl_category    = _CATS_CAT
-    bl_parent_id   = "BF_PT_sb_vrchat"
-    bl_order       = 1
-    bl_options     = {'DEFAULT_CLOSED'}
-
-    def draw_header(self, context):
-        self.layout.label(text=T("Clean Up Mesh"))
-
-    @classmethod
-    def poll(cls, context):
-        obj = context.active_object
-        return obj is not None and obj.type in {'ARMATURE', 'MESH'}
-
-    def draw(self, context):
-        layout = self.layout
-        _draw_explainer(
-            layout, context,
-            "Removes duplicate vertices, broken normals, and import artifacts.",
-            "Run first on any model imported from MMD, FBX, or VRoid.",
-        )
-        for module_path, class_name in (
-            ("boneforge.vrchat.cats.fix_model",      "BONEFORGE_PT_vrc_fix_model"),
-            ("boneforge.vrchat.cats.join_meshes",    "BONEFORGE_PT_vrc_join_meshes"),
-            ("boneforge.vrchat.cats.cleanup",        "BONEFORGE_PT_vrc_cleanup"),
-            ("boneforge.vrchat.cats.translate",      "BONEFORGE_PT_vrc_translate"),
-            ("boneforge.vrchat.cats.material_atlas", "BONEFORGE_PT_vrc_w2_atlas"),
-        ):
-            layout.separator(factor=0.3)
-            _delegate_draw(self, context, module_path, class_name)
-
+# ── Cluster A — VRChat Setup ───────────────────────────────────
 
 class BF_PT_sb_vrc_naming(Panel):
     """Bone naming: convention presets, batch rename, detection."""
@@ -1023,11 +989,11 @@ class BF_PT_sb_vrc_naming(Panel):
     bl_region_type = _REGION
     bl_category    = _CATS_CAT
     bl_parent_id   = "BF_PT_sb_vrchat"
-    bl_order       = 2
+    bl_order       = 1
     bl_options     = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Fix Bone Names"))
+        self.layout.label(text=T("VRChat Naming Extras"))
 
     @classmethod
     def poll(cls, context):
@@ -1060,7 +1026,7 @@ class BF_PT_sb_vrc_humanoid(Panel):
     bl_region_type = _REGION
     bl_category    = _CATS_CAT
     bl_parent_id   = "BF_PT_sb_vrchat"
-    bl_order       = 3
+    bl_order       = 2
     bl_options     = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
@@ -1178,7 +1144,7 @@ class BF_PT_sb_vrc_visemes(Panel):
     bl_options     = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Create Visemes"))
+        self.layout.label(text=T("VRChat Viseme Mapping"))
 
     @classmethod
     def poll(cls, context):
@@ -1265,8 +1231,16 @@ class BF_PT_sb_vrc_export(Panel):
         _draw_explainer(
             layout, context,
             "Packages your avatar for VRChat SDK upload. Final step.",
-            "Complete Foundation and Body & Physics clusters first.",
+            "Complete needed VRChat setup and body/physics steps first.",
         )
+
+        layout.separator(factor=0.3)
+
+        try:
+            from boneforge.vrchat.export.vrchat_export import draw_export_settings
+            draw_export_settings(layout, context)
+        except Exception:
+            layout.label(text=T("Export settings unavailable"), icon='INFO')
 
         layout.separator(factor=0.3)
 
@@ -1567,9 +1541,8 @@ _CLASSES = (
     BF_PT_sb_correctives,
     # VRChat hub — parent before children (A then B then C)
     BF_PT_sb_vrchat,
-    BF_PT_sb_vrc_prepare,    # A-1
-    BF_PT_sb_vrc_naming,     # A-2
-    BF_PT_sb_vrc_humanoid,   # A-3
+    BF_PT_sb_vrc_naming,     # A-1
+    BF_PT_sb_vrc_humanoid,   # A-2
     BF_PT_sb_vrc_hair,       # B-4
     BF_PT_sb_vrc_clothing,   # B-5
     BF_PT_sb_vrc_visemes,    # B-6

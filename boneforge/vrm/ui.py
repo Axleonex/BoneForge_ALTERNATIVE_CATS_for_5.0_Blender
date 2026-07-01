@@ -29,7 +29,7 @@ Layout, top to bottom:
 from __future__ import annotations
 
 import bpy
-from bpy.props import EnumProperty, BoolProperty
+from bpy.props import EnumProperty, BoolProperty, StringProperty
 from bpy.types import Panel, PropertyGroup
 
 from boneforge.core import active_armature
@@ -53,6 +53,23 @@ class BF_VRMSettings(PropertyGroup):
         name="Skip Lint on Export",
         description="Bypass target-specific validation when exporting",
         default=False,
+    )
+    export_path: StringProperty(
+        name="Export Folder",
+        description="Folder for VRM/VRChat-FBX exports",
+        subtype="DIR_PATH",
+        default="//",
+    )
+    export_name: StringProperty(
+        name="File Name",
+        description="Export file name; extension is selected by target",
+        default="Avatar",
+    )
+    export_scope: EnumProperty(
+        name="Scope",
+        description="Which armature(s) to export",
+        items=exporter.SCOPE_ITEMS,
+        default="ACTIVE",
     )
     show_meta: BoolProperty(
         name="Show Meta",
@@ -135,21 +152,30 @@ def draw_panel_content(layout, context):
     # ── Export ──────────────────────────────────────────────
     col = layout.column(align=True)
     col.label(text=T("Export:"))
+    col.prop(settings, "export_path", text=T("Folder"))
+    col.prop(settings, "export_name", text=T("File"))
     col.prop(settings, "export_target", text=T("Target"))
+    col.prop(settings, "export_scope", text=T("Scope"))
     col.prop(settings, "skip_lint")
 
+    export_path = exporter.build_export_filepath(settings, arm)
     export_row = col.row()
     export_row.enabled = arm is not None and (
         settings.export_target == "VRCHAT_FBX"
         or status["export_op_available"]
-    )
+    ) and bool(export_path)
+    export_row.operator_context = 'EXEC_DEFAULT'
     op = export_row.operator(
         "boneforge.vrm_export",
         text=T("Export…"),
         icon="EXPORT",
     )
+    op.filepath = export_path
     op.target = settings.export_target
     op.skip_lint = settings.skip_lint
+    op.scope = settings.export_scope
+    if not export_path:
+        col.label(text=T("Save the .blend or choose an export folder"), icon="INFO")
 
     layout.separator()
 
@@ -157,8 +183,15 @@ def draw_panel_content(layout, context):
     col = layout.column(align=True)
     col.label(text=T("Lint:"))
     col.prop(settings, "lint_target", text=T("Target"))
-    op = col.operator("boneforge.vrm_lint", text=T("Lint Now"), icon="VIEWZOOM")
+    row = col.row(align=True)
+    op = row.operator("boneforge.vrm_lint", text=T("Lint Now"), icon="VIEWZOOM")
     op.target = settings.lint_target
+    fix_op = row.operator(
+        "boneforge.vrm_fix_humanoid_aliases",
+        text=T("Fix Humanoid Map"),
+        icon="BONE_DATA",
+    )
+    fix_op.target = settings.lint_target
 
     results = context.scene.get("boneforge_vrm_lint_results")
     if results:

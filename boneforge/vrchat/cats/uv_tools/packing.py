@@ -10,6 +10,7 @@ import random
 
 import bpy
 
+SOURCE_PRESERVE = "SOURCE_PRESERVE"
 SMART_PACK = "BEST_FIT"
 GRID_PACK = "GRID"
 RANDOMIZED_SMART = "RANDOMIZED_SMART"
@@ -18,6 +19,11 @@ FIT_BOUNDS = "FIT_BOUNDS"
 ADVANCED_VARIATION = "ADVANCED_VARIATION"
 
 _OPEN_METHOD_ITEMS = (
+    (
+        SOURCE_PRESERVE,
+        "Preserve Source UVs",
+        "Scale original UVs into square atlas tiles without re-unwrapping",
+    ),
     (SMART_PACK, "Smart Pack", "Smart UV Project plus Blender island packing"),
     (GRID_PACK, "Grid Pack", "Predictable no-rotation packing for easier atlas review"),
     (RANDOMIZED_SMART, "Seeded Variation", "Deterministic UV island rotation before final packing"),
@@ -130,6 +136,88 @@ def _active_uv_layer(obj):
     if mesh is None or not mesh.uv_layers:
         return None
     return mesh.uv_layers.active or mesh.uv_layers[0]
+
+
+def _activate_uv_layer(mesh, uv_name, render=False):
+    if mesh is None or uv_name not in mesh.uv_layers:
+        return False
+    for index, uv in enumerate(mesh.uv_layers):
+        is_target = uv.name == uv_name
+        if render:
+            uv.active_render = is_target
+        if is_target:
+            try:
+                mesh.uv_layers.active_index = index
+            except Exception:
+                uv.active = True
+    return True
+
+
+def _normalized_tile_coordinate(value):
+    if -0.000001 <= value <= 1.000001:
+        return max(0.0, min(float(value), 1.0)), False
+    return float(value) % 1.0, True
+
+
+def _copy_source_uvs_to_atlas_tiles(
+    obj,
+    padding,
+    source_uv_name="UVMap_pre_atlas",
+    atlas_uv_name="atlas_uv",
+):
+    """Copy source UV shapes into square atlas tiles without geometry re-unwrap."""
+    mesh = getattr(obj, "data", None)
+    if mesh is None or not mesh.uv_layers:
+        return None
+
+    source_uv = mesh.uv_layers.get(source_uv_name)
+    atlas_uv = mesh.uv_layers.get(atlas_uv_name)
+    if source_uv is None or atlas_uv is None:
+        return None
+
+    material_indices = sorted(
+        {
+            poly.material_index
+            for poly in mesh.polygons
+            if poly.loop_indices
+        }
+    )
+    if not material_indices:
+        return None
+
+    grid_size = max(1, math.ceil(math.sqrt(len(material_indices))))
+    tile_size = 1.0 / grid_size
+    pad = max(0.0, min(float(padding), tile_size * 0.2))
+    inner_size = max(0.000001, tile_size - (pad * 2.0))
+    tile_for_material = {
+        material_index: (slot % grid_size, slot // grid_size)
+        for slot, material_index in enumerate(material_indices)
+    }
+
+    wrapped = False
+    for poly in mesh.polygons:
+        tile = tile_for_material.get(poly.material_index)
+        if tile is None:
+            continue
+        col, row = tile
+        x_offset = (col * tile_size) + pad
+        y_offset = (row * tile_size) + pad
+        for loop_index in poly.loop_indices:
+            source = source_uv.data[loop_index].uv
+            u, wrapped_u = _normalized_tile_coordinate(source.x)
+            v, wrapped_v = _normalized_tile_coordinate(source.y)
+            target = atlas_uv.data[loop_index].uv
+            target.x = x_offset + (u * inner_size)
+            target.y = y_offset + (v * inner_size)
+            wrapped = wrapped or wrapped_u or wrapped_v
+
+    _activate_uv_layer(mesh, atlas_uv_name, render=True)
+    mesh.update()
+    return {
+        "material_count": len(material_indices),
+        "grid_size": grid_size,
+        "wrapped": wrapped,
+    }
 
 
 def _face_islands(mesh):
@@ -298,6 +386,24 @@ def apply_atlas_uv_method(context, obj, settings, run_operator):
 
     context.view_layer.objects.active = obj
     obj.select_set(True)
+    _activate_uv_layer(obj.data, "atlas_uv", render=True)
+
+    if method == SOURCE_PRESERVE:
+        preserved = _copy_source_uvs_to_atlas_tiles(obj, margin)
+        if preserved:
+            if preserved["wrapped"]:
+                warnings.append("Source UVs outside 0-1 were wrapped into atlas tiles")
+            warnings.append(
+                f"Preserved source UV shapes in {preserved['grid_size']}x{preserved['grid_size']} material tiles"
+            )
+            return _result(
+                method,
+                changed=True,
+                island_count=preserved["material_count"],
+                warnings=warnings,
+            )
+        warnings.append("Source UV maps missing; used Smart Pack")
+        method = SMART_PACK
 
     # Base unwrap/pack. Every method starts from a clean atlas UV projection.
     _enter_edit_mode(context, obj, run_operator, "Enter atlas UV edit mode")

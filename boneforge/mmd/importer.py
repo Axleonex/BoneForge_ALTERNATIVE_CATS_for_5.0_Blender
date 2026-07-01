@@ -219,8 +219,14 @@ def _resolve_vpd_import_op():
     if mmd_ops is None:
         return None
     for op_name in ("import_vpd", "import_vmd"):
-        if hasattr(mmd_ops, op_name):
-            return getattr(mmd_ops, op_name)
+        op_func = getattr(mmd_ops, op_name, None)
+        if op_func is None:
+            continue
+        try:
+            op_func.get_rna_type()
+        except (AttributeError, KeyError):
+            continue
+        return op_func
     return None
 
 
@@ -266,6 +272,9 @@ class BF_OT_MMDImportVPD(Operator):
     def execute(self, context):
         if not self.filepath:
             self.report({"ERROR"}, "No file selected")
+            return {"CANCELLED"}
+        if bridge.find_mmd_addon() is None:
+            self.report({"ERROR"}, "mmd_tools not available")
             return {"CANCELLED"}
         op_func = _resolve_vpd_import_op()
         if op_func is None:

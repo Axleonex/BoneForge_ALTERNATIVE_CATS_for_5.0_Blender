@@ -370,7 +370,6 @@ _classes = (
     BF_OT_CATS_ApplyAllTransforms,
     BF_OT_CATS_FixFBT,
     BF_OT_CATS_RemoveFBT,
-    CATS_PT_transform_tools,
 )
 
 

@@ -21,6 +21,7 @@ import json
 import logging
 import os
 import time
+from array import array
 
 import bpy
 import bmesh
@@ -44,6 +45,7 @@ from boneforge.vrchat.cats.uv_tools import (
 from boneforge.vrchat.cats.material_atlas_quality import (
     CHANNEL_PACK_CONVENTION,
     PACKING_PRESETS,
+    ROLE_ALPHA,
     ROLE_ALBEDO,
     ROLE_AO,
     ROLE_EMISSION,
@@ -78,6 +80,34 @@ logger = logging.getLogger(__name__)
 _RANK_THRESHOLDS = {"Excellent": 4, "Good": 8, "Medium": 16, "Poor": 32}
 _RANK_ORDER = ["Excellent", "Good", "Medium", "Poor"]
 _RENDER_TYPES = ["Opaque", "Alpha Clip", "Alpha Blend", "Emissive"]
+_OUTPUT_MATERIAL_TYPE_ITEMS = [
+    ("AUTO", "Auto (Group)", "Use each atlas group's detected render type"),
+    ("OPAQUE", "Opaque", "Force generated atlas materials to opaque"),
+    ("ALPHA_CLIP", "Alpha Clip", "Force generated atlas materials to alpha clip"),
+    ("ALPHA_BLEND", "Alpha Blend", "Force generated atlas materials to alpha blend"),
+    ("EMISSIVE", "Emissive", "Force generated atlas materials to emissive output"),
+]
+_OUTPUT_MATERIAL_TYPE_MAP = {
+    "OPAQUE": "Opaque",
+    "ALPHA_CLIP": "Alpha Clip",
+    "ALPHA_BLEND": "Alpha Blend",
+    "EMISSIVE": "Emissive",
+}
+_OUTPUT_MATERIAL_TYPE_LABELS = {
+    item_id: label
+    for item_id, label, _description in _OUTPUT_MATERIAL_TYPE_ITEMS
+}
+_OUTPUT_SURFACE_SHADER_ITEMS = [
+    ("AUTO", "Auto (Principled)", "Use the generated Principled BSDF surface"),
+    ("PRINCIPLED", "Principled BSDF", "Connect a Principled BSDF to the material surface"),
+    ("DIFFUSE", "Diffuse BSDF", "Connect a Diffuse BSDF to the material surface"),
+    ("EMISSION", "Emission Shader", "Connect an Emission shader to the material surface"),
+    ("TRANSPARENT", "Transparent BSDF", "Connect a Transparent BSDF to the material surface"),
+]
+_OUTPUT_SURFACE_SHADER_LABELS = {
+    item_id: label
+    for item_id, label, _description in _OUTPUT_SURFACE_SHADER_ITEMS
+}
 
 # VRAM cost per atlas (bytes): width * height * 4 channels * 1.33 mip factor
 _VRAM_MIP_FACTOR = 1.33
@@ -170,6 +200,233 @@ def _dominant_render_type(obj) -> str:
         if priority in types:
             return priority
     return "Opaque"
+
+
+def _output_material_type_label(settings) -> str:
+    key = getattr(settings, "output_material_type", "AUTO") or "AUTO"
+    if key == "AUTO":
+        return "Auto (atlas group render type)"
+    return _OUTPUT_MATERIAL_TYPE_LABELS.get(key, "Auto (atlas group render type)")
+
+
+def _resolve_output_render_type(group, settings) -> str:
+    detected = getattr(group, "render_type", "Opaque") or "Opaque"
+    key = getattr(settings, "output_material_type", "AUTO") or "AUTO"
+    if key == "AUTO":
+        return detected
+    return _OUTPUT_MATERIAL_TYPE_MAP.get(key, detected)
+
+
+def _output_surface_shader_label(settings) -> str:
+    key = getattr(settings, "output_surface_shader", "AUTO") or "AUTO"
+    return _OUTPUT_SURFACE_SHADER_LABELS.get(key, "Auto (Principled)")
+
+
+def _resolve_output_surface_shader(settings) -> str:
+    key = getattr(settings, "output_surface_shader", "AUTO") or "AUTO"
+    if key == "AUTO":
+        return "PRINCIPLED"
+    if key in _OUTPUT_SURFACE_SHADER_LABELS:
+        return key
+    return "PRINCIPLED"
+
+
+def _node_input(node, *names):
+    for name in names:
+        socket = node.inputs.get(name)
+        if socket is not None:
+            return socket
+    return None
+
+
+def _node_output(node, *names):
+    for name in names:
+        socket = node.outputs.get(name)
+        if socket is not None:
+            return socket
+    return None
+
+
+def _socket_name_is_alpha_like(socket) -> bool:
+    name = getattr(socket, "name", "")
+    key = "".join(ch.lower() for ch in name if ch.isalnum())
+    return "alpha" in key or "opacity" in key or "transparent" in key
+
+
+def _image_has_alpha(image) -> bool:
+    return bool(image and getattr(image, "channels", 0) >= 4)
+
+
+def _find_alpha_source_image_node(mat, *, allow_unlinked_alpha=False):
+    if not mat or not mat.use_nodes or not mat.node_tree:
+        return None
+
+    image_nodes = [
+        node for node in mat.node_tree.nodes
+        if node.type == "TEX_IMAGE" and getattr(node, "image", None)
+    ]
+    for node in image_nodes:
+        alpha_output = node.outputs.get("Alpha")
+        if not alpha_output or not alpha_output.is_linked:
+            continue
+        if any(_socket_name_is_alpha_like(link.to_socket) for link in alpha_output.links):
+            return node
+
+    for node in image_nodes:
+        node_label = getattr(node, "label", "") or node.name
+        role = detect_texture_role(
+            node_label,
+            node_name=node.name,
+            via_node_type=node.type,
+        )
+        if role == ROLE_ALPHA:
+            return node
+
+    if allow_unlinked_alpha:
+        for node in image_nodes:
+            if _image_has_alpha(node.image):
+                return node
+
+    return None
+
+
+def _material_alpha_default(mat) -> float:
+    if not mat or not mat.use_nodes or not mat.node_tree:
+        return 1.0
+    for node in mat.node_tree.nodes:
+        if node.type != "BSDF_PRINCIPLED":
+            continue
+        alpha_input = node.inputs.get("Alpha")
+        if alpha_input is not None and hasattr(alpha_input, "default_value"):
+            return float(alpha_input.default_value)
+    return 1.0
+
+
+def _material_uses_alpha(mat) -> bool:
+    if not mat:
+        return False
+    blend = str(getattr(mat, "blend_method", "") or "").upper()
+    alpha_method = str(getattr(mat, "alpha_method", "") or "").upper()
+    alpha_like = blend not in {"", "OPAQUE"} or alpha_method not in {"", "OPAQUE"}
+    if _find_alpha_source_image_node(mat, allow_unlinked_alpha=alpha_like) is not None:
+        return True
+    return _material_alpha_default(mat) < 0.999
+
+
+def _group_needs_alpha_atlas(joined, output_render_type) -> bool:
+    if output_render_type in ("Alpha Blend", "Alpha Clip"):
+        return True
+    return any(_material_uses_alpha(mat) for mat in joined.data.materials if mat)
+
+
+def _copy_source_image_node_settings(source_node, target_node):
+    for attr in ("extension", "interpolation", "projection"):
+        if hasattr(source_node, attr) and hasattr(target_node, attr):
+            try:
+                setattr(target_node, attr, getattr(source_node, attr))
+            except Exception:
+                pass
+
+
+def _build_alpha_bake_material(source_mat):
+    temp = bpy.data.materials.new(f"__BF_ALPHA_BAKE_{source_mat.name if source_mat else 'opaque'}")
+    temp.use_nodes = True
+    nodes = temp.node_tree.nodes
+    links = temp.node_tree.links
+    nodes.clear()
+
+    output_node = nodes.new("ShaderNodeOutputMaterial")
+    output_node.location = (260, 0)
+    emission_node = nodes.new("ShaderNodeEmission")
+    emission_node.location = (40, 0)
+    strength_input = emission_node.inputs.get("Strength")
+    if strength_input is not None and hasattr(strength_input, "default_value"):
+        strength_input.default_value = 1.0
+
+    alpha_like = _material_uses_alpha(source_mat)
+    source_node = _find_alpha_source_image_node(source_mat, allow_unlinked_alpha=alpha_like)
+    color_input = emission_node.inputs.get("Color")
+    if source_node is not None and color_input is not None:
+        uv_node = nodes.new("ShaderNodeUVMap")
+        uv_node.uv_map = "UVMap_pre_atlas"
+        uv_node.location = (-520, 0)
+        tex_node = nodes.new("ShaderNodeTexImage")
+        tex_node.name = "Alpha Source"
+        tex_node.image = source_node.image
+        tex_node.location = (-260, 0)
+        _copy_source_image_node_settings(source_node, tex_node)
+        links.new(uv_node.outputs["UV"], tex_node.inputs["Vector"])
+        alpha_output = tex_node.outputs.get("Alpha") or tex_node.outputs.get("Color")
+        if alpha_output is not None:
+            links.new(alpha_output, color_input)
+    elif color_input is not None:
+        alpha_value = max(0.0, min(1.0, _material_alpha_default(source_mat)))
+        color_input.default_value = (alpha_value, alpha_value, alpha_value, 1.0)
+
+    links.new(emission_node.outputs["Emission"], output_node.inputs["Surface"])
+    return temp
+
+
+def _copy_mask_luminance_to_image_alpha(mask_img, target_img):
+    pixel_count = int(target_img.size[0]) * int(target_img.size[1]) * 4
+    if pixel_count <= 0:
+        return
+    mask_pixels = array("f", [0.0]) * pixel_count
+    target_pixels = array("f", [0.0]) * pixel_count
+    mask_img.pixels.foreach_get(mask_pixels)
+    target_img.pixels.foreach_get(target_pixels)
+    for index in range(0, pixel_count, 4):
+        alpha = max(mask_pixels[index], mask_pixels[index + 1], mask_pixels[index + 2])
+        target_pixels[index + 3] = max(0.0, min(1.0, alpha))
+    target_img.pixels.foreach_set(target_pixels)
+    target_img.update()
+
+
+def _bake_alpha_mask_to_atlas(context, joined, atlas_img, settings, atlas_name, res):
+    alpha_name = f"{atlas_name}_alpha_mask"
+    if alpha_name in bpy.data.images:
+        bpy.data.images.remove(bpy.data.images[alpha_name])
+    alpha_img = bpy.data.images.new(alpha_name, width=res, height=res, alpha=True)
+    alpha_img.colorspace_settings.name = "Non-Color"
+
+    original_materials = [mat for mat in joined.data.materials]
+    temp_materials = []
+    try:
+        for index, source_mat in enumerate(original_materials):
+            temp_mat = _build_alpha_bake_material(source_mat)
+            temp_materials.append(temp_mat)
+            joined.data.materials[index] = temp_mat
+
+            target = temp_mat.node_tree.nodes.new("ShaderNodeTexImage")
+            target.name = "BF_ALPHA_TARGET"
+            target.image = alpha_img
+            target.location = (-260, -260)
+            for node in temp_mat.node_tree.nodes:
+                node.select = False
+            target.select = True
+            temp_mat.node_tree.nodes.active = target
+
+        context.view_layer.objects.active = joined
+        _deselect_all_objects_directly(context.view_layer)
+        joined.select_set(True)
+        _run_with_view3d_context(
+            context,
+            bpy.ops.object.bake,
+            "Bake atlas alpha mask",
+            type="EMIT",
+            use_selected_to_active=False,
+            margin=settings.atlas_padding_pixels,
+            use_clear=True,
+        )
+        _copy_mask_luminance_to_image_alpha(alpha_img, atlas_img)
+    finally:
+        for index, mat in enumerate(original_materials):
+            joined.data.materials[index] = mat
+        for temp_mat in temp_materials:
+            if temp_mat.name in bpy.data.materials:
+                bpy.data.materials.remove(temp_mat)
+        if alpha_img.name in bpy.data.images:
+            bpy.data.images.remove(alpha_img)
 
 
 def _target_meshes(context, settings=None):
@@ -794,7 +1051,9 @@ def _build_debug_report(meshes, settings) -> str:
         f"Scope: {getattr(settings, 'target_scope', 'ACTIVE_ARMATURE')}",
         f"Meshes scanned: {len(meshes)}",
         f"Output: {settings.output_format} -> {bpy.path.abspath(settings.output_path)}",
-        f"UV method: {get_uv_method_label(getattr(settings, 'pack_method', 'BEST_FIT'))}",
+        f"Output material type: {_output_material_type_label(settings)}",
+        f"Output surface: {_output_surface_shader_label(settings)}",
+        f"UV method: {get_uv_method_label(getattr(settings, 'pack_method', 'SOURCE_PRESERVE'))}",
         f"UV margin: {getattr(settings, 'uv_margin', 0.02)}",
         f"Packing preset: {packing_preset_settings(getattr(settings, 'packing_preset', 'SAFE_DEFAULT'))['label']}",
         f"Bake padding: {getattr(settings, 'atlas_padding_pixels', 4)} px",
@@ -1221,11 +1480,10 @@ class BF_AtlasSettings(PropertyGroup):
 
     # Advanced options
     preserve_originals: BoolProperty(
-        name="Preserve Originals",
+        name="Preserve Backup Duplicate",
         description=(
-            "Duplicate all target meshes before atlasing. Originals are hidden "
-            "in a backup collection. Use Revert to restore. Disabling this is "
-            "faster but permanent"
+            "Create and keep a visible pre-atlas duplicate for Revert. "
+            "Turn off to remove originals after atlasing without a backup duplicate."
         ),
         default=True,
     )
@@ -1244,7 +1502,7 @@ class BF_AtlasSettings(PropertyGroup):
         name="UV Method",
         description="How the atlas work mesh is unwrapped and packed before baking",
         items=atlas_uv_method_items(include_advanced=True),
-        default="BEST_FIT",
+        default="SOURCE_PRESERVE",
     )
     uv_random_seed: IntProperty(
         name="UV Seed",
@@ -1255,7 +1513,7 @@ class BF_AtlasSettings(PropertyGroup):
     )
     uv_rotation_step: EnumProperty(
         name="Rotation Step",
-        description="Advanced control for seeded atlas island rotation",
+        description="B4Artists advanced control for seeded atlas island rotation",
         items=[
             ("90", "90 deg", "Stable right-angle variation"),
             ("45", "45 deg", "More varied diagonal rotations"),
@@ -1302,6 +1560,18 @@ class BF_AtlasSettings(PropertyGroup):
             ("EXR", "EXR", "HDR format — preserves emission values > 1.0"),
         ],
         default="PNG",
+    )
+    output_material_type: EnumProperty(
+        name="Output Material Type",
+        description="Choose the generated atlas material render type. Auto matches each atlas group.",
+        items=_OUTPUT_MATERIAL_TYPE_ITEMS,
+        default="AUTO",
+    )
+    output_surface_shader: EnumProperty(
+        name="Output Surface",
+        description="Choose the shader node connected to the generated material output surface. Auto keeps Principled BSDF.",
+        items=_OUTPUT_SURFACE_SHADER_ITEMS,
+        default="AUTO",
     )
     output_path: StringProperty(
         name="Output Path",
@@ -1549,7 +1819,19 @@ class BF_OT_VRC_AtlasSmartCombine(Operator):
                 self.report({"ERROR"}, "Smart Combine could not find materials to combine")
                 return {"CANCELLED"}
 
-        bake_result = bpy.ops.boneforge.vrc_atlas_bake()
+        preflight = BF_OT_VRC_AtlasBake._build_preflight(context)
+        if preflight["errors"]:
+            for error in preflight["errors"]:
+                self.report({"ERROR"}, error)
+            _store_debug_report(context, _target_meshes(context, settings), settings)
+            return {"CANCELLED"}
+
+        try:
+            bake_result = bpy.ops.boneforge.vrc_atlas_bake()
+        except RuntimeError as bake_err:
+            message = str(bake_err).splitlines()[-1] if str(bake_err) else "Smart Combine failed during bake"
+            self.report({"ERROR"}, message)
+            return {"CANCELLED"}
         if "FINISHED" not in bake_result:
             self.report({"ERROR"}, "Smart Combine failed during bake. Copy the debug report for details")
             return {"CANCELLED"}
@@ -1590,7 +1872,8 @@ class BF_OT_VRC_AtlasBake(Operator):
 
     # ── Pre-flight helpers ────────────────────────────────────────
 
-    def _build_preflight(self, context):
+    @staticmethod
+    def _build_preflight(context):
         """Collect pre-flight info lines and validate groups."""
         settings = context.scene.boneforge_atlas_settings
         lines_proceed = []
@@ -1708,7 +1991,7 @@ class BF_OT_VRC_AtlasBake(Operator):
             if group.warn_overlap:
                 lines_skip.append(
                     f"    [!] {group.name} — overlapping UVs detected. "
-                    f"Atlas UV will be repacked ({get_uv_method_label(settings.pack_method)})"
+                    f"Atlas UV will use {get_uv_method_label(settings.pack_method)}"
                 )
             if group.warn_emission and settings.output_format != "EXR":
                 lines_skip.append(
@@ -1722,7 +2005,7 @@ class BF_OT_VRC_AtlasBake(Operator):
 
         if settings.keep_source_uv_maps:
             lines_change.append(
-                "  UV maps repacked; source UV maps kept by advanced setting"
+                "  Atlas UV generated with selected UV method; source UV maps kept by advanced setting"
             )
             lines_skip.append(
                 "    [!] Kept source UV maps can export atlas_uv as UV1 in FBX/Unity"
@@ -1742,6 +2025,12 @@ class BF_OT_VRC_AtlasBake(Operator):
             f"  Packing preset: {packing['label']} "
             f"(padding {settings.atlas_padding_pixels}px, margin {settings.uv_margin})"
         )
+        lines_change.append(
+            f"  Output material type: {_output_material_type_label(settings)}"
+        )
+        lines_change.append(
+            f"  Output surface: {_output_surface_shader_label(settings)}"
+        )
         after = sum(1 for g in bake_groups) + sum(
             _group_detected_material_count(g) for g in settings.atlas_groups
             if not g.enabled or _group_enabled_material_count(g) < 2
@@ -1754,7 +2043,7 @@ class BF_OT_VRC_AtlasBake(Operator):
         )
         if settings.preserve_originals:
             lines_change.append(
-                f"  Backup collection: {_BACKUP_COLLECTION_PREFIX}[timestamp] (hidden)"
+                f"  Backup collection: {_BACKUP_COLLECTION_PREFIX}[timestamp] (visible)"
             )
 
         lines_stable.append("  Mesh geometry (no vertices moved)")
@@ -1914,7 +2203,7 @@ class BF_OT_VRC_AtlasBake(Operator):
     # ── Bake internals ────────────────────────────────────────────
 
     def _create_backup(self, context, bake_groups, backup_name):
-        """Duplicate all target meshes into a hidden backup collection."""
+        """Duplicate all target meshes into a visible backup collection."""
         scene = context.scene
         backup_coll = bpy.data.collections.new(backup_name)
         scene.collection.children.link(backup_coll)
@@ -1932,13 +2221,16 @@ class BF_OT_VRC_AtlasBake(Operator):
                 dup.data = obj.data.copy()
                 dup.name = f"PRE_ATLAS_{obj.name}"
                 backup_coll.objects.link(dup)
+                dup.hide_set(False)
+                dup.hide_viewport = False
+                dup.hide_render = False
 
-        # Hide the collection
+        # Keep the backup collection visible so users can inspect the preserved duplicate.
         layer_coll = self._find_layer_collection(
             context.view_layer.layer_collection, backup_name
         )
         if layer_coll:
-            layer_coll.hide_viewport = True
+            layer_coll.hide_viewport = False
             layer_coll.exclude = False
 
     def _find_layer_collection(self, layer_coll, name):
@@ -2075,8 +2367,7 @@ class BF_OT_VRC_AtlasBake(Operator):
         # Bake into atlas_uv; copied source image nodes read UVMap_pre_atlas explicitly.
         for uv in mesh.uv_layers:
             uv.active_render = (uv.name == "atlas_uv")
-        atlas_uv.active = True
-        atlas_uv.active_render = True
+        _activate_atlas_uv(mesh)
 
         # ── Smart UV Project → Pack Islands ───────────────────
         uv_result = apply_atlas_uv_method(context, joined, settings, _run_with_view3d_context)
@@ -2093,6 +2384,7 @@ class BF_OT_VRC_AtlasBake(Operator):
         atlas_img = bpy.data.images.new(atlas_name, width=res, height=res, alpha=True)
         atlas_img.colorspace_settings.name = "sRGB"
         extra_images = {}
+        output_render_type = _resolve_output_render_type(group, settings)
 
         # ── Add Image Texture node to each material ───────────
         source_uv_routes = 0
@@ -2114,6 +2406,7 @@ class BF_OT_VRC_AtlasBake(Operator):
                 n.select = False
             img_node.select = True
             nodes.active = img_node
+        needs_alpha_atlas = _group_needs_alpha_atlas(joined, output_render_type)
 
         # ── Bake DIFFUSE ──────────────────────────────────────
         saved_engine = scene.render.engine
@@ -2134,6 +2427,8 @@ class BF_OT_VRC_AtlasBake(Operator):
                 margin=settings.atlas_padding_pixels,
                 use_clear=True,
             )
+            if needs_alpha_atlas:
+                _bake_alpha_mask_to_atlas(context, joined, atlas_img, settings, atlas_name, res)
             for role, spec in _EXTRA_BAKE_PASSES.items():
                 if role not in enabled_passes:
                     continue
@@ -2214,10 +2509,10 @@ class BF_OT_VRC_AtlasBake(Operator):
             bpy.data.materials.remove(bpy.data.materials[mat_name])
         atlas_mat = bpy.data.materials.new(mat_name)
         atlas_mat.use_nodes = True
-        # Set blend mode to match group render type
-        if group.render_type == "Alpha Blend":
+        # Set blend mode to match the selected output render type.
+        if output_render_type == "Alpha Blend":
             atlas_mat.blend_method = "BLEND"
-        elif group.render_type == "Alpha Clip":
+        elif output_render_type == "Alpha Clip":
             atlas_mat.blend_method = "CLIP"
         else:
             atlas_mat.blend_method = "OPAQUE"
@@ -2226,9 +2521,7 @@ class BF_OT_VRC_AtlasBake(Operator):
         links = atlas_mat.node_tree.links
         nodes.clear()
         output_node = nodes.new("ShaderNodeOutputMaterial")
-        output_node.location = (300, 0)
-        bsdf_node = nodes.new("ShaderNodeBsdfPrincipled")
-        bsdf_node.location = (0, 0)
+        output_node.location = (520, 0)
         tex_node = nodes.new("ShaderNodeTexImage")
         tex_node.name = "Atlas"
         tex_node.image = atlas_img
@@ -2237,8 +2530,37 @@ class BF_OT_VRC_AtlasBake(Operator):
         uv_node.uv_map = "atlas_uv"
         uv_node.location = (-550, 0)
         links.new(uv_node.outputs["UV"], tex_node.inputs["Vector"])
-        links.new(tex_node.outputs["Color"], bsdf_node.inputs["Base Color"])
+
+        output_surface_shader = _resolve_output_surface_shader(settings)
+        if output_surface_shader == "DIFFUSE":
+            surface_node = nodes.new("ShaderNodeBsdfDiffuse")
+            surface_node.name = "Atlas Diffuse Surface"
+            surface_shader_output = _node_output(surface_node, "BSDF")
+        elif output_surface_shader == "EMISSION":
+            surface_node = nodes.new("ShaderNodeEmission")
+            surface_node.name = "Atlas Emission Surface"
+            surface_shader_output = _node_output(surface_node, "Emission")
+            strength_input = _node_input(surface_node, "Strength")
+            if strength_input is not None and hasattr(strength_input, "default_value"):
+                strength_input.default_value = 1.0
+        elif output_surface_shader == "TRANSPARENT":
+            surface_node = nodes.new("ShaderNodeBsdfTransparent")
+            surface_node.name = "Atlas Transparent Surface"
+            surface_shader_output = _node_output(surface_node, "BSDF")
+        else:
+            surface_node = nodes.new("ShaderNodeBsdfPrincipled")
+            surface_node.name = "Atlas Principled Surface"
+            surface_shader_output = _node_output(surface_node, "BSDF")
+        surface_node.location = (0, 0)
+
+        surface_color_input = _node_input(surface_node, "Base Color", "Color")
+        if surface_color_input is not None and not (
+            output_surface_shader == "EMISSION" and ROLE_EMISSION in extra_images
+        ):
+            links.new(tex_node.outputs["Color"], surface_color_input)
+
         if ROLE_NORMAL in extra_images:
+            normal_input = _node_input(surface_node, "Normal")
             normal_tex = nodes.new("ShaderNodeTexImage")
             normal_tex.name = "Atlas Normal"
             normal_tex.image = extra_images[ROLE_NORMAL]
@@ -2247,17 +2569,32 @@ class BF_OT_VRC_AtlasBake(Operator):
             normal_map.location = (0, -250)
             links.new(uv_node.outputs["UV"], normal_tex.inputs["Vector"])
             links.new(normal_tex.outputs["Color"], normal_map.inputs["Color"])
-            links.new(normal_map.outputs["Normal"], bsdf_node.inputs["Normal"])
+            if normal_input is not None:
+                links.new(normal_map.outputs["Normal"], normal_input)
         if ROLE_EMISSION in extra_images:
             emission_tex = nodes.new("ShaderNodeTexImage")
             emission_tex.name = "Atlas Emission"
             emission_tex.image = extra_images[ROLE_EMISSION]
             emission_tex.location = (-300, -500)
             links.new(uv_node.outputs["UV"], emission_tex.inputs["Vector"])
-            emission_input = bsdf_node.inputs.get("Emission Color") or bsdf_node.inputs.get("Emission")
-            emission_strength = bsdf_node.inputs.get("Emission Strength")
+            if output_surface_shader == "EMISSION":
+                emission_input = _node_input(surface_node, "Color")
+                emission_strength = _node_input(surface_node, "Strength")
+            elif output_surface_shader == "PRINCIPLED":
+                emission_input = _node_input(surface_node, "Emission Color", "Emission")
+                emission_strength = _node_input(surface_node, "Emission Strength")
+            else:
+                emission_input = None
+                emission_strength = None
             if emission_input is not None:
                 links.new(emission_tex.outputs["Color"], emission_input)
+            if emission_strength is not None and hasattr(emission_strength, "default_value"):
+                emission_strength.default_value = 1.0
+        elif output_render_type == "Emissive" and output_surface_shader == "PRINCIPLED":
+            emission_input = _node_input(surface_node, "Emission Color", "Emission")
+            emission_strength = _node_input(surface_node, "Emission Strength")
+            if emission_input is not None:
+                links.new(tex_node.outputs["Color"], emission_input)
             if emission_strength is not None and hasattr(emission_strength, "default_value"):
                 emission_strength.default_value = 1.0
         if ROLE_ROUGHNESS in extra_images:
@@ -2266,12 +2603,28 @@ class BF_OT_VRC_AtlasBake(Operator):
             roughness_tex.image = extra_images[ROLE_ROUGHNESS]
             roughness_tex.location = (-300, -750)
             links.new(uv_node.outputs["UV"], roughness_tex.inputs["Vector"])
-            roughness_input = bsdf_node.inputs.get("Roughness")
+            roughness_input = _node_input(surface_node, "Roughness")
             if roughness_input is not None:
                 links.new(roughness_tex.outputs["Color"], roughness_input)
-        links.new(bsdf_node.outputs["BSDF"], output_node.inputs["Surface"])
-        if group.render_type in ("Alpha Blend", "Alpha Clip"):
-            links.new(tex_node.outputs["Alpha"], bsdf_node.inputs["Alpha"])
+
+        surface_output = surface_shader_output
+        if output_render_type in ("Alpha Blend", "Alpha Clip"):
+            alpha_input = _node_input(surface_node, "Alpha")
+            if alpha_input is not None:
+                links.new(tex_node.outputs["Alpha"], alpha_input)
+            elif output_surface_shader != "TRANSPARENT" and surface_shader_output is not None:
+                transparent_node = nodes.new("ShaderNodeBsdfTransparent")
+                transparent_node.name = "Atlas Alpha Transparent"
+                transparent_node.location = (0, -220)
+                mix_node = nodes.new("ShaderNodeMixShader")
+                mix_node.name = "Atlas Alpha Surface Mix"
+                mix_node.location = (260, -80)
+                links.new(tex_node.outputs["Alpha"], mix_node.inputs[0])
+                links.new(transparent_node.outputs["BSDF"], mix_node.inputs[1])
+                links.new(surface_shader_output, mix_node.inputs[2])
+                surface_output = _node_output(mix_node, "Shader")
+        if surface_output is not None:
+            links.new(surface_output, output_node.inputs["Surface"])
 
         # ── Assign atlas material to joined mesh ──────────────
         _assign_single_atlas_material(joined.data, atlas_mat)
@@ -2302,6 +2655,18 @@ class BF_OT_VRC_AtlasBake(Operator):
         joined["boneforge_atlas_source_uv_routes"] = source_uv_routes
         joined["boneforge_atlas_uv0"] = "atlas_uv"
         joined["boneforge_atlas_source_uv_maps_kept"] = bool(keep_source_uv_maps)
+        joined["boneforge_atlas_output_material_type"] = output_render_type
+        joined["boneforge_atlas_output_material_mode"] = getattr(
+            settings,
+            "output_material_type",
+            "AUTO",
+        )
+        joined["boneforge_atlas_output_surface_shader"] = output_surface_shader
+        joined["boneforge_atlas_output_surface_mode"] = getattr(
+            settings,
+            "output_surface_shader",
+            "AUTO",
+        )
         joined["boneforge_atlas_outputs"] = json.dumps(
             {role: image.name for role, image in extra_images.items()}
         )
@@ -2482,6 +2847,28 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
         tool_row = col.row(align=True)
         tool_row.operator("boneforge.vrc_atlas_analyze", text=T("Analyze"), icon="VIEWZOOM")
         tool_row.operator("boneforge.vrc_atlas_copy_debug", text=T("Copy Debug"), icon="COPYDOWN")
+        backup_row = col.row(align=True)
+        backup_row.prop(settings, "preserve_originals", text=T("Preserve Backup Duplicate"))
+        if not settings.preserve_originals:
+            col.label(
+                text=T("Off: no Revert backup; originals are removed after atlasing"),
+                icon="ERROR",
+            )
+        if settings.has_backup:
+            accept_row = col.row(align=True)
+            accept_row.alert = True
+            accept_row.operator(
+                "boneforge.vrc_atlas_accept",
+                text=T("Accept — Delete Backup"),
+                icon="TRASH",
+            )
+            accept_row.alert = False
+            revert_row = col.row(align=True)
+            revert_row.operator(
+                "boneforge.vrc_atlas_revert",
+                text=T("Revert — Restore Originals"),
+                icon="LOOP_BACK",
+            )
 
         layout.separator()
 
@@ -2635,24 +3022,6 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
 
             layout.separator()
 
-            # Accept / Revert binary (unanimous addition Q)
-            if settings.has_backup:
-                backup_row = layout.row(align=True)
-                backup_row.alert = True
-                backup_row.operator(
-                    "boneforge.vrc_atlas_accept",
-                    text=T("Accept — Delete Backup"),
-                    icon="TRASH",
-                )
-                backup_row.alert = False
-                backup_row = layout.row()
-                backup_row.operator(
-                    "boneforge.vrc_atlas_revert",
-                    text=T("Revert — Restore Originals"),
-                    icon="LOOP_BACK",
-                )
-                layout.separator()
-
             # Primary action
             bake_row = layout.row()
             bake_row.scale_y = 1.4
@@ -2706,23 +3075,17 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
 
             adv_col.separator()
             adv_col.label(text=T("Output:"))
-            adv_col.prop(settings, "color_fallback_size")
-            adv_col.prop(settings, "output_format")
+            adv_col.prop(settings, "color_fallback_size", text=T("Fallback Size"))
+            adv_col.prop(settings, "output_format", text=T("Format Output"))
+            adv_col.prop(settings, "output_material_type", text=T("Material Output Type"))
+            adv_col.prop(settings, "output_surface_shader", text=T("Surface Output"))
             if settings.output_format == "EXR":
                 adv_col.label(
                     text=T("EXR preserves HDR emission — use for glow accessories"),
                     icon="INFO",
                 )
-            adv_col.prop(settings, "output_path")
+            adv_col.prop(settings, "output_path", text=T("Path Output"))
 
-            adv_col.separator()
-            preserve_row = adv_col.row()
-            preserve_row.prop(settings, "preserve_originals")
-            if not settings.preserve_originals:
-                adv_col.label(
-                    text=T("WARNING: Originals will not be backed up. This cannot be undone."),
-                    icon="ERROR",
-                )
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -2746,7 +3109,6 @@ _classes = (
     BF_OT_VRC_AtlasBake,
     BF_OT_VRC_AtlasAccept,
     BF_OT_VRC_AtlasRevert,
-    BONEFORGE_PT_vrc_w2_atlas,
 )
 
 

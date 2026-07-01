@@ -268,7 +268,6 @@ _classes = (
     BF_OT_CATS_SeparateByMaterials,
     BF_OT_CATS_SeparateByLooseParts,
     BF_OT_CATS_SeparateByShapeKeys,
-    CATS_PT_mesh_tools_standalone,
 )
 
 

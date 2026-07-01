@@ -72,6 +72,46 @@ def _find_zero_weight_bones(armature) -> List[Tuple[str, float]]:
     return result
 
 
+def _remove_zero_weight_bones(context, arm, zero_weight_bones=None) -> int:
+    """Remove zero-weight bones and reparent children to each removed bone's parent."""
+    zero_weight_bones = zero_weight_bones if zero_weight_bones is not None else _find_zero_weight_bones(arm)
+    bone_names_to_remove = {name for name, _ in zero_weight_bones}
+    if not bone_names_to_remove:
+        return 0
+
+    # B-11: Must enter Edit Mode to reparent children before removal
+    # Bone.parent is read-only; only EditBone supports reparenting
+    saved_active = context.view_layer.objects.active
+    context.view_layer.objects.active = arm
+    arm.select_set(True)
+    bpy.ops.object.mode_set(mode='EDIT')
+
+    try:
+        edit_bones = arm.data.edit_bones
+        removed_count = 0
+
+        for bone_name in bone_names_to_remove:
+            if bone_name not in edit_bones:
+                continue
+
+            edit_bone = edit_bones[bone_name]
+            parent = edit_bone.parent
+
+            # Reparent all children to this bone's parent (grandparent)
+            for child in list(edit_bone.children):
+                child.parent = parent
+
+            # Now safe to remove
+            edit_bones.remove(edit_bone)
+            removed_count += 1
+    finally:
+        bpy.ops.object.mode_set(mode='OBJECT')
+        if saved_active and saved_active.name in bpy.data.objects:
+            context.view_layer.objects.active = bpy.data.objects[saved_active.name]
+
+    return removed_count
+
+
 # ─────────────────────────────────────────────────────────────────
 # Operator
 # ─────────────────────────────────────────────────────────────────
@@ -96,38 +136,7 @@ class BF_OT_VRC_RemoveZeroWeightBones(Operator):
             self.report({'INFO'}, "No zero-weight bones found")
             return {'FINISHED'}
 
-        bone_names_to_remove = {name for name, _ in zero_weight_bones}
-
-        # B-11: Must enter Edit Mode to reparent children before removal
-        # Bone.parent is read-only; only EditBone supports reparenting
-        saved_active = context.view_layer.objects.active
-        context.view_layer.objects.active = arm
-        arm.select_set(True)
-        bpy.ops.object.mode_set(mode='EDIT')
-
-        try:
-            edit_bones = arm.data.edit_bones
-            removed_count = 0
-
-            for bone_name in bone_names_to_remove:
-                if bone_name not in edit_bones:
-                    continue
-
-                edit_bone = edit_bones[bone_name]
-                parent = edit_bone.parent
-
-                # Reparent all children to this bone's parent (grandparent)
-                for child in list(edit_bone.children):
-                    child.parent = parent
-
-                # Now safe to remove
-                edit_bones.remove(edit_bone)
-                removed_count += 1
-        finally:
-            bpy.ops.object.mode_set(mode='OBJECT')
-            if saved_active and saved_active.name in bpy.data.objects:
-                context.view_layer.objects.active = bpy.data.objects[saved_active.name]
-
+        removed_count = _remove_zero_weight_bones(context, arm, zero_weight_bones)
         self.report({'INFO'}, f"Removed {removed_count} zero-weight bones")
         return {'FINISHED'}
 
@@ -183,10 +192,8 @@ class BONEFORGE_PT_vrc_cleanup(Panel):
 def register():
     """Register cleanup classes."""
     bpy.utils.register_class(BF_OT_VRC_RemoveZeroWeightBones)
-    bpy.utils.register_class(BONEFORGE_PT_vrc_cleanup)
 
 
 def unregister():
     """Unregister cleanup classes."""
-    bpy.utils.unregister_class(BONEFORGE_PT_vrc_cleanup)
     bpy.utils.unregister_class(BF_OT_VRC_RemoveZeroWeightBones)

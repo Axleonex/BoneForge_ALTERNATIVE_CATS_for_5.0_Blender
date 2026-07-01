@@ -37,6 +37,37 @@ _SCOPE_ITEMS = [
      "Export every MMD model in the scene to a separate file. "
      "Filenames get the model's root name appended"),
 ]
+SCOPE_ITEMS = _SCOPE_ITEMS
+
+
+def _sanitize_filename(name: str, fallback: str) -> str:
+    cleaned = "".join("_" if ch in '<>:"/\\|?*' else ch for ch in (name or ""))
+    cleaned = cleaned.strip(" .")
+    return cleaned or fallback
+
+
+def _resolve_export_dir(raw_path: str) -> str:
+    raw_path = (raw_path or "").strip()
+    if not raw_path:
+        return ""
+    if raw_path.startswith("//") and not bpy.data.filepath:
+        return ""
+    return bpy.path.abspath(raw_path)
+
+
+def _with_extension(filename: str, extension: str) -> str:
+    base, ext = os.path.splitext(filename)
+    if ext.lower() == extension:
+        return filename
+    return f"{base or filename}{extension}"
+
+
+def build_export_filepath(export_path: str, export_name: str, extension: str, fallback: str) -> str:
+    export_dir = _resolve_export_dir(export_path)
+    if not export_dir:
+        return ""
+    filename = _with_extension(_sanitize_filename(export_name, fallback), extension)
+    return os.path.join(export_dir, filename)
 
 
 def _find_mmd_roots() -> List[bpy.types.Object]:
@@ -108,6 +139,7 @@ class BF_OT_MMDExportPMX(Operator):
         if not self.filepath:
             self.report({"ERROR"}, "No file path")
             return {"CANCELLED"}
+        self.filepath = _with_extension(self.filepath, ".pmx")
         if bridge.find_mmd_addon() is None:
             self.report({"ERROR"}, "mmd_tools not available")
             return {"CANCELLED"}
@@ -225,6 +257,7 @@ class BF_OT_MMDExportVMD(Operator):
         if not self.filepath:
             self.report({"ERROR"}, "No file path")
             return {"CANCELLED"}
+        self.filepath = _with_extension(self.filepath, ".vmd")
         if bridge.find_mmd_addon() is None:
             self.report({"ERROR"}, "mmd_tools not available")
             return {"CANCELLED"}
@@ -306,8 +339,14 @@ def _resolve_vpd_export_op():
     if mmd_ops is None:
         return None
     for op_name in ("export_vpd", "export_vmd"):
-        if hasattr(mmd_ops, op_name):
-            return getattr(mmd_ops, op_name)
+        op_func = getattr(mmd_ops, op_name, None)
+        if op_func is None:
+            continue
+        try:
+            op_func.get_rna_type()
+        except (AttributeError, KeyError):
+            continue
+        return op_func
     return None
 
 
@@ -356,6 +395,10 @@ class BF_OT_MMDExportVPD(Operator):
     def execute(self, context):
         if not self.filepath:
             self.report({"ERROR"}, "No file path")
+            return {"CANCELLED"}
+        self.filepath = _with_extension(self.filepath, ".vpd")
+        if bridge.find_mmd_addon() is None:
+            self.report({"ERROR"}, "mmd_tools not available")
             return {"CANCELLED"}
         op_func = _resolve_vpd_export_op()
         if op_func is None:

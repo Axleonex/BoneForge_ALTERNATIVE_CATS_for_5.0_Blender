@@ -43,6 +43,20 @@ _KNOWN_MODULE_NAMES = (
 )
 
 
+def is_mmd_op_available(op_name: str) -> bool:
+    mmd_ops = getattr(bpy.ops, "mmd_tools", None)
+    if mmd_ops is None:
+        return False
+    op_func = getattr(mmd_ops, op_name, None)
+    if op_func is None:
+        return False
+    try:
+        op_func.get_rna_type()
+    except (AttributeError, KeyError):
+        return False
+    return True
+
+
 def find_mmd_addon() -> Optional[object]:
     """Return the addon_utils module object if installed AND enabled."""
     import addon_utils
@@ -97,22 +111,20 @@ def mmd_addon_status() -> dict:
         break
 
     if status["installed"] and status["enabled"]:
-        mmd_ops = getattr(bpy.ops, "mmd_tools", None)
-        if mmd_ops is not None:
-            status["import_pmx_available"] = hasattr(mmd_ops, "import_model")
-            status["import_vmd_available"] = hasattr(mmd_ops, "import_vmd")
-            status["export_pmx_available"] = hasattr(mmd_ops, "export_pmx")
-            status["export_vmd_available"] = hasattr(mmd_ops, "export_vmd")
-            # VPD ops: probe both possible names (varies by mmd_tools
-            # version). Either being present satisfies VPD support.
-            status["import_vpd_available"] = (
-                hasattr(mmd_ops, "import_vpd")
-                or hasattr(mmd_ops, "import_vmd")  # legacy fallback
-            )
-            status["export_vpd_available"] = (
-                hasattr(mmd_ops, "export_vpd")
-                or hasattr(mmd_ops, "export_vmd")  # legacy fallback
-            )
+        status["import_pmx_available"] = is_mmd_op_available("import_model")
+        status["import_vmd_available"] = is_mmd_op_available("import_vmd")
+        status["export_pmx_available"] = is_mmd_op_available("export_pmx")
+        status["export_vmd_available"] = is_mmd_op_available("export_vmd")
+        # VPD ops: probe both possible names (varies by mmd_tools
+        # version). Either being present satisfies VPD support.
+        status["import_vpd_available"] = (
+            is_mmd_op_available("import_vpd")
+            or is_mmd_op_available("import_vmd")  # legacy fallback
+        )
+        status["export_vpd_available"] = (
+            is_mmd_op_available("export_vpd")
+            or is_mmd_op_available("export_vmd")  # legacy fallback
+        )
 
     return status
 
