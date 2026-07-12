@@ -118,6 +118,30 @@ def _export_fbx_vrchat(filepath: str, armature) -> None:
     prev_active = view_layer.objects.active
     prev_selection = [obj for obj in bpy.context.selected_objects]
 
+    # Blendshape fix: the FBX exporter (use_mesh_modifiers defaults to True)
+    # drops ALL shape keys from any mesh that has an enabled non-armature
+    # modifier. Temporarily disable those modifiers so blendshapes survive;
+    # the flags are restored in `finally`.
+    shielded_mods = []
+    for child in armature.children:
+        if child.type != "MESH":
+            continue
+        keys = child.data.shape_keys
+        if not keys or len(keys.key_blocks) <= 1:
+            continue
+        for mod in child.modifiers:
+            if mod.type == 'ARMATURE':
+                continue
+            if mod.show_viewport or mod.show_render:
+                shielded_mods.append((mod, mod.show_viewport, mod.show_render))
+                mod.show_viewport = False
+                mod.show_render = False
+                logger.warning(
+                    "[BoneForge] '%s': modifier '%s' NOT baked into FBX "
+                    "(mesh has shape keys; apply it manually if needed)",
+                    child.name, mod.name,
+                )
+
     try:
         bpy.ops.object.select_all(action="DESELECT")
         armature.select_set(True)
@@ -144,6 +168,12 @@ def _export_fbx_vrchat(filepath: str, armature) -> None:
             mesh_smooth_type="FACE",
         )
     finally:
+        for mod, show_viewport, show_render in shielded_mods:
+            try:
+                mod.show_viewport = show_viewport
+                mod.show_render = show_render
+            except ReferenceError:
+                pass
         try:
             bpy.ops.object.select_all(action="DESELECT")
             for obj in prev_selection:

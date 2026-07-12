@@ -50,8 +50,12 @@ class BF_VRCExportSettings(PropertyGroup):
         default=False,
     )
     apply_shape_keys_to_basis: BoolProperty(
-        name="Apply Shape Keys to Basis",
-        description="Collapse all shape keys to basis before export",
+        name="Remove Shape Keys",
+        description=(
+            "Delete ALL shape keys (blendshapes) from the exported meshes, "
+            "collapsing them to the basis shape. Leave OFF to keep "
+            "blendshapes (visemes, blinking, MMD morphs, etc.) in the FBX"
+        ),
         default=False,
     )
     export_sidecar: BoolProperty(
@@ -332,13 +336,27 @@ def _apply_mesh_modifiers_nonarmature(meshes: List, context=None) -> None:
         if mesh_obj.type != 'MESH':
             continue
 
+        # Blendshape fix: modifier_apply refuses meshes with shape keys
+        # ("Modifier cannot be applied to a mesh with shape keys"), so skip
+        # them here — the export path strips those modifiers from the temp
+        # copies instead, preserving the shape keys.
+        if mesh_obj.data.shape_keys and len(mesh_obj.data.shape_keys.key_blocks) > 1:
+            logger.warning(
+                "[BoneForge] skipping modifier apply on '%s' (has shape keys)",
+                mesh_obj.name,
+            )
+            continue
+
         # Snapshot of modifier names — the list mutates as we apply.
         applicable = [m.name for m in mesh_obj.modifiers if m.type != 'ARMATURE']
 
         for mod_name in applicable:
             try:
                 if hasattr(context, 'temp_override'):
-                    with context.temp_override(active_object=mesh_obj,
+                    # Blendshape fix: must override 'object' as well — with
+                    # only active_object set, modifier_apply silently no-ops.
+                    with context.temp_override(object=mesh_obj,
+                                               active_object=mesh_obj,
                                                selected_objects=[mesh_obj]):
                         bpy.ops.object.modifier_apply(modifier=mod_name)
                 else:
@@ -421,6 +439,10 @@ class BF_OT_VRC_ExportToUnity(Operator):
         saved_active = context.view_layer.objects.active
         saved_frame = context.scene.frame_current
 
+        temp_meshes = []
+        renamed = []               # (orig_obj, name, orig_data, data_name)
+        shapekey_mod_warnings = []
+
         try:
             # Collect all children
             mesh_children = _exportable_mesh_children(
@@ -428,38 +450,63 @@ class BF_OT_VRC_ExportToUnity(Operator):
                 settings.include_helper_meshes,
             )
 
-            # ─ Step 4-5: Prepare temp duplicates for destructive ops ─
-            temp_meshes = []
-            try:
-                for mesh_obj in mesh_children:
-                    world_matrix = mesh_obj.matrix_world.copy()
-                    dup = mesh_obj.copy()
-                    dup.data = mesh_obj.data.copy()
-                    dup.name = f"__BF_EXPORT_TMP_{mesh_obj.name}"
-                    context.scene.collection.objects.link(dup)
-                    dup.parent = mesh_obj.parent
-                    dup.matrix_parent_inverse = mesh_obj.matrix_parent_inverse.copy()
-                    dup.matrix_world = world_matrix
-                    temp_meshes.append(dup)
+            # ─ Step 4: Prepare temp duplicates for destructive ops ─
+            # Blendshape fix: the duplicates are exported under the ORIGINAL
+            # names (the originals are parked as "<name>.bfexport_orig" and
+            # restored in `finally`), so Unity sees "Body" instead of
+            # "__BF_EXPORT_TMP_Body".
+            for mesh_obj in mesh_children:
+                world_matrix = mesh_obj.matrix_world.copy()
+                orig_name = mesh_obj.name
+                orig_data = mesh_obj.data
+                orig_data_name = orig_data.name
+                dup = mesh_obj.copy()
+                dup.data = mesh_obj.data.copy()
+                mesh_obj.name = f"{orig_name}.bfexport_orig"
+                orig_data.name = f"{orig_data_name}.bfexport_orig"
+                dup.name = orig_name
+                dup.data.name = orig_data_name
+                renamed.append((mesh_obj, orig_name, orig_data, orig_data_name))
+                context.scene.collection.objects.link(dup)
+                dup.parent = mesh_obj.parent
+                dup.matrix_parent_inverse = mesh_obj.matrix_parent_inverse.copy()
+                dup.matrix_world = world_matrix
+                temp_meshes.append(dup)
 
-                if not settings.merge_all_meshes and temp_meshes:
-                    _apply_mesh_modifiers_nonarmature(temp_meshes, context)
+            if settings.apply_shape_keys_to_basis and temp_meshes:
+                for mesh_obj in temp_meshes:
+                    _merge_shape_keys_to_basis(mesh_obj)
 
-                if settings.apply_shape_keys_to_basis and temp_meshes:
-                    for mesh_obj in temp_meshes:
-                        _merge_shape_keys_to_basis(mesh_obj)
+            # ─ Step 5: Protect blendshapes from the FBX modifier bake ─
+            # Blendshape fix: with use_mesh_modifiers=True (the exporter
+            # default), Blender's FBX exporter silently DROPS every shape key
+            # on any mesh that still has an enabled non-armature modifier —
+            # the modifier stack is baked via an evaluated mesh, which
+            # carries no shape-key data. Remove those modifiers from the
+            # temp copies so blendshapes survive. Meshes WITHOUT shape keys
+            # are untouched: the exporter bakes their modifiers as before.
+            for dup in temp_meshes:
+                keys = dup.data.shape_keys
+                if not keys or len(keys.key_blocks) <= 1:
+                    continue
+                dropped = []
+                for mod in list(dup.modifiers):
+                    if mod.type == 'ARMATURE':
+                        continue
+                    if mod.show_render or mod.show_viewport:
+                        dropped.append(mod.name)
+                    dup.modifiers.remove(mod)
+                if dropped:
+                    shapekey_mod_warnings.append(
+                        f"{dup.name} ({', '.join(dropped)})"
+                    )
 
-                # ─ Step 6: Select arm + temp copies for export ─
-                bpy.ops.object.select_all(action='DESELECT')
-                arm.select_set(True)
-                for t in temp_meshes:
-                    t.select_set(True)
-                context.view_layer.objects.active = arm
-
-            except Exception:
-                for t in temp_meshes:
-                    bpy.data.objects.remove(t, do_unlink=True)
-                raise
+            # ─ Step 6: Select arm + temp copies for export ─
+            bpy.ops.object.select_all(action='DESELECT')
+            arm.select_set(True)
+            for t in temp_meshes:
+                t.select_set(True)
+            context.view_layer.objects.active = arm
 
             # ─ Step 7: Call FBX export ─
             bpy.ops.export_scene.fbx(
@@ -479,11 +526,6 @@ class BF_OT_VRC_ExportToUnity(Operator):
                 bake_anim=False,
             )
 
-            # Clean up temp duplicates
-            for t in temp_meshes:
-                bpy.data.objects.remove(t, do_unlink=True)
-            temp_meshes.clear()
-
             # ─ Step 8: Generate sidecar if enabled ─
             if settings.export_sidecar:
                 try:
@@ -496,8 +538,37 @@ class BF_OT_VRC_ExportToUnity(Operator):
 
             # ─ Step 9: Post-export summary ─
             self.report({'INFO'}, f"Exported to {fbx_path}")
+            if shapekey_mod_warnings:
+                self.report(
+                    {'WARNING'},
+                    "Blendshapes kept, but these modifiers were NOT baked "
+                    "into the FBX (they cannot be applied to meshes with "
+                    "shape keys — apply or remove them manually if you need "
+                    "their geometry): " + "; ".join(shapekey_mod_warnings)
+                )
 
         finally:
+            # Remove temp duplicates (also on error paths — the previous
+            # implementation leaked them if the FBX exporter raised).
+            for t in temp_meshes:
+                try:
+                    dup_data = t.data
+                    bpy.data.objects.remove(t, do_unlink=True)
+                    # Also purge the copied mesh datablock — leaving it
+                    # orphaned would keep the original names occupied
+                    # (".001" drift) until the next save/purge.
+                    if dup_data is not None and dup_data.users == 0:
+                        bpy.data.meshes.remove(dup_data)
+                except (ReferenceError, RuntimeError) as exc:
+                    logger.debug("temp mesh cleanup failed: %s", exc)
+            # Give the originals their names back (after the dups are gone,
+            # so Blender doesn't dodge a collision with ".001" suffixes).
+            for orig_obj, orig_name, orig_data, orig_data_name in renamed:
+                try:
+                    orig_obj.name = orig_name
+                    orig_data.name = orig_data_name
+                except (ReferenceError, RuntimeError) as exc:
+                    logger.debug("name restore failed: %s", exc)
             # Restore scene state
             bpy.ops.object.select_all(action='DESELECT')
             for obj_name in saved_selection:
@@ -530,7 +601,7 @@ def draw_export_settings(layout, context):
 
     row = box.row(align=True)
     row.prop(settings, "include_clothing_separate", text="Separate Clothing")
-    row.prop(settings, "apply_shape_keys_to_basis", text="Bake Shape Keys")
+    row.prop(settings, "apply_shape_keys_to_basis", text="Remove Shape Keys")
 
     row = box.row(align=True)
     row.prop(settings, "embed_textures", text="Embed Textures")

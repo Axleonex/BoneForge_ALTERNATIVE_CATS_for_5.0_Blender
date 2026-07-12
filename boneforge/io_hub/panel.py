@@ -165,7 +165,7 @@ class BF_PT_sb_io(Panel):
                 icon='INFO',
             )
         except Exception:
-            ucol.label(text=T("Enable VRChat phase for Unity export"), icon='INFO')
+            unity_box.label(text=T("Enable VRChat phase for Unity export"), icon='INFO')
 
         ue_box = layout.box()
         ue_box.label(text=T("Unreal Engine 5"), icon='OUTLINER_OB_ARMATURE')

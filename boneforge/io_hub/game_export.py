@@ -37,6 +37,38 @@ def _with_extension(filename: str, extension: str) -> str:
     return f"{base or filename}{extension}"
 
 
+def _shield_shapekey_modifiers(objects):
+    """Temporarily disable enabled non-armature modifiers on shape-keyed
+    meshes so the FBX exporter (use_mesh_modifiers=True) does not silently
+    drop their shape keys. Returns (saved_states, shielded_names)."""
+    saved = []
+    names = []
+    for ob in objects:
+        if ob.type != 'MESH':
+            continue
+        keys = ob.data.shape_keys
+        if not keys or len(keys.key_blocks) <= 1:
+            continue
+        for mod in ob.modifiers:
+            if mod.type == 'ARMATURE':
+                continue
+            if mod.show_viewport or mod.show_render:
+                saved.append((mod, mod.show_viewport, mod.show_render))
+                mod.show_viewport = False
+                mod.show_render = False
+                names.append(f"{ob.name}:{mod.name}")
+    return saved, names
+
+
+def _restore_shapekey_modifiers(saved):
+    for mod, show_viewport, show_render in saved:
+        try:
+            mod.show_viewport = show_viewport
+            mod.show_render = show_render
+        except ReferenceError:
+            pass
+
+
 def _default_unreal_export_name(context) -> str:
     obj = context.active_object
     if obj is not None:
@@ -144,6 +176,9 @@ class BF_OT_ExportUnrealFBX(bpy.types.Operator, ExportHelper):
             self.report({'ERROR'}, "FBX export path is not set (save the .blend or choose an export folder)")
             return {'CANCELLED'}
 
+        export_scope = (context.selected_objects if self.use_selection
+                        else context.scene.objects)
+        shielded, shielded_names = _shield_shapekey_modifiers(export_scope)
         try:
             bpy.ops.export_scene.fbx(
                 filepath=self.filepath,
@@ -167,6 +202,14 @@ class BF_OT_ExportUnrealFBX(bpy.types.Operator, ExportHelper):
         except RuntimeError as exc:
             self.report({'ERROR'}, f"FBX export failed: {exc}")
             return {'CANCELLED'}
+        finally:
+            _restore_shapekey_modifiers(shielded)
+        if shielded_names:
+            self.report(
+                {'WARNING'},
+                "Blendshapes kept; these modifiers were NOT baked into the "
+                "FBX (mesh has shape keys): " + ", ".join(shielded_names)
+            )
         self.report({'INFO'}, f"Exported: {self.filepath}")
         return {'FINISHED'}
 
