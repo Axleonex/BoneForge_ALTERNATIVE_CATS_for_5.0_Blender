@@ -57,7 +57,7 @@ Additional detailed UV integration credits live in `boneforge/vrchat/cats/uv_too
 
 ## Release Package
 
-- `releases/BoneForge-8.5.0.zip`
+The ready-to-install add-on lives in [`releases/`](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/tree/main/releases)
 
 ## Source Package
 
