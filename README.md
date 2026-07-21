@@ -55,9 +55,9 @@ BoneForge Alternative CATS is not an official continuation of the upstream proje
 
 Additional detailed UV integration credits live in `boneforge/vrchat/cats/uv_tools/CREDITS.md`.
 
-## Release Package
+## Install Instructions
 
-The ready-to-install add-on lives in [`releases/`](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/tree/main/releases)
+The ready-to-install add-on zip lives in [`releases/`](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/tree/main/releases)
 
 ## Source Package
 
