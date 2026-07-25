@@ -18,12 +18,15 @@ session 2026-04-25, Team D — The Stress Lab).
 
 import bpy
 
-from . import bridge, importer, exporter, lint, ui, springbone_convert, vroid_morph_map
+from . import (bridge, importer, exporter, lint, ui, springbone_convert,
+               vroid_morph_map, vroid_project)
 
 
 _classes = (
     importer.BF_OT_VRMImport,
     importer.BF_OT_VRoidImport,
+    vroid_project.BF_OT_VRoidOpenInStudio,
+    vroid_project.BF_OT_VRoidClearProject,
     exporter.BF_OT_VRMExport,
     lint.BF_OT_VRMLint,
     lint.BF_OT_VRMFixHumanoidAliases,
@@ -40,6 +43,7 @@ _classes = (
 
 def register():
     """Register VRM bridge classes and the scene settings pointer."""
+    vroid_project.register_previews()
     for cls in _classes:
         try:
             bpy.utils.register_class(cls)
@@ -53,6 +57,7 @@ def register():
 
 def unregister():
     """Unregister in reverse order; tolerate missing classes on reload."""
+    vroid_project.unregister_previews()
     if hasattr(bpy.types.Scene, "boneforge_vrm_settings"):
         del bpy.types.Scene.boneforge_vrm_settings
     for cls in reversed(_classes):

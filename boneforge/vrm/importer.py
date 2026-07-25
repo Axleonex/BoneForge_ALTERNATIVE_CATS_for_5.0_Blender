@@ -31,7 +31,7 @@ import bpy
 from bpy.props import StringProperty
 from bpy.types import Operator
 
-from . import bridge, meta
+from . import bridge, meta, vroid_project
 
 logger = logging.getLogger(__name__)
 
@@ -333,6 +333,54 @@ class BF_OT_VRoidImport(Operator):
         context.window_manager.fileselect_add(self)
         return {"RUNNING_MODAL"}
 
+    def _inspect_vroid_project(self, context):
+        """Read the .vroid wrapper and populate the hand-off card.
+
+        BoneForge cannot convert the project — see ``vroid_project`` for
+        why — so the useful move is to confirm the file, show the user
+        which avatar it is, and put VRoid Studio one click away.
+        """
+        settings = getattr(context.scene, "boneforge_vrm_settings", None)
+        info = vroid_project.read_project_meta(self.filepath)
+
+        if info is None:
+            self.report(
+                {"ERROR"},
+                "This does not look like a valid VRoid Studio project "
+                "(no readable meta.json inside).",
+            )
+            return {"CANCELLED"}
+
+        icon_id = 0
+        if info["has_thumbnail"]:
+            thumb = vroid_project.extract_thumbnail(self.filepath)
+            if thumb:
+                icon_id = vroid_project.load_thumbnail_preview(thumb)
+
+        if settings is not None:
+            settings.vroid_project_path = self.filepath
+            settings.vroid_project_version = info["version"]
+            settings.vroid_project_summary = (
+                f"{os.path.basename(self.filepath)} — "
+                f"{info['size_mb']:.1f} MB"
+            )
+            settings.vroid_thumbnail_icon = icon_id
+            # Pre-point the VRM importer at the project's folder, since
+            # VRoid Studio defaults its export there.
+            settings.vroid_last_folder = os.path.dirname(self.filepath)
+
+        self.report(
+            {"INFO"},
+            f"VRoid Studio {info['version']} project loaded. BoneForge "
+            "cannot convert .vroid directly — use 'Open in VRoid Studio' "
+            "in the VRM panel, run Export -> VRM, then import that .vrm.",
+        )
+        logger.info(
+            "[BoneForge] inspected .vroid project: %s (VRoid %s)",
+            self.filepath, info["version"],
+        )
+        return {"FINISHED"}
+
     def execute(self, context):
         if not self.filepath:
             self.report({"ERROR"}, "No file selected")
@@ -344,18 +392,9 @@ class BF_OT_VRoidImport(Operator):
         extension = os.path.splitext(self.filepath)[1].lower()
 
         if extension == ".vroid":
-            # Not a failure of this add-on — a property of the format.
-            self.report(
-                {"ERROR"},
-                "'.vroid' is a VRoid Studio project file and cannot be "
-                "read by Blender or by any VRM add-on. Open it in VRoid "
-                "Studio and use Export -> VRM, then import that .vrm "
-                "with 'Import VRM…'.",
-            )
-            logger.info(
-                "[BoneForge] refused .vroid project file: %s", self.filepath
-            )
-            return {"CANCELLED"}
+            # The wrapper is readable even though the model payload is
+            # not, so inspect it and hand off rather than dead-ending.
+            return self._inspect_vroid_project(context)
 
         if extension != ".zip":
             self.report(
@@ -381,8 +420,8 @@ class BF_OT_VRoidImport(Operator):
                     self.report(
                         {"ERROR"},
                         "This archive contains a .vroid project file but "
-                        "no .vrm. Open the .vroid in VRoid Studio and use "
-                        "Export -> VRM first.",
+                        "no .vrm. Extract it, then select the .vroid here "
+                        "to open it in VRoid Studio and Export -> VRM.",
                     )
                 else:
                     self.report(

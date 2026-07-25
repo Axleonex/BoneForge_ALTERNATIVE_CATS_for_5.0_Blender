@@ -29,7 +29,7 @@ Layout, top to bottom:
 from __future__ import annotations
 
 import bpy
-from bpy.props import EnumProperty, BoolProperty, StringProperty
+from bpy.props import EnumProperty, BoolProperty, StringProperty, IntProperty
 from bpy.types import Panel, PropertyGroup
 
 from boneforge.core import active_armature
@@ -75,6 +75,86 @@ class BF_VRMSettings(PropertyGroup):
         name="Show Meta",
         default=False,
     )
+    # ── VRoid project hand-off (8.5.3) ───────────────────────────
+    # Populated when the user picks a .vroid in the VRoid importer.
+    # BoneForge cannot convert the project payload, so these drive a
+    # confirm-and-hand-off card instead of an import.
+    vroid_project_path: StringProperty(
+        name="VRoid Project",
+        description="Last inspected .vroid project file",
+        subtype="FILE_PATH",
+        default="",
+    )
+    vroid_project_version: StringProperty(
+        name="VRoid Studio Version",
+        default="",
+    )
+    vroid_project_summary: StringProperty(
+        name="Project Summary",
+        default="",
+    )
+    vroid_thumbnail_icon: IntProperty(
+        name="Thumbnail Icon ID",
+        default=0,
+    )
+    vroid_last_folder: StringProperty(
+        name="VRoid Folder",
+        description="Folder the .vroid came from; VRoid Studio exports here by default",
+        subtype="DIR_PATH",
+        default="",
+    )
+
+
+def _draw_vroid_project_card(layout, settings):
+    """Draw the hand-off card for an inspected ``.vroid`` project.
+
+    Only appears once the user has picked a ``.vroid``. BoneForge cannot
+    convert the project payload, so the card confirms *which* avatar the
+    file holds and puts VRoid Studio's Export → VRM one click away.
+    """
+    if settings is None or not settings.vroid_project_path:
+        return
+
+    box = layout.box()
+    header = box.row()
+    header.label(text=T("VRoid Studio Project"), icon="FILE_BLEND")
+    header.operator(
+        "boneforge.vroid_clear_project", text="", icon="X", emboss=False
+    )
+
+    if settings.vroid_thumbnail_icon:
+        preview = box.row()
+        preview.alignment = "CENTER"
+        preview.template_icon(
+            icon_value=settings.vroid_thumbnail_icon, scale=6.0
+        )
+
+    if settings.vroid_project_summary:
+        box.label(text=settings.vroid_project_summary)
+    if settings.vroid_project_version:
+        box.label(
+            text=T("Made with VRoid Studio ") + settings.vroid_project_version
+        )
+
+    note = box.column(align=True)
+    note.label(
+        text=T("BoneForge cannot convert .vroid directly"), icon="INFO"
+    )
+    note.label(text=T("Export it to VRM in VRoid Studio, then import that"))
+
+    box.operator(
+        "boneforge.vroid_open_in_studio",
+        text=T("Open in VRoid Studio"),
+        icon="EXPORT",
+    )
+    follow = box.operator(
+        "boneforge.vrm_import",
+        text=T("Import Exported VRM…"),
+        icon="IMPORT",
+    )
+    # Land the file browser in the project's folder — VRoid Studio
+    # defaults its VRM export alongside the project.
+    follow.filepath = settings.vroid_last_folder
 
 
 def draw_panel_content(layout, context):
@@ -150,13 +230,11 @@ def draw_panel_content(layout, context):
     row.enabled = status["import_op_available"]
     row.operator(
         "boneforge.vroid_import",
-        text=T("Import VRoid Download (.zip)…"),
+        text=T("Import VRoid (.vroid / .zip)…"),
         icon="PACKAGE",
     )
-    col.label(
-        text=T("VRoid Studio .vroid projects must be exported to VRM first"),
-        icon="INFO",
-    )
+
+    _draw_vroid_project_card(layout, settings)
 
     layout.separator()
 
