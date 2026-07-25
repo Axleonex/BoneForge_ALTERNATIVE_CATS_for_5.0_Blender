@@ -372,12 +372,26 @@ def auto_map_humanoid(armature):
 
 
 def get_mapping(armature):
-    """Retrieve stored mapping from armature custom property."""
+    """Retrieve stored mapping from armature custom property.
+
+    ``save_mapping`` writes with ``armature[key]``, which is a Blender
+    *custom property* — a different namespace from Python attributes.
+    Reading it back with ``getattr``/``hasattr`` always missed, so every
+    saved mapping read as empty and the exporter reported all required
+    slots missing no matter how often Auto-Map ran. Item access is the
+    matching read, and is what ``core.read_custom_json`` already uses.
+    """
     key = "boneforge_vrchat_humanoid"
-    if hasattr(armature, key):
+    raw = armature.get(key) if armature is not None else None
+    if raw is not None:
         try:
-            data = json.loads(getattr(armature, key))
-            return HumanoidMapping(data)
+            data = json.loads(raw)
+            if isinstance(data, dict):
+                return HumanoidMapping(data)
+            logger.error(
+                "[BoneForge] humanoid mapping is %s, expected object",
+                type(data).__name__,
+            )
         except (json.JSONDecodeError, TypeError, ValueError) as e:
             # M-07: Log JSON parse errors for debugging
             logger.error(f"[BoneForge] JSON parse error loading humanoid mapping: {e}")
@@ -545,11 +559,39 @@ class BF_OT_VRC_ValidateMapping(Operator):
         mapping = get_mapping(arm)
         missing = mapping.validate_required(arm)
 
+        # A never-mapped armature reports every required slot missing,
+        # which reads as "my rig is broken" when it only means "nothing
+        # has been detected yet". Detect first, then judge.
+        if len(missing) == len(REQUIRED_SLOTS):
+            detected = auto_map_humanoid(arm)
+            detected_missing = detected.validate_required(arm)
+            if len(detected_missing) < len(missing):
+                save_mapping(arm, detected)
+                mapping, missing = detected, detected_missing
+                if not missing:
+                    self.report(
+                        {"INFO"},
+                        "Nothing was mapped yet — auto-mapped all "
+                        f"{len(REQUIRED_SLOTS)} required slots from bone "
+                        "names. Ready to export.",
+                    )
+                    return {"FINISHED"}
+                self.report(
+                    {"WARNING"},
+                    f"Nothing was mapped yet — auto-mapped "
+                    f"{len(REQUIRED_SLOTS) - len(missing)}/"
+                    f"{len(REQUIRED_SLOTS)} slots. Still missing: "
+                    f"{', '.join(missing[:8])}. Set these by hand in the "
+                    "Humanoid Mapping panel.",
+                )
+                return {"FINISHED"}
+
         if missing:
             self.report(
                 {"WARNING"},
                 f"Missing or invalid {len(missing)} required slots: "
-                f"{', '.join(missing[:8])}"
+                f"{', '.join(missing[:8])}. Click 'Auto-Map Humanoid', "
+                "then set any leftovers by hand.",
             )
         else:
             self.report({"INFO"}, "All required humanoid slots are mapped!")

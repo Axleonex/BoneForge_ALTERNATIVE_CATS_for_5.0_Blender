@@ -483,6 +483,18 @@ def draw_merge_armatures_ui(layout, context):
     layout.separator(factor=0.5)
     naming = layout.box()
     naming.label(text=T("Naming Prep"), icon='ARMATURE_DATA')
+    # The two options are named after Mixamo, which reads as "only for
+    # Mixamo rigs". They are really a generic two-pass name unifier for
+    # merging any two armatures, so spell the workflow out here.
+    guide = naming.column(align=True)
+    guide.label(
+        text=T("Match bone names for clean armature merges"), icon='INFO'
+    )
+    guide.label(text=T("Works on any rig — not just Mixamo imports"))
+    guide.label(text=T("1. Select Mixamo Prefixed, then Normalize"))
+    guide.label(text=T("2. Select Mixamo Stripped, then Normalize again"))
+    guide.label(text=T("Both rigs end on unified names, ready to merge"))
+    naming.separator(factor=0.35)
     naming.prop(settings, "naming_standard", text="")
     name_row = naming.row()
     name_row.enabled = ready and settings.naming_standard != "NONE"

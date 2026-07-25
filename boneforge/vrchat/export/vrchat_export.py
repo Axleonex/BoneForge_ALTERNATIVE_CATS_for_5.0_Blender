@@ -629,6 +629,14 @@ def draw_export_settings(layout, context):
     if missing:
         box.label(text=f"Missing/invalid: {', '.join(missing[:5])}", icon='INFO')
 
+    # Every required slot missing almost always means the mapping step
+    # simply hasn't been run yet — not that the rig is unusable. Say so,
+    # instead of leaving a wall of red slot names as the only feedback.
+    if mapped == 0:
+        hint = box.column(align=True)
+        hint.label(text="Not mapped yet — this is the first step", icon='INFO')
+        hint.label(text="Click Auto-Map Humanoid below to detect bones")
+
     row = box.row(align=True)
     row.operator(
         "boneforge.vrc_auto_map_humanoid",

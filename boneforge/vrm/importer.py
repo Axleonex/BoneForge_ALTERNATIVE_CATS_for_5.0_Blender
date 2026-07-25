@@ -155,6 +155,53 @@ def _surface_visemes(armature_obj):
     return surfaced
 
 
+def _seed_vrchat_humanoid_mapping(armature_obj):
+    """Populate the VRChat humanoid mapping from the VRM humanoid data.
+
+    A VRM carries an authoritative humanoid bone map, so the VRChat
+    exporter should never make the user re-derive it by hand. Without
+    this, a freshly imported avatar reports all 15 required slots
+    missing until "Auto-Map Humanoid" is clicked.
+
+    Returns the number of slots written; 0 when the VRChat phase is
+    disabled or the VRM carried no humanoid map.
+    """
+    mapping = _humanoid_bone_map(armature_obj)
+    if not mapping:
+        return 0
+
+    # Lazy import: the VRChat phase is togglable in the Tool Registry,
+    # and the VRM bridge must keep working when it is switched off.
+    try:
+        from boneforge.vrchat.humanoid.mapper import (
+            HumanoidMapping, get_mapping, save_mapping,
+        )
+    except ImportError:
+        logger.info(
+            "[BoneForge] VRChat phase unavailable; skipped humanoid seed"
+        )
+        return 0
+
+    bone_names = {bone.name for bone in armature_obj.data.bones}
+    # Never clobber a mapping the user already curated by hand.
+    existing = get_mapping(armature_obj).to_dict()
+    seeded = dict(existing)
+
+    written = 0
+    for vrm_slot, bone_name in mapping.items():
+        unity_slot = _VRM_HUMANOID_TO_VRCHAT.get(vrm_slot)
+        if not unity_slot or bone_name not in bone_names:
+            continue
+        if existing.get(unity_slot):
+            continue
+        seeded[unity_slot] = bone_name
+        written += 1
+
+    if written:
+        save_mapping(armature_obj, HumanoidMapping(seeded))
+    return written
+
+
 def _import_vrm_and_run_passes(op, context, filepath):
     """Import ``filepath`` via upstream, run post-import passes.
 
@@ -189,10 +236,12 @@ def _import_vrm_and_run_passes(op, context, filepath):
             meta.preserve_to_armature(arm)
             aliases = _stamp_humanoid_aliases(arm)
             visemes = _surface_visemes(arm)
+            slots = _seed_vrchat_humanoid_mapping(arm)
             logger.info(
                 "[BoneForge] post-import passes on %s: "
-                "%d humanoid aliases, %d visemes surfaced",
-                arm.name, aliases, visemes,
+                "%d humanoid aliases, %d visemes surfaced, "
+                "%d VRChat humanoid slots seeded",
+                arm.name, aliases, visemes, slots,
             )
         except Exception as exc:
             # Post-import passes are best-effort. Never let them
