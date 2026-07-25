@@ -23,6 +23,7 @@ from . import bridge, importer, exporter, lint, ui, springbone_convert, vroid_mo
 
 _classes = (
     importer.BF_OT_VRMImport,
+    importer.BF_OT_VRoidImport,
     exporter.BF_OT_VRMExport,
     lint.BF_OT_VRMLint,
     lint.BF_OT_VRMFixHumanoidAliases,

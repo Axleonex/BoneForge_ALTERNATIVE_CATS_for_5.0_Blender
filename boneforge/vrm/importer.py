@@ -22,6 +22,10 @@ is byte-identical to the source when nothing is edited in between.
 from __future__ import annotations
 
 import logging
+import os
+import shutil
+import tempfile
+import zipfile
 
 import bpy
 from bpy.props import StringProperty
@@ -151,6 +155,56 @@ def _surface_visemes(armature_obj):
     return surfaced
 
 
+def _import_vrm_and_run_passes(op, context, filepath):
+    """Import ``filepath`` via upstream, run post-import passes.
+
+    Shared by :class:`BF_OT_VRMImport` and :class:`BF_OT_VRoidImport` so
+    a VRM pulled out of a VRoid archive gets exactly the same treatment
+    as one picked directly. Reports through ``op`` and returns the list
+    of armatures the upstream importer produced, or ``None`` on failure.
+    """
+    # Snapshot the set of armatures so we can identify what the
+    # upstream importer added. ``import_scene.vrm`` does not return
+    # the new object on its own.
+    before = {o.name for o in bpy.data.objects if o.type == "ARMATURE"}
+
+    try:
+        bpy.ops.import_scene.vrm(filepath=filepath)
+    except (RuntimeError, AttributeError) as exc:
+        op.report({"ERROR"}, f"VRM import failed: {exc}")
+        logger.exception("[BoneForge] VRM import failed")
+        return None
+
+    after = {o.name for o in bpy.data.objects if o.type == "ARMATURE"}
+    new_arms = [bpy.data.objects[name] for name in (after - before)]
+    if not new_arms:
+        # Some upstream versions reuse an existing armature object;
+        # fall back to the active object.
+        obj = context.active_object
+        if obj is not None and obj.type == "ARMATURE":
+            new_arms = [obj]
+
+    for arm in new_arms:
+        try:
+            meta.preserve_to_armature(arm)
+            aliases = _stamp_humanoid_aliases(arm)
+            visemes = _surface_visemes(arm)
+            logger.info(
+                "[BoneForge] post-import passes on %s: "
+                "%d humanoid aliases, %d visemes surfaced",
+                arm.name, aliases, visemes,
+            )
+        except Exception as exc:
+            # Post-import passes are best-effort. Never let them
+            # break a successful upstream import.
+            logger.warning(
+                "[BoneForge] post-import pass failed on %s: %s",
+                arm.name, exc,
+            )
+
+    return new_arms
+
+
 class BF_OT_VRMImport(Operator):
     """Import a .vrm via the upstream add-on, then run BoneForge passes."""
 
@@ -188,46 +242,9 @@ class BF_OT_VRMImport(Operator):
             self.report({"ERROR"}, "VRM Add-on not available")
             return {"CANCELLED"}
 
-        # Snapshot the set of armatures so we can identify what the
-        # upstream importer added. ``import_scene.vrm`` does not return
-        # the new object on its own.
-        before = {o.name for o in bpy.data.objects if o.type == "ARMATURE"}
-
-        try:
-            bpy.ops.import_scene.vrm(filepath=self.filepath)
-        except (RuntimeError, AttributeError) as exc:
-            self.report({"ERROR"}, f"VRM import failed: {exc}")
-            logger.exception("[BoneForge] VRM import failed")
+        new_arms = _import_vrm_and_run_passes(self, context, self.filepath)
+        if new_arms is None:
             return {"CANCELLED"}
-
-        after = {o.name for o in bpy.data.objects if o.type == "ARMATURE"}
-        new_arms = [
-            bpy.data.objects[name] for name in (after - before)
-        ]
-        if not new_arms:
-            # Some upstream versions reuse an existing armature object;
-            # fall back to the active object.
-            obj = context.active_object
-            if obj is not None and obj.type == "ARMATURE":
-                new_arms = [obj]
-
-        for arm in new_arms:
-            try:
-                meta.preserve_to_armature(arm)
-                aliases = _stamp_humanoid_aliases(arm)
-                visemes = _surface_visemes(arm)
-                logger.info(
-                    "[BoneForge] post-import passes on %s: "
-                    "%d humanoid aliases, %d visemes surfaced",
-                    arm.name, aliases, visemes,
-                )
-            except Exception as exc:
-                # Post-import passes are best-effort. Never let them
-                # break a successful upstream import.
-                logger.warning(
-                    "[BoneForge] post-import pass failed on %s: %s",
-                    arm.name, exc,
-                )
 
         self.report(
             {"INFO"},
@@ -235,3 +252,171 @@ class BF_OT_VRMImport(Operator):
             "license + spring data preserved on armature.",
         )
         return {"FINISHED"}
+
+
+# ── VRoid download handling ──────────────────────────────────────
+#
+# VRoid Studio's own project format (``.vroid``) is proprietary and
+# undocumented: no Blender add-on can read it, and nothing can write it
+# either — VRoid Studio cannot re-import a .vrm back into a project. It
+# is a one-way source format. Selecting one here therefore cannot import
+# geometry; the best we can do is say so precisely and point at the
+# Export → VRM step that produces something Blender *can* read.
+#
+# The ``.zip`` half is the part that does real work: VRoid Hub and Booth
+# commonly ship avatars as an archive with the .vrm nested inside, which
+# the plain "Import VRM…" browser filters out of sight entirely.
+
+_VROID_EXPORT_HELP = "https://vroid.com/en/studio"
+
+
+def _find_vrm_in_zip(zip_path, dest_dir):
+    """Extract ``zip_path`` into ``dest_dir``; return the .vrm paths found.
+
+    Returns ``(vrm_paths, member_names)``. ``member_names`` is used to
+    build a useful error message when the archive holds no VRM at all.
+    """
+    with zipfile.ZipFile(zip_path) as archive:
+        member_names = archive.namelist()
+        # Refuse absolute paths and parent-directory traversal rather
+        # than trusting archive member names on disk.
+        safe_members = []
+        for name in member_names:
+            if name.endswith("/"):
+                continue
+            normalized = os.path.normpath(name).replace("\\", "/")
+            if normalized.startswith(("/", "../")) or os.path.isabs(normalized):
+                logger.warning(
+                    "[BoneForge] skipping unsafe archive member: %s", name
+                )
+                continue
+            safe_members.append(name)
+        archive.extractall(dest_dir, members=safe_members)
+
+    vrm_paths = []
+    for root, _dirs, files in os.walk(dest_dir):
+        for filename in files:
+            if filename.lower().endswith(".vrm"):
+                vrm_paths.append(os.path.join(root, filename))
+    return sorted(vrm_paths), member_names
+
+
+class BF_OT_VRoidImport(Operator):
+    """Import a VRoid download — unpacks a .zip, explains a .vroid."""
+
+    bl_idname = "boneforge.vroid_import"
+    bl_label = "Import VRoid Download…"
+    bl_description = (
+        "Import a VRoid Hub / Booth avatar download. Accepts a .zip "
+        "archive and imports the .vrm nested inside it. A .vroid "
+        "project file cannot be read by Blender and is explained rather "
+        "than imported"
+    )
+    bl_options = {"REGISTER", "UNDO"}
+
+    filepath: StringProperty(subtype="FILE_PATH")
+    filter_glob: StringProperty(
+        default="*.zip;*.vroid", options={"HIDDEN"}
+    )
+
+    def invoke(self, context, event):
+        # Same fail-fast gate as the plain VRM importer: a .zip is only
+        # useful to us if the upstream add-on can read what's inside.
+        if bridge.find_vrm_addon() is None:
+            self.report(
+                {"ERROR"},
+                "VRM Add-on for Blender not detected. Click "
+                "'Install / Enable VRM Add-on' in the BoneForge VRM "
+                "panel first.",
+            )
+            return {"CANCELLED"}
+        context.window_manager.fileselect_add(self)
+        return {"RUNNING_MODAL"}
+
+    def execute(self, context):
+        if not self.filepath:
+            self.report({"ERROR"}, "No file selected")
+            return {"CANCELLED"}
+        if bridge.find_vrm_addon() is None:
+            self.report({"ERROR"}, "VRM Add-on not available")
+            return {"CANCELLED"}
+
+        extension = os.path.splitext(self.filepath)[1].lower()
+
+        if extension == ".vroid":
+            # Not a failure of this add-on — a property of the format.
+            self.report(
+                {"ERROR"},
+                "'.vroid' is a VRoid Studio project file and cannot be "
+                "read by Blender or by any VRM add-on. Open it in VRoid "
+                "Studio and use Export -> VRM, then import that .vrm "
+                "with 'Import VRM…'.",
+            )
+            logger.info(
+                "[BoneForge] refused .vroid project file: %s", self.filepath
+            )
+            return {"CANCELLED"}
+
+        if extension != ".zip":
+            self.report(
+                {"ERROR"},
+                "Select a .zip VRoid download, or use 'Import VRM…' for "
+                "a plain .vrm file.",
+            )
+            return {"CANCELLED"}
+
+        temp_dir = tempfile.mkdtemp(prefix="boneforge_vroid_")
+        try:
+            try:
+                vrm_paths, member_names = _find_vrm_in_zip(
+                    self.filepath, temp_dir
+                )
+            except (zipfile.BadZipFile, OSError) as exc:
+                self.report({"ERROR"}, f"Could not read archive: {exc}")
+                logger.exception("[BoneForge] VRoid archive read failed")
+                return {"CANCELLED"}
+
+            if not vrm_paths:
+                if any(n.lower().endswith(".vroid") for n in member_names):
+                    self.report(
+                        {"ERROR"},
+                        "This archive contains a .vroid project file but "
+                        "no .vrm. Open the .vroid in VRoid Studio and use "
+                        "Export -> VRM first.",
+                    )
+                else:
+                    self.report(
+                        {"ERROR"},
+                        f"No .vrm found inside the archive "
+                        f"({len(member_names)} entries).",
+                    )
+                return {"CANCELLED"}
+
+            chosen = vrm_paths[0]
+            if len(vrm_paths) > 1:
+                logger.info(
+                    "[BoneForge] archive holds %d VRM files; importing %s",
+                    len(vrm_paths), os.path.basename(chosen),
+                )
+
+            new_arms = _import_vrm_and_run_passes(self, context, chosen)
+            if new_arms is None:
+                return {"CANCELLED"}
+
+            extra = ""
+            if len(vrm_paths) > 1:
+                extra = (
+                    f" ({len(vrm_paths)} VRM files in archive — imported "
+                    f"'{os.path.basename(chosen)}'; extract the archive "
+                    "manually to pick a different one)"
+                )
+            self.report(
+                {"INFO"},
+                f"Imported '{os.path.basename(chosen)}' from archive "
+                f"({len(new_arms)} armature(s)){extra}.",
+            )
+            return {"FINISHED"}
+        finally:
+            # A .vrm is a self-contained GLB — textures ride inside the
+            # binary, so nothing references the temp copy after import.
+            shutil.rmtree(temp_dir, ignore_errors=True)

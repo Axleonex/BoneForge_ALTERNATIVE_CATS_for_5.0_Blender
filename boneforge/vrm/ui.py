@@ -146,6 +146,17 @@ def draw_panel_content(layout, context):
     row = col.row()
     row.enabled = status["import_op_available"]
     row.operator("boneforge.vrm_import", text=T("Import VRM…"), icon="IMPORT")
+    row = col.row()
+    row.enabled = status["import_op_available"]
+    row.operator(
+        "boneforge.vroid_import",
+        text=T("Import VRoid Download (.zip)…"),
+        icon="PACKAGE",
+    )
+    col.label(
+        text=T("VRoid Studio .vroid projects must be exported to VRM first"),
+        icon="INFO",
+    )
 
     layout.separator()
 

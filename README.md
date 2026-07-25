@@ -2,7 +2,7 @@
 
 Open-Blender BoneForge package for standard Blender users.
 
-This repository is the non-exclusive Blender build. It is centered on the CATS-style VRChat avatar workflow and packages the CATS-compatible BoneForge 8.5.1 add-on for standard Blender. Matching the B4Artists version number does not make this the B4Artists-exclusive payload.
+This repository is the non-exclusive Blender build. It is centered on the CATS-style VRChat avatar workflow and packages the CATS-compatible BoneForge 8.5.2 add-on for standard Blender. Matching the B4Artists version number does not make this the B4Artists-exclusive payload.
 
 This build is an attempted revival and continuation of no-longer-maintained free Blender avatar tools that helped VRChat artists prepare, clean, optimize, and export avatars. The focus is CATS first, because CATS is the core workflow named by this repository, with Material Combiner and UVToolkit-derived atlas controls integrated where they support that CATS workflow.
 
@@ -20,10 +20,10 @@ B4Artists-exclusive files must not be committed here.
 
 ## Install
 
-1. Download the add-on zip: **[BoneForge-8.5.1.zip](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/raw/main/releases/BoneForge-8.5.1.zip)** (or grab it from the [Releases](../../releases) page).
+1. Download the add-on zip: **[BoneForge-8.5.2.zip](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/raw/main/releases/BoneForge-8.5.2.zip)** (or grab it from the [Releases](../../releases) page).
 2. In Blender, open **Edit → Preferences → Add-ons**.
 3. Click the **dropdown arrow (˅) at the top-right of the Add-ons panel → Install from Disk…**
-4. Select the `BoneForge-8.5.1.zip` you downloaded.
+4. Select the `BoneForge-8.5.2.zip` you downloaded.
 5. Tick the checkbox next to **BoneForge** to enable it.
 6. In the 3D Viewport, press **N** to open the sidebar — BoneForge adds its tabs there.
 

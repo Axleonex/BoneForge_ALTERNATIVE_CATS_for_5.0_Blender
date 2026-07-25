@@ -343,6 +343,8 @@ STRINGS: dict[str, str] = {
     "Label": "Label",
     "Language / 言語 / 언어 / 语言": "Language / 言語 / 언어 / 语言",
     "Map VRoid Visemes": "Map VRoid Visemes",
+    "Import VRoid Download (.zip)…": "Import VRoid Download (.zip)…",
+    "VRoid Studio .vroid projects must be exported to VRM first": "VRoid Studio .vroid projects must be exported to VRM first",
     "Material Check:": "Material Check:",
     "Merges into — clothing/hair added to Base, then hidden.": "Merges into — clothing/hair added to Base, then hidden.",
     "Merges into ↑": "Merges into ↑",
