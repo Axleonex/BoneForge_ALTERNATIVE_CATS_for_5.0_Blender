@@ -263,6 +263,88 @@ def _set_material_alpha_output(mat, render_type) -> None:
             pass
 
 
+def _sampled_alpha_below(image, uv_points, threshold=0.98) -> bool:
+    """True when any sampled texel's alpha falls below *threshold*.
+
+    ``uv_points`` are (u, v) pairs already restricted to texels the mesh
+    actually uses — sampling the whole image would misread VRoid
+    textures, whose *unused* padding regions often carry zero alpha.
+    """
+    if image is None or int(getattr(image, "channels", 0)) < 4:
+        return False
+    try:
+        width, height = int(image.size[0]), int(image.size[1])
+        if width <= 0 or height <= 0:
+            return False
+        pixels = image.pixels
+        for u, v in uv_points:
+            x = min(width - 1, max(0, int((u % 1.0) * width)))
+            y = min(height - 1, max(0, int((v % 1.0) * height)))
+            if float(pixels[(y * width + x) * 4 + 3]) < threshold:
+                return True
+    except (AttributeError, IndexError, TypeError, ValueError) as exc:
+        logger.warning("[BoneForge] alpha sampling failed on %s: %s",
+                       getattr(image, "name", "?"), exc)
+        # Unreadable pixels: keep the authored transparency rather than
+        # guessing it away.
+        return True
+    return False
+
+
+def _material_alpha_texture_in_use(obj, slot_index, mat, max_samples=256) -> bool:
+    """Does this material's base texture use alpha where the mesh samples it?
+
+    VRoid authors nearly every MToon material as Transparent even when
+    its texture alpha is solid white. Baking a whole outfit down the
+    alpha path for that flag alone is what turned decals into black
+    patches, so an authored-BLEND MToon material is only kept
+    transparent when real sub-1 alpha shows up under its own UVs.
+    """
+    image = _mtoon_base_color_image(mat)
+    if image is None:
+        return True  # nothing to sample — trust the authored mode
+    mesh = getattr(obj, "data", None)
+    if mesh is None or not getattr(mesh, "uv_layers", None):
+        return True
+    uv_layer = mesh.uv_layers.get("UVMap_pre_atlas") or mesh.uv_layers.active
+    if uv_layer is None:
+        return True
+
+    uv_points = []
+    for poly in mesh.polygons:
+        if poly.material_index != slot_index:
+            continue
+        for loop_index in poly.loop_indices:
+            uv = uv_layer.data[loop_index].uv
+            uv_points.append((float(uv[0]), float(uv[1])))
+            break  # one corner per face is plenty at this sample count
+        if len(uv_points) >= max_samples:
+            break
+    if not uv_points:
+        return True
+    return _sampled_alpha_below(image, uv_points)
+
+
+def _effective_render_type(obj, slot_index, mat) -> str:
+    """Classify like ``_classify_material`` but verify MToon transparency.
+
+    An MToon material authored BLEND/MASK whose base texture alpha is
+    effectively solid under its own UVs is treated as Opaque.
+    """
+    render_type = _classify_material(mat)
+    if (
+        render_type in ("Alpha Blend", "Alpha Clip")
+        and _is_mtoon_material(mat)
+        and not _material_alpha_texture_in_use(obj, slot_index, mat)
+    ):
+        logger.info(
+            "[BoneForge] %s authored %s but texture alpha is solid; "
+            "treating as Opaque", getattr(mat, "name", "?"), render_type,
+        )
+        return "Opaque"
+    return render_type
+
+
 def _classify_material(mat) -> str:
     """Return render-type class for a material."""
     if mat is None:
@@ -485,7 +567,11 @@ def _dominant_render_type(obj) -> str:
     """Return the dominant render type for a mesh object."""
     if not obj.data.materials:
         return "Opaque"
-    types = [_classify_material(m) for m in obj.data.materials if m]
+    types = [
+        _effective_render_type(obj, slot_index, m)
+        for slot_index, m in enumerate(obj.data.materials)
+        if m
+    ]
     # Priority: Alpha Blend > Emissive > Alpha Clip > Opaque
     for priority in ("Alpha Blend", "Emissive", "Alpha Clip", "Opaque"):
         if priority in types:
@@ -1080,7 +1166,7 @@ def _populate_group_sources(group, objs):
             mat_item.object_name = obj.name
             mat_item.slot_index = slot_index
             mat_item.material_name = mat_name
-            mat_item.render_type = _classify_material(mat)
+            mat_item.render_type = _effective_render_type(obj, slot_index, mat)
             mat_item.texture_count = len(tex_nodes)
             mat_item.has_no_images = len(tex_nodes) == 0
             # An empty MToon slot is a declaration, not a fault — only flag
@@ -1406,7 +1492,14 @@ def _build_debug_report(meshes, settings) -> str:
                 lines.append(f"  [{slot_index}] ERROR: empty material slot")
                 continue
 
-            render_type = _classify_material(mat)
+            render_type = _effective_render_type(obj, slot_index, mat)
+            authored_type = _classify_material(mat)
+            if authored_type != render_type:
+                lines.append(
+                    f"  [{slot_index}] {mat.name} | authored {authored_type} "
+                    "but texture alpha is solid under its UVs — treated as "
+                    f"{render_type}"
+                )
             mat_source = _material_quality_source(obj, slot_index, mat)
             mat_report = diagnose_material(mat_source)
             quality_materials.append(mat_source)
