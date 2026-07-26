@@ -218,13 +218,43 @@ def _classify_material(mat) -> str:
             em_color = node.inputs.get("Emission Color") or node.inputs.get("Emission")
             em_strength = node.inputs.get("Emission Strength")
             if em_color and em_color.is_linked:
-                return "Emissive"
+                # "Linked" alone is not proof of emission. A VRM material
+                # rebuilt by hand keeps VRoid's 8x8 black stub wired into
+                # Emission, and one such material dragged a whole atlas
+                # group to Emissive. Judge the *source* of the link.
+                if _emission_link_actually_emits(em_color, em_strength):
+                    return "Emissive"
+                continue
             if em_color and em_strength:
                 col = em_color.default_value
                 strength = em_strength.default_value if hasattr(em_strength, "default_value") else 0.0
                 if strength > 0.0 and (col[0] > 0.01 or col[1] > 0.01 or col[2] > 0.01):
                     return "Emissive"
     return "Opaque"
+
+
+def _emission_link_actually_emits(em_color, em_strength) -> bool:
+    """True when a linked Emission input carries real emissive content.
+
+    Not emissive when the strength is zero, or when every link traces back
+    to an image node holding a VRoid placeholder stub or no image at all.
+    A link from anything that is not a plain image node (mix, group, ramp)
+    is assumed emissive — this only rules out the provably-dead cases.
+    """
+    if em_strength is not None and hasattr(em_strength, "default_value"):
+        try:
+            if float(em_strength.default_value) <= 0.0 and not em_strength.is_linked:
+                return False
+        except (TypeError, ValueError):
+            pass
+    for link in em_color.links:
+        source = link.from_node
+        if getattr(source, "type", "") != "TEX_IMAGE":
+            return True
+        image = getattr(source, "image", None)
+        if image is not None and not _is_vroid_placeholder_image(image):
+            return True
+    return False
 
 
 def _is_generated_atlas_material(mat) -> bool:
@@ -253,6 +283,36 @@ def _atlas_material_has_emission_pass(mat) -> bool:
         if node.name == _ATLAS_EMISSION_NODE and getattr(node, "image", None):
             return True
     return False
+
+
+def _image_file_status(image) -> str:
+    """Classify where an image's pixels actually live.
+
+    Returns one of:
+      ``"packed"``    pixels stored in the .blend — safe.
+      ``"ok"``        external file present on disk.
+      ``"missing"``   external file GONE — Blender renders this magenta
+                      after the next reload. This is the classic cause of
+                      a pink avatar that survives revert/undo.
+      ``"temp"``      external file exists but lives in a temp directory
+                      (the VRM importer unpacks there); the OS will
+                      eventually delete it and the image becomes missing.
+      ``"none"``      no image / no filepath to check.
+    """
+    if image is None:
+        return "none"
+    if getattr(image, "packed_file", None):
+        return "packed"
+    filepath = getattr(image, "filepath", "") or ""
+    if not filepath:
+        return "none"
+    abs_path = bpy.path.abspath(filepath)
+    if not os.path.exists(abs_path):
+        return "missing"
+    lowered = abs_path.lower().replace("\\", "/")
+    if "/temp/" in lowered or "/tmp/" in lowered or lowered.startswith("/tmp"):
+        return "temp"
+    return "ok"
 
 
 def _is_mtoon_material(mat) -> bool:
@@ -1310,6 +1370,15 @@ def _build_debug_report(meshes, settings) -> str:
                 note = ""
                 if _is_vroid_placeholder_image(img):
                     note = "  [VRoid unused-slot stub — not baked]"
+                file_status = _image_file_status(img)
+                if file_status == "missing":
+                    problem_count += 1
+                    note += "  [ERROR: file MISSING on disk — renders magenta]"
+                elif file_status == "temp":
+                    note += (
+                        "  [WARNING: lives in a temp folder — pack or move "
+                        "it before the OS deletes it]"
+                    )
                 lines.append(
                     f"  [{slot_index}] {mat.name} | {render_type} | "
                     f"role={tex_report['role_label']} | "
@@ -1341,6 +1410,48 @@ def _build_debug_report(meshes, settings) -> str:
         lines.append("NOTE: Mixed source image sizes are supported, but small images may soften in a large atlas.")
     if len(color_spaces) > 1:
         lines.append("NOTE: Mixed color spaces detected. Verify the baked atlas visually before Accept.")
+
+    # ── Scene-wide image health ──────────────────────────────────
+    # The per-mesh section above only covers the current scope. A magenta
+    # object OUTSIDE the selection (hair, halo, accessories) still means a
+    # broken image somewhere in the file, so sweep every image datablock —
+    # and say which materials/objects use the broken ones.
+    missing_rows = []
+    temp_rows = []
+    for img in bpy.data.images:
+        status = _image_file_status(img)
+        if status not in ("missing", "temp"):
+            continue
+        users = []
+        for scan_mat in bpy.data.materials:
+            if not scan_mat.use_nodes or not scan_mat.node_tree:
+                continue
+            if any(
+                getattr(n, "image", None) is img
+                for n in scan_mat.node_tree.nodes
+                if n.type == "TEX_IMAGE"
+            ):
+                users.append(scan_mat.name)
+        row = (
+            f"- {img.name} | {bpy.path.abspath(img.filepath) if img.filepath else '<no path>'}"
+            f" | used by: {', '.join(users) if users else '<no material>'}"
+        )
+        (missing_rows if status == "missing" else temp_rows).append(row)
+    if missing_rows or temp_rows:
+        lines.append("")
+        lines.append("Scene-wide image health (all images in this .blend, any selection):")
+        if missing_rows:
+            lines.append(
+                f"MISSING FILES ({len(missing_rows)}) — these render MAGENTA; "
+                "relink or replace them:"
+            )
+            lines.extend(missing_rows)
+        if temp_rows:
+            lines.append(
+                f"TEMP-FOLDER FILES ({len(temp_rows)}) — will go missing when "
+                "the OS clears temp; use File > External Data > Pack Resources:"
+            )
+            lines.extend(temp_rows)
 
     if quality_materials or quality_textures:
         lines.extend([
@@ -2572,12 +2683,32 @@ class BF_OT_VRC_AtlasBake(Operator):
         logger.info("[BoneForge Atlas] %s", joined["boneforge_atlas_uv_result"])
 
         # ── Create atlas image ────────────────────────────────
-        atlas_name = (
-            f"bf_atlas_{group.render_type.lower().replace(' ', '_')}_{res}px"
+        # The name carries the source mesh, not just type+res. Two meshes
+        # atlased at the same type+res used to collide on one name — and
+        # the collision was destructive: the old image datablock was
+        # force-removed (stripping it from every material that used it)
+        # and its PNG overwritten on disk.
+        slug_source = (
+            group.materials[0].object_name if len(group.materials) else "mesh"
         )
-        if atlas_name in bpy.data.images:
-            bpy.data.images.remove(bpy.data.images[atlas_name])
+        slug = "".join(
+            ch if (ch.isalnum() or ch == "_") else "_" for ch in slug_source
+        ).strip("_").lower() or "mesh"
+        atlas_name = (
+            f"bf_atlas_{slug}_"
+            f"{group.render_type.lower().replace(' ', '_')}_{res}px"
+        )
+        existing_atlas = bpy.data.images.get(atlas_name)
+        if existing_atlas is not None and existing_atlas.users == 0:
+            # Truly orphaned — safe to replace in place.
+            bpy.data.images.remove(existing_atlas)
+        # When the name is still taken by an in-use image, images.new()
+        # auto-suffixes (.001), so the earlier atlas keeps working. Adopt
+        # whatever name Blender granted — the disk path, material name and
+        # extra pass names below all derive from it, keeping the previous
+        # run's PNG safe from being overwritten too.
         atlas_img = bpy.data.images.new(atlas_name, width=res, height=res, alpha=True)
+        atlas_name = atlas_img.name
         atlas_img.colorspace_settings.name = "sRGB"
         extra_images = {}
         output_render_type = _resolve_output_render_type(group, settings)
