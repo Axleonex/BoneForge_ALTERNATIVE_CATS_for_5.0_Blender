@@ -73,7 +73,7 @@ unchanged.
 bl_info = {
     "name": "BoneForge",
     "author": "BoneForge Team",
-    "version": (8, 5, 7),
+    "version": (8, 5, 8),
     "blender": (4, 0, 0),
     "location": "3D Viewport > Sidebar > BoneForge / Rig Builder",
     "description": (

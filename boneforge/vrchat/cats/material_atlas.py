@@ -183,15 +183,88 @@ def _vram_mb(resolution: str) -> float:
     return round((res * res * 4 * _VRAM_MIP_FACTOR) / (1024 * 1024), 1)
 
 
+def _material_alpha_mode(mat) -> str:
+    """Return "BLEND", "CLIP" or "OPAQUE" across Blender generations.
+
+    ``Material.blend_method`` was removed in Blender 5, so relying on it
+    silently classified every transparent material Opaque there — VRoid
+    decal layers then baked with no alpha and their invisible regions
+    turned into solid patches on the atlas. Checks, in order:
+
+    1. MToon's own alpha mode (authoritative for VRM materials).
+    2. Legacy ``blend_method`` (Blender <= 4.x, incl. Bforartists 4).
+    3. Blender 5 ``surface_render_method`` ("BLENDED" means alpha).
+    4. For non-MToon node materials: an image Alpha output linked into a
+       Principled Alpha socket.
+    """
+    if mat is None:
+        return "OPAQUE"
+
+    mtoon1 = getattr(getattr(mat, "vrm_addon_extension", None), "mtoon1", None)
+    if mtoon1 is not None and bool(getattr(mtoon1, "enabled", False)):
+        mode = str(getattr(mtoon1, "alpha_mode", "") or "").upper()
+        if mode == "BLEND":
+            return "BLEND"
+        if mode == "MASK":
+            return "CLIP"
+        if mode == "OPAQUE":
+            return "OPAQUE"
+
+    blend = str(getattr(mat, "blend_method", "") or "").upper()
+    if blend in ("BLEND", "HASHED"):
+        return "BLEND"
+    if blend == "CLIP":
+        return "CLIP"
+
+    if str(getattr(mat, "surface_render_method", "") or "").upper() == "BLENDED":
+        return "BLEND"
+
+    # Node fallback for hand-built materials (no MToon data, no explicit
+    # render-method hint): image Alpha wired into Principled Alpha.
+    if not _is_mtoon_material(mat) and mat.use_nodes and mat.node_tree:
+        for node in mat.node_tree.nodes:
+            if node.type != "BSDF_PRINCIPLED":
+                continue
+            alpha_input = node.inputs.get("Alpha")
+            if alpha_input is not None and alpha_input.is_linked:
+                for link in alpha_input.links:
+                    if getattr(link.from_node, "type", "") == "TEX_IMAGE":
+                        return "BLEND"
+    return "OPAQUE"
+
+
+def _set_material_alpha_output(mat, render_type) -> None:
+    """Make *mat* render transparent/clipped/opaque on any Blender version.
+
+    Never raises: each attribute is applied only where the host exposes
+    it (setting an unknown attribute on a bpy struct raises).
+    """
+    legacy = {"Alpha Blend": "BLEND", "Alpha Clip": "CLIP"}.get(render_type, "OPAQUE")
+    if hasattr(mat, "blend_method"):
+        try:
+            mat.blend_method = legacy
+        except (AttributeError, TypeError):
+            pass
+    if hasattr(mat, "surface_render_method"):
+        try:
+            # Blender 5 has no dedicated CLIP mode; alpha-clip content
+            # still needs BLENDED to honour the alpha channel at all.
+            mat.surface_render_method = (
+                "BLENDED" if render_type in ("Alpha Blend", "Alpha Clip") else "DITHERED"
+            )
+        except (AttributeError, TypeError):
+            pass
+
+
 def _classify_material(mat) -> str:
     """Return render-type class for a material."""
     if mat is None:
         return "Opaque"
 
-    blend = getattr(mat, "blend_method", "OPAQUE")
-    if blend == "BLEND":
+    alpha_mode = _material_alpha_mode(mat)
+    if alpha_mode == "BLEND":
         return "Alpha Blend"
-    if blend == "CLIP":
+    if alpha_mode == "CLIP":
         return "Alpha Clip"
 
     # A material BoneForge generated itself. Re-scanning one used to read the
@@ -516,9 +589,8 @@ def _material_alpha_default(mat) -> float:
 def _material_uses_alpha(mat) -> bool:
     if not mat:
         return False
-    blend = str(getattr(mat, "blend_method", "") or "").upper()
-    alpha_method = str(getattr(mat, "alpha_method", "") or "").upper()
-    alpha_like = blend not in {"", "OPAQUE"} or alpha_method not in {"", "OPAQUE"}
+    # Version-portable alpha check (blend_method is gone in Blender 5).
+    alpha_like = _material_alpha_mode(mat) != "OPAQUE"
     if _find_alpha_source_image_node(mat, allow_unlinked_alpha=alpha_like) is not None:
         return True
     return _material_alpha_default(mat) < 0.999
@@ -2836,13 +2908,11 @@ class BF_OT_VRC_AtlasBake(Operator):
             bpy.data.materials.remove(bpy.data.materials[mat_name])
         atlas_mat = bpy.data.materials.new(mat_name)
         atlas_mat.use_nodes = True
-        # Set blend mode to match the selected output render type.
-        if output_render_type == "Alpha Blend":
-            atlas_mat.blend_method = "BLEND"
-        elif output_render_type == "Alpha Clip":
-            atlas_mat.blend_method = "CLIP"
-        else:
-            atlas_mat.blend_method = "OPAQUE"
+        # Set blend mode to match the selected output render type, on
+        # whichever API this host has: blend_method exists through
+        # Blender/Bforartists 4.x, surface_render_method from Blender 4.2's
+        # EEVEE Next onward (and is the only one left in Blender 5).
+        _set_material_alpha_output(atlas_mat, output_render_type)
 
         nodes = atlas_mat.node_tree.nodes
         links = atlas_mat.node_tree.links
