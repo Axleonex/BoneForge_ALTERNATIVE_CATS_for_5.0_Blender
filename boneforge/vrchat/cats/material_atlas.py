@@ -80,6 +80,20 @@ logger = logging.getLogger(__name__)
 _RANK_THRESHOLDS = {"Excellent": 4, "Good": 8, "Medium": 16, "Poor": 32}
 _RANK_ORDER = ["Excellent", "Good", "Medium", "Poor"]
 _RENDER_TYPES = ["Opaque", "Alpha Clip", "Alpha Blend", "Emissive"]
+
+# ── MToon / VRoid recognition ────────────────────────────────────────
+# The VRM add-on names every MToon texture node "Mtoon1<Slot>Texture.Image".
+_MTOON_NODE_PREFIX = "Mtoon1"
+_MTOON_EMISSIVE_NODE_PREFIX = "Mtoon1EmissiveTexture"
+# The MToon slot VRoid points at the *same* image as base colour. Atlasing it
+# packs every albedo twice, so it is skipped when it duplicates base colour.
+_MTOON_SHADE_NODE_PREFIX = "Mtoon1ShadeMultiplyTexture"
+_MTOON_BASE_COLOR_NODE_PREFIX = "Mtoon1BaseColorTexture"
+# VRoid's constant stub images meaning "slot unused".
+_VROID_PLACEHOLDER_IMAGE_NAMES = frozenset(
+    {"Shader_NoneBlack", "Shader_NoneNormal", "MatcapWarp"}
+)
+_VROID_PLACEHOLDER_MAX_PX = 8
 _OUTPUT_MATERIAL_TYPE_ITEMS = [
     ("AUTO", "Auto (Group)", "Use each atlas group's detected render type"),
     ("OPAQUE", "Opaque", "Force generated atlas materials to opaque"),
@@ -172,6 +186,14 @@ def _classify_material(mat) -> str:
     if blend == "CLIP":
         return "Alpha Clip"
 
+    # MToon (VRM/VRoid) always links the Principled emission socket — that is
+    # how it produces flat toon shading rather than lit shading. Judging it by
+    # "is the socket linked" marked every VRM material Emissive, which wired
+    # the atlas into Emission Color at full strength and blew bright surfaces
+    # out to saturated magenta. Judge MToon by what it actually emits.
+    if _is_mtoon_material(mat):
+        return "Emissive" if _mtoon_actually_emits(mat) else "Opaque"
+
     # Detect emissive via Principled BSDF emission inputs
     if mat.use_nodes and mat.node_tree:
         for node in mat.node_tree.nodes:
@@ -188,6 +210,92 @@ def _classify_material(mat) -> str:
                 if strength > 0.0 and (col[0] > 0.01 or col[1] > 0.01 or col[2] > 0.01):
                     return "Emissive"
     return "Opaque"
+
+
+def _is_mtoon_material(mat) -> bool:
+    """True when *mat* is a VRM MToon material.
+
+    Prefers the VRM add-on's own flag; falls back to MToon's node naming so
+    detection still works when the add-on is absent (an appended or linked
+    .blend, for instance).
+    """
+    if not mat:
+        return False
+    ext = getattr(mat, "vrm_addon_extension", None)
+    mtoon1 = getattr(ext, "mtoon1", None)
+    if mtoon1 is not None and bool(getattr(mtoon1, "enabled", False)):
+        return True
+    if not mat.use_nodes or not mat.node_tree:
+        return False
+    return any(
+        node.name.startswith(_MTOON_NODE_PREFIX) for node in mat.node_tree.nodes
+    )
+
+
+def _is_vroid_placeholder_image(image) -> bool:
+    """True for VRoid's 8x8 'this slot is unused' stub textures.
+
+    VRoid ships ``Shader_NoneBlack`` / ``Shader_NoneNormal`` / ``MatcapWarp``
+    as tiny constant images to fill MToon slots the avatar does not use.
+    Baking them wastes atlas space and produces duplicate groups.
+    """
+    if image is None:
+        return False
+    name = (image.name or "").split(".")[0]
+    if name not in _VROID_PLACEHOLDER_IMAGE_NAMES:
+        return False
+    try:
+        width, height = int(image.size[0]), int(image.size[1])
+    except (IndexError, TypeError, ValueError):
+        return True
+    # Guard the name match with the stub's tiny size so a user's real
+    # texture that happens to share the name is never dropped.
+    return width <= _VROID_PLACEHOLDER_MAX_PX and height <= _VROID_PLACEHOLDER_MAX_PX
+
+
+def _mtoon_base_color_image(mat):
+    """Return the image on MToon's base-colour node, or ``None``."""
+    if not mat or not mat.use_nodes or not mat.node_tree:
+        return None
+    for node in mat.node_tree.nodes:
+        if node.name.startswith(_MTOON_BASE_COLOR_NODE_PREFIX):
+            return getattr(node, "image", None)
+    return None
+
+
+def _mtoon_actually_emits(mat) -> bool:
+    """True when an MToon material has real emissive content.
+
+    Real means: an emissive texture that is not VRoid's black placeholder,
+    or a non-black emissive factor.
+    """
+    ext = getattr(mat, "vrm_addon_extension", None)
+    mtoon1 = getattr(ext, "mtoon1", None)
+    if mtoon1 is not None:
+        emissive = getattr(mtoon1, "emissive_texture", None)
+        image = getattr(getattr(emissive, "index", None), "source", None)
+        if image is not None and not _is_vroid_placeholder_image(image):
+            return True
+        factor = getattr(mtoon1, "emissive_factor", None)
+        if factor is not None:
+            try:
+                if any(float(channel) > 0.01 for channel in factor):
+                    return True
+            except TypeError:
+                pass
+        if image is not None:
+            return False
+
+    # No add-on data reachable — fall back to the emissive node's image.
+    if not mat.use_nodes or not mat.node_tree:
+        return False
+    for node in mat.node_tree.nodes:
+        if not node.name.startswith(_MTOON_EMISSIVE_NODE_PREFIX):
+            continue
+        image = getattr(node, "image", None)
+        if image is not None and not _is_vroid_placeholder_image(image):
+            return True
+    return False
 
 
 def _dominant_render_type(obj) -> str:
@@ -793,7 +901,12 @@ def _populate_group_sources(group, objs):
             mat_item.render_type = _classify_material(mat)
             mat_item.texture_count = len(tex_nodes)
             mat_item.has_no_images = len(tex_nodes) == 0
-            mat_item.has_missing_image = any(image is None for _node, image in tex_nodes)
+            # An empty MToon slot is a declaration, not a fault — only flag
+            # a genuinely missing image on non-MToon materials.
+            mat_item.has_missing_image = (
+                not _is_mtoon_material(mat)
+                and any(image is None for _node, image in tex_nodes)
+            )
             mat_item.has_mixed_colorspace = len(color_spaces) > 1
             mat_item.diagnostic_status = mat_report["status"]
             mat_item.diagnostic_warnings = "; ".join(mat_report["warnings"])
@@ -801,11 +914,35 @@ def _populate_group_sources(group, objs):
             mat_item.fallback_size = 512
             material_pairs.append((mat_item, mat_source))
 
+            is_mtoon = _is_mtoon_material(mat)
+            base_color_image = _mtoon_base_color_image(mat) if is_mtoon else None
+
             for node, image in tex_nodes:
+                # MToon declares every slot it supports, so an avatar that
+                # uses none of the optional ones carries a stack of empty
+                # nodes. They are normal, not errors — skip them silently
+                # rather than reporting one failure per unused slot.
+                if is_mtoon and image is None:
+                    continue
+
                 tex_source = _texture_quality_source(mat_name, node, image)
                 tex_report = diagnose_texture(tex_source)
                 tex_item = group.textures.add()
                 tex_item.enabled = image is not None
+                if _is_vroid_placeholder_image(image):
+                    # An 8x8 "unused slot" stub. Keep the row visible so the
+                    # report stays honest, but never bake it.
+                    tex_item.enabled = False
+                elif (
+                    is_mtoon
+                    and base_color_image is not None
+                    and node.name.startswith(_MTOON_SHADE_NODE_PREFIX)
+                    and image is base_color_image
+                ):
+                    # VRoid points shade-multiply at the base colour image,
+                    # so atlasing it packs the same texture twice. Left on
+                    # when it genuinely differs.
+                    tex_item.enabled = False
                 tex_item.object_name = obj.name
                 tex_item.slot_index = slot_index
                 tex_item.material_name = mat_name
@@ -1108,7 +1245,14 @@ def _build_debug_report(meshes, settings) -> str:
                 )
                 continue
 
+            is_mtoon = _is_mtoon_material(mat)
+            skipped_empty_slots = 0
+
             for node, img in tex_nodes:
+                if is_mtoon and img is None:
+                    # Unused MToon slot — expected, not a problem.
+                    skipped_empty_slots += 1
+                    continue
                 tex_source = _texture_quality_source(mat.name, node, img)
                 tex_report = diagnose_texture(tex_source)
                 quality_textures.append(tex_source)
@@ -1120,10 +1264,19 @@ def _build_debug_report(meshes, settings) -> str:
                 seen_images[key] = img
                 packed = "packed" if img.packed_file else "external"
                 path = bpy.path.abspath(img.filepath) if img.filepath else "<unsaved or generated>"
+                note = ""
+                if _is_vroid_placeholder_image(img):
+                    note = "  [VRoid unused-slot stub — not baked]"
                 lines.append(
                     f"  [{slot_index}] {mat.name} | {render_type} | "
                     f"role={tex_report['role_label']} | "
-                    f"image={img.name} {img.size[0]}x{img.size[1]} {packed} | {path}"
+                    f"image={img.name} {img.size[0]}x{img.size[1]} {packed} | {path}{note}"
+                )
+
+            if skipped_empty_slots:
+                lines.append(
+                    f"  [{slot_index}] {mat.name} | MToon: "
+                    f"{skipped_empty_slots} unused texture slot(s) skipped"
                 )
 
     sizes = sorted({(img.size[0], img.size[1]) for img in seen_images.values() if img})
