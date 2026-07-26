@@ -200,15 +200,22 @@ def _material_alpha_mode(mat) -> str:
     if mat is None:
         return "OPAQUE"
 
-    mtoon1 = getattr(getattr(mat, "vrm_addon_extension", None), "mtoon1", None)
-    if mtoon1 is not None and bool(getattr(mtoon1, "enabled", False)):
+    # MToon materials: the VRM add-on's own alpha mode is the ONLY valid
+    # signal, and MToon materials never fall through to the host checks.
+    # The add-on sets surface_render_method=BLENDED on every MToon
+    # material (alpha is handled inside its shader), so the Blender 5
+    # fallback below would misread an entire VRoid outfit — skin
+    # included — as transparent.
+    if _is_mtoon_material(mat):
+        mtoon1 = getattr(
+            getattr(mat, "vrm_addon_extension", None), "mtoon1", None
+        )
         mode = str(getattr(mtoon1, "alpha_mode", "") or "").upper()
         if mode == "BLEND":
             return "BLEND"
         if mode == "MASK":
             return "CLIP"
-        if mode == "OPAQUE":
-            return "OPAQUE"
+        return "OPAQUE"
 
     blend = str(getattr(mat, "blend_method", "") or "").upper()
     if blend in ("BLEND", "HASHED"):
