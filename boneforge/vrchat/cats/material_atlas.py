@@ -19,6 +19,7 @@ Category: VRChat Cats Tools.
 
 import json
 import logging
+import math
 import os
 import time
 from array import array
@@ -758,7 +759,27 @@ def _copy_mask_luminance_to_image_alpha(mask_img, target_img):
     target_img.update()
 
 
+def _describe_alpha_source(source_mat) -> str:
+    """Say where a material's baked alpha comes from, for diagnostics."""
+    if source_mat is None:
+        return "opaque (no material)"
+    alpha_like = _material_uses_alpha(source_mat)
+    node = _find_alpha_source_image_node(
+        source_mat, allow_unlinked_alpha=alpha_like
+    )
+    if node is not None and getattr(node, "image", None) is not None:
+        linked = any(
+            output.name == "Alpha" and output.is_linked
+            for output in node.outputs
+        )
+        return "image '%s' alpha (%s)" % (
+            node.image.name, "linked" if linked else "unlinked fallback",
+        )
+    return "constant %.2f" % _material_alpha_default(source_mat)
+
+
 def _bake_alpha_mask_to_atlas(context, joined, atlas_img, settings, atlas_name, res):
+    """Bake per-face alpha into the atlas. Returns per-material source info."""
     alpha_name = f"{atlas_name}_alpha_mask"
     if alpha_name in bpy.data.images:
         bpy.data.images.remove(bpy.data.images[alpha_name])
@@ -766,6 +787,9 @@ def _bake_alpha_mask_to_atlas(context, joined, atlas_img, settings, atlas_name, 
     alpha_img.colorspace_settings.name = "Non-Color"
 
     original_materials = [mat for mat in joined.data.materials]
+    alpha_sources = [
+        _describe_alpha_source(source_mat) for source_mat in original_materials
+    ]
     temp_materials = []
     try:
         for index, source_mat in enumerate(original_materials):
@@ -803,6 +827,77 @@ def _bake_alpha_mask_to_atlas(context, joined, atlas_img, settings, atlas_name, 
                 bpy.data.materials.remove(temp_mat)
         if alpha_img.name in bpy.data.images:
             bpy.data.images.remove(alpha_img)
+    return alpha_sources
+
+
+def _collect_atlas_tile_stats(joined, atlas_img, alpha_sources=None):
+    """Sample each material's atlas tile after baking.
+
+    Only meaningful for the SOURCE_PRESERVE layout, where every material
+    owns one grid tile. Returns a list of per-material dicts with mean
+    RGB and mean/min alpha, so a tile that baked invisible (alpha ~0) or
+    blank-opaque names itself in the debug report instead of having to
+    be eyeballed in the Image Editor.
+    """
+    mesh = getattr(joined, "data", None)
+    if mesh is None or atlas_img is None:
+        return None
+    try:
+        width, height = int(atlas_img.size[0]), int(atlas_img.size[1])
+        if width <= 0 or height <= 0:
+            return None
+        pixels = array("f", [0.0]) * (width * height * 4)
+        atlas_img.pixels.foreach_get(pixels)
+    except (AttributeError, TypeError, ValueError) as exc:
+        logger.warning("[BoneForge] tile stats unavailable: %s", exc)
+        return None
+
+    material_indices = sorted(
+        {poly.material_index for poly in mesh.polygons if poly.loop_indices}
+    )
+    if not material_indices:
+        return None
+    grid_size = max(1, math.ceil(math.sqrt(len(material_indices))))
+    tile_size = 1.0 / grid_size
+
+    stats = []
+    samples = 12
+    for slot, material_index in enumerate(material_indices):
+        col, row = slot % grid_size, slot // grid_size
+        sum_r = sum_g = sum_b = sum_a = 0.0
+        min_a = 1.0
+        count = 0
+        # Sample the inner 50% of the tile so padding/margins don't skew it.
+        for sy in range(samples):
+            for sx in range(samples):
+                u = (col + 0.25 + 0.5 * (sx + 0.5) / samples) * tile_size
+                v = (row + 0.25 + 0.5 * (sy + 0.5) / samples) * tile_size
+                x = min(width - 1, int(u * width))
+                y = min(height - 1, int(v * height))
+                base = (y * width + x) * 4
+                sum_r += pixels[base]
+                sum_g += pixels[base + 1]
+                sum_b += pixels[base + 2]
+                alpha = pixels[base + 3]
+                sum_a += alpha
+                min_a = min(min_a, alpha)
+                count += 1
+        mat = (
+            mesh.materials[material_index]
+            if material_index < len(mesh.materials) else None
+        )
+        entry = {
+            "material": mat.name if mat else f"<slot {material_index}>",
+            "tile": f"{col},{row}",
+            "mean_rgb": [round(sum_r / count, 3), round(sum_g / count, 3),
+                         round(sum_b / count, 3)],
+            "mean_alpha": round(sum_a / count, 3),
+            "min_alpha": round(min_a, 3),
+        }
+        if alpha_sources is not None and material_index < len(alpha_sources):
+            entry["alpha_source"] = alpha_sources[material_index]
+        stats.append(entry)
+    return stats
 
 
 def _target_meshes(context, settings=None):
@@ -1484,6 +1579,38 @@ def _build_debug_report(meshes, settings) -> str:
         if not mesh.uv_layers:
             problem_count += 1
         lines.append(f"Mesh: {obj.name} | materials={len(mesh.materials)} | uv={uv_state}")
+
+        # Post-bake tile diagnostics, stored on the atlas result object.
+        stats_raw = obj.get("boneforge_atlas_tile_stats")
+        if stats_raw:
+            try:
+                tile_stats = json.loads(stats_raw)
+            except (json.JSONDecodeError, TypeError):
+                tile_stats = None
+            if tile_stats:
+                lines.append("  Last bake — per-material tile stats:")
+                for entry in tile_stats:
+                    rgb = entry.get("mean_rgb", ["?", "?", "?"])
+                    verdicts = []
+                    if entry.get("mean_alpha", 1.0) < 0.05:
+                        verdicts.append("TILE IS INVISIBLE (alpha ~0)")
+                    elif entry.get("min_alpha", 1.0) >= 0.999:
+                        verdicts.append("fully opaque")
+                    if all(isinstance(c, (int, float)) and c > 0.93 for c in rgb):
+                        verdicts.append("baked nearly WHITE")
+                    if all(isinstance(c, (int, float)) and c < 0.02 for c in rgb):
+                        verdicts.append("baked nearly BLACK")
+                    lines.append(
+                        "    tile %s | %s | rgb=%s mean_a=%s min_a=%s | src=%s%s" % (
+                            entry.get("tile", "?"),
+                            entry.get("material", "?"),
+                            rgb,
+                            entry.get("mean_alpha", "?"),
+                            entry.get("min_alpha", "?"),
+                            entry.get("alpha_source", "n/a"),
+                            ("  [" + "; ".join(verdicts) + "]") if verdicts else "",
+                        )
+                    )
 
         for slot_index, mat in enumerate(mesh.materials):
             total_materials += 1
@@ -2926,8 +3053,9 @@ class BF_OT_VRC_AtlasBake(Operator):
                 margin=settings.atlas_padding_pixels,
                 use_clear=True,
             )
+            alpha_sources = None
             if needs_alpha_atlas:
-                _bake_alpha_mask_to_atlas(context, joined, atlas_img, settings, atlas_name, res)
+                alpha_sources = _bake_alpha_mask_to_atlas(context, joined, atlas_img, settings, atlas_name, res)
             for role, spec in _EXTRA_BAKE_PASSES.items():
                 if role not in enabled_passes:
                     continue
@@ -2963,6 +3091,17 @@ class BF_OT_VRC_AtlasBake(Operator):
                     target = mat.node_tree.nodes.get("BF_ATLAS_TARGET")
                     if target is not None:
                         target.image = atlas_img
+            # Post-bake diagnostics: sample every material's tile so a
+            # tile that baked invisible or blank names itself in Copy
+            # Debug instead of needing an Image Editor inspection.
+            if uv_result.get("method") == "SOURCE_PRESERVE":
+                tile_stats = _collect_atlas_tile_stats(
+                    joined, atlas_img, alpha_sources if needs_alpha_atlas else None
+                )
+                if tile_stats:
+                    joined["boneforge_atlas_tile_stats"] = json.dumps(tile_stats)
+                    for entry in tile_stats:
+                        logger.info("[BoneForge Atlas] tile %s", entry)
         except Exception as bake_err:
             scene.render.engine = saved_engine
             logger.warning("[BoneForge Atlas] Cycles bake failed for %s: %s", group.name, bake_err)
