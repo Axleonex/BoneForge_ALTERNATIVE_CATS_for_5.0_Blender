@@ -94,6 +94,14 @@ _VROID_PLACEHOLDER_IMAGE_NAMES = frozenset(
     {"Shader_NoneBlack", "Shader_NoneNormal", "MatcapWarp"}
 )
 _VROID_PLACEHOLDER_MAX_PX = 8
+
+# ── BoneForge's own atlas output ─────────────────────────────────────
+# Generated atlas materials are named "M_bf_atlas_<type>_<res>px" and carry
+# these node names. Recognising them keeps a re-atlas from reading back the
+# wiring the generator itself wrote.
+_ATLAS_MATERIAL_PREFIX = "M_bf_atlas"
+_ATLAS_EMISSION_NODE = "Atlas Emission"
+_ATLAS_NODE_NAMES = frozenset({"Atlas", "BF_ATLAS_TARGET"})
 _OUTPUT_MATERIAL_TYPE_ITEMS = [
     ("AUTO", "Auto (Group)", "Use each atlas group's detected render type"),
     ("OPAQUE", "Opaque", "Force generated atlas materials to opaque"),
@@ -186,6 +194,13 @@ def _classify_material(mat) -> str:
     if blend == "CLIP":
         return "Alpha Clip"
 
+    # A material BoneForge generated itself. Re-scanning one used to read the
+    # emission wiring the generator had just written and conclude "Emissive",
+    # which then regenerated the same wiring — the mistake compounded on every
+    # re-atlas. Judge it by whether a real emission atlas exists instead.
+    if _is_generated_atlas_material(mat):
+        return "Emissive" if _atlas_material_has_emission_pass(mat) else "Opaque"
+
     # MToon (VRM/VRoid) always links the Principled emission socket — that is
     # how it produces flat toon shading rather than lit shading. Judging it by
     # "is the socket linked" marked every VRM material Emissive, which wired
@@ -210,6 +225,34 @@ def _classify_material(mat) -> str:
                 if strength > 0.0 and (col[0] > 0.01 or col[1] > 0.01 or col[2] > 0.01):
                     return "Emissive"
     return "Opaque"
+
+
+def _is_generated_atlas_material(mat) -> bool:
+    """True when *mat* is an atlas material BoneForge produced."""
+    if not mat:
+        return False
+    if (mat.name or "").startswith(_ATLAS_MATERIAL_PREFIX):
+        return True
+    if not mat.use_nodes or not mat.node_tree:
+        return False
+    return any(
+        node.name in _ATLAS_NODE_NAMES for node in mat.node_tree.nodes
+    )
+
+
+def _atlas_material_has_emission_pass(mat) -> bool:
+    """True when a generated atlas material carries a real emission image.
+
+    The dedicated emission pass writes an "Atlas Emission" node. Base colour
+    being routed into Emission does not count — that is the very mistake this
+    guards against.
+    """
+    if not mat or not mat.use_nodes or not mat.node_tree:
+        return False
+    for node in mat.node_tree.nodes:
+        if node.name == _ATLAS_EMISSION_NODE and getattr(node, "image", None):
+            return True
+    return False
 
 
 def _is_mtoon_material(mat) -> bool:
@@ -2744,12 +2787,22 @@ class BF_OT_VRC_AtlasBake(Operator):
             if emission_strength is not None and hasattr(emission_strength, "default_value"):
                 emission_strength.default_value = 1.0
         elif output_render_type == "Emissive" and output_surface_shader == "PRINCIPLED":
-            emission_input = _node_input(surface_node, "Emission Color", "Emission")
+            # Deliberately does NOT wire the albedo atlas into Emission.
+            #
+            # This used to link the base-colour atlas into Emission Color at
+            # strength 1.0 whenever the group was flagged Emissive but had no
+            # emission pass. That applies the same colour twice, so bright
+            # surfaces blow out — VRoid avatars came back saturated magenta.
+            # Emission must come from a real emission map (handled by the
+            # ROLE_EMISSION branch above), never from base colour.
             emission_strength = _node_input(surface_node, "Emission Strength")
-            if emission_input is not None:
-                links.new(tex_node.outputs["Color"], emission_input)
             if emission_strength is not None and hasattr(emission_strength, "default_value"):
-                emission_strength.default_value = 1.0
+                emission_strength.default_value = 0.0
+            logger.info(
+                "[BoneForge] atlas group '%s' is Emissive but has no emission "
+                "pass; leaving Emission unwired rather than duplicating albedo",
+                getattr(group, "name", "?"),
+            )
         if ROLE_ROUGHNESS in extra_images:
             roughness_tex = nodes.new("ShaderNodeTexImage")
             roughness_tex.name = "Atlas Roughness"
