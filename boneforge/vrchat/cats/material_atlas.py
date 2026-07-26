@@ -635,9 +635,60 @@ def _image_has_alpha(image) -> bool:
     return bool(image and getattr(image, "channels", 0) >= 4)
 
 
+def _mtoon_base_color_node(mat):
+    """Return MToon's base-colour image node (with a real image), or ``None``."""
+    if not mat or not mat.use_nodes or not mat.node_tree:
+        return None
+    for node in mat.node_tree.nodes:
+        if (
+            node.type == "TEX_IMAGE"
+            and node.name.startswith(_MTOON_BASE_COLOR_NODE_PREFIX)
+            and getattr(node, "image", None) is not None
+        ):
+            return node
+    return None
+
+
+def _alpha_output_feeds_alpha_socket(alpha_output, max_depth=4) -> bool:
+    """Follow *alpha_output* downstream through intermediate nodes.
+
+    MToon and imported materials rarely wire image Alpha straight into a
+    socket named "Alpha" — it often passes through a multiply/math node
+    first. A direct-link name check alone misses those, so walk a few
+    hops before giving up.
+    """
+    frontier = [alpha_output]
+    visited_nodes = set()
+    for _ in range(max_depth):
+        next_frontier = []
+        for output in frontier:
+            for link in output.links:
+                if _socket_name_is_alpha_like(link.to_socket):
+                    return True
+                to_node = link.to_node
+                key = getattr(to_node, "name", None)
+                if key is None or key in visited_nodes:
+                    continue
+                visited_nodes.add(key)
+                next_frontier.extend(to_node.outputs)
+        if not next_frontier:
+            return False
+        frontier = next_frontier
+    return False
+
+
 def _find_alpha_source_image_node(mat, *, allow_unlinked_alpha=False):
     if not mat or not mat.use_nodes or not mat.node_tree:
         return None
+
+    # MToon carries alpha in the base-colour texture by spec, but names
+    # its node "Mtoon1BaseColorTexture.Image" and routes alpha through
+    # its own node group — both name checks below miss it, and the miss
+    # used to fall through to a constant-1.0 bake (solid black belts).
+    if _is_mtoon_material(mat):
+        base_node = _mtoon_base_color_node(mat)
+        if base_node is not None and _image_has_alpha(base_node.image):
+            return base_node
 
     image_nodes = [
         node for node in mat.node_tree.nodes
@@ -647,7 +698,7 @@ def _find_alpha_source_image_node(mat, *, allow_unlinked_alpha=False):
         alpha_output = node.outputs.get("Alpha")
         if not alpha_output or not alpha_output.is_linked:
             continue
-        if any(_socket_name_is_alpha_like(link.to_socket) for link in alpha_output.links):
+        if _alpha_output_feeds_alpha_socket(alpha_output):
             return node
 
     for node in image_nodes:
@@ -668,21 +719,45 @@ def _find_alpha_source_image_node(mat, *, allow_unlinked_alpha=False):
     return None
 
 
-def _material_alpha_default(mat) -> float:
+def _principled_alpha_input(mat):
     if not mat or not mat.use_nodes or not mat.node_tree:
-        return 1.0
+        return None
     for node in mat.node_tree.nodes:
-        if node.type != "BSDF_PRINCIPLED":
-            continue
-        alpha_input = node.inputs.get("Alpha")
-        if alpha_input is not None and hasattr(alpha_input, "default_value"):
-            return float(alpha_input.default_value)
+        if node.type == "BSDF_PRINCIPLED":
+            return node.inputs.get("Alpha")
+    return None
+
+
+def _material_alpha_is_linked(mat) -> bool:
+    """True when Principled Alpha is texture-driven rather than constant."""
+    alpha_input = _principled_alpha_input(mat)
+    return bool(alpha_input is not None and alpha_input.is_linked)
+
+
+def _material_alpha_default(mat) -> float:
+    """Constant alpha on the Principled Alpha socket, else 1.0.
+
+    Only meaningful when the socket is UNLINKED. A linked socket keeps a
+    stale ``default_value`` (usually 1.0), and trusting it is what baked
+    texture-driven cutouts — belts, decals — down to solid opaque tiles.
+    Callers that need the linked case use ``_material_alpha_is_linked``.
+    """
+    alpha_input = _principled_alpha_input(mat)
+    if (
+        alpha_input is not None
+        and not alpha_input.is_linked
+        and hasattr(alpha_input, "default_value")
+    ):
+        return float(alpha_input.default_value)
     return 1.0
 
 
 def _material_uses_alpha(mat) -> bool:
     if not mat:
         return False
+    # Texture-driven alpha: the stale default_value must not veto it.
+    if _material_alpha_is_linked(mat):
+        return True
     # Version-portable alpha check (blend_method is gone in Blender 5).
     alpha_like = _material_alpha_mode(mat) != "OPAQUE"
     if _find_alpha_source_image_node(mat, allow_unlinked_alpha=alpha_like) is not None:
@@ -705,6 +780,163 @@ def _copy_source_image_node_settings(source_node, target_node):
                 pass
 
 
+def _find_albedo_source_image_node(mat):
+    """Return the image node that supplies a material's base colour."""
+    if not mat or not mat.use_nodes or not mat.node_tree:
+        return None
+
+    if _is_mtoon_material(mat):
+        node = _mtoon_base_color_node(mat)
+        if (
+            node is not None
+            and getattr(node, "image", None) is not None
+            and not _is_vroid_placeholder_image(node.image)
+        ):
+            return node
+
+    for node, image in _iter_texture_nodes(mat):
+        if image is None or _is_vroid_placeholder_image(image):
+            continue
+        role = _detect_texture_node_role(node)
+        if role == ROLE_ALBEDO:
+            return node
+        node_label = getattr(node, "label", "") or node.name
+        role = detect_texture_role(
+            node_label, node_name=node.name, via_node_type=node.type
+        )
+        if role == ROLE_ALBEDO:
+            return node
+    return None
+
+
+def _material_base_color_default(mat):
+    """Return a portable constant base colour when no albedo image exists."""
+    if mat and mat.use_nodes and mat.node_tree:
+        for node in mat.node_tree.nodes:
+            if node.type != "BSDF_PRINCIPLED":
+                continue
+            color_input = node.inputs.get("Base Color")
+            if color_input is not None and hasattr(color_input, "default_value"):
+                return tuple(float(value) for value in color_input.default_value)
+    color = getattr(mat, "diffuse_color", None) if mat else None
+    if color is not None:
+        return tuple(float(value) for value in color)
+    return (1.0, 1.0, 1.0, 1.0)
+
+
+def _build_albedo_bake_material(source_mat):
+    """Build a Cycles-safe base-colour graph for one source material."""
+    temp = bpy.data.materials.new(
+        f"__BF_ALBEDO_BAKE_{source_mat.name if source_mat else 'blank'}"
+    )
+    temp.use_nodes = True
+    nodes = temp.node_tree.nodes
+    links = temp.node_tree.links
+    nodes.clear()
+
+    output_node = nodes.new("ShaderNodeOutputMaterial")
+    output_node.location = (260, 0)
+    emission_node = nodes.new("ShaderNodeEmission")
+    emission_node.location = (40, 0)
+    strength_input = emission_node.inputs.get("Strength")
+    if strength_input is not None and hasattr(strength_input, "default_value"):
+        strength_input.default_value = 1.0
+
+    color_input = emission_node.inputs.get("Color")
+    source_node = _find_albedo_source_image_node(source_mat)
+    if source_node is not None and color_input is not None:
+        uv_node = nodes.new("ShaderNodeUVMap")
+        uv_node.uv_map = "UVMap_pre_atlas"
+        uv_node.location = (-520, 0)
+        tex_node = nodes.new("ShaderNodeTexImage")
+        tex_node.name = "Albedo Source"
+        tex_node.image = source_node.image
+        tex_node.location = (-260, 0)
+        _copy_source_image_node_settings(source_node, tex_node)
+        links.new(uv_node.outputs["UV"], tex_node.inputs["Vector"])
+        links.new(tex_node.outputs["Color"], color_input)
+    elif color_input is not None:
+        color = _material_base_color_default(source_mat)
+        color_input.default_value = color
+        logger.warning(
+            "[BoneForge Atlas] %s: no albedo texture found; baking constant base colour",
+            getattr(source_mat, "name", "<none>"),
+        )
+
+    links.new(emission_node.outputs["Emission"], output_node.inputs["Surface"])
+    return temp
+
+
+def _bake_albedo_to_atlas(context, joined, atlas_img, settings):
+    """Bake base colour through temporary graphs, then restore source materials."""
+    original_materials = [mat for mat in joined.data.materials]
+    temp_materials = []
+    try:
+        for index, source_mat in enumerate(original_materials):
+            temp_mat = _build_albedo_bake_material(source_mat)
+            temp_materials.append(temp_mat)
+            joined.data.materials[index] = temp_mat
+
+            target = temp_mat.node_tree.nodes.new("ShaderNodeTexImage")
+            target.name = "BF_ALBEDO_TARGET"
+            target.image = atlas_img
+            target.location = (-260, -260)
+            for node in temp_mat.node_tree.nodes:
+                node.select = False
+            target.select = True
+            temp_mat.node_tree.nodes.active = target
+
+        context.view_layer.objects.active = joined
+        _deselect_all_objects_directly(context.view_layer)
+        joined.select_set(True)
+        _run_with_view3d_context(
+            context,
+            bpy.ops.object.bake,
+            "Bake atlas albedo",
+            type="EMIT",
+            use_selected_to_active=False,
+            margin=settings.atlas_padding_pixels,
+            use_clear=True,
+        )
+    finally:
+        for index, mat in enumerate(original_materials):
+            joined.data.materials[index] = mat
+        for temp_mat in temp_materials:
+            if temp_mat.name in bpy.data.materials:
+                bpy.data.materials.remove(temp_mat)
+
+def _fallback_alpha_image_node(mat):
+    """Last-resort alpha carrier: a 4-channel, non-placeholder image node.
+
+    Baking a constant while the material still owns an alpha-capable
+    texture is what turned transparent decals into solid blocks on the
+    atlas. Prefer the albedo/base-colour node; fall back to any real
+    4-channel image.
+    """
+    if not mat or not mat.use_nodes or not mat.node_tree:
+        return None
+    best = None
+    for node in mat.node_tree.nodes:
+        if node.type != "TEX_IMAGE":
+            continue
+        image = getattr(node, "image", None)
+        if (
+            image is None
+            or not _image_has_alpha(image)
+            or _is_vroid_placeholder_image(image)
+        ):
+            continue
+        node_label = getattr(node, "label", "") or node.name
+        role = detect_texture_role(
+            node_label, node_name=node.name, via_node_type=node.type
+        )
+        if role == ROLE_ALBEDO:
+            return node
+        if best is None:
+            best = node
+    return best
+
+
 def _build_alpha_bake_material(source_mat):
     temp = bpy.data.materials.new(f"__BF_ALPHA_BAKE_{source_mat.name if source_mat else 'opaque'}")
     temp.use_nodes = True
@@ -722,6 +954,10 @@ def _build_alpha_bake_material(source_mat):
 
     alpha_like = _material_uses_alpha(source_mat)
     source_node = _find_alpha_source_image_node(source_mat, allow_unlinked_alpha=alpha_like)
+    if source_node is None:
+        # No explicit alpha wiring found — before flattening the tile to
+        # a constant, use any real 4-channel texture the material owns.
+        source_node = _fallback_alpha_image_node(source_mat)
     color_input = emission_node.inputs.get("Color")
     if source_node is not None and color_input is not None:
         uv_node = nodes.new("ShaderNodeUVMap")
@@ -739,6 +975,11 @@ def _build_alpha_bake_material(source_mat):
     elif color_input is not None:
         alpha_value = max(0.0, min(1.0, _material_alpha_default(source_mat)))
         color_input.default_value = (alpha_value, alpha_value, alpha_value, 1.0)
+        logger.warning(
+            "[BoneForge Atlas] %s: no alpha texture found anywhere; baking "
+            "constant alpha %.2f for its tile",
+            getattr(source_mat, "name", "<none>"), alpha_value,
+        )
 
     links.new(emission_node.outputs["Emission"], output_node.inputs["Surface"])
     return temp
@@ -767,6 +1008,8 @@ def _describe_alpha_source(source_mat) -> str:
     node = _find_alpha_source_image_node(
         source_mat, allow_unlinked_alpha=alpha_like
     )
+    if node is None:
+        node = _fallback_alpha_image_node(source_mat)
     if node is not None and getattr(node, "image", None) is not None:
         linked = any(
             output.name == "Alpha" and output.is_linked
@@ -2773,6 +3016,16 @@ class BF_OT_VRC_AtlasBake(Operator):
             settings.last_bake_result = authority
             settings.total_mats_before = mats_after_count
 
+            # Refresh Copy Debug from the generated atlas objects.  The report
+            # captured before baking only describes the source meshes and
+            # cannot include the per-tile statistics stored by _bake_group.
+            result_meshes = []
+            for object_name in results:
+                result_obj = bpy.data.objects.get(object_name)
+                if result_obj is not None:
+                    result_meshes.append(result_obj)
+            _store_debug_report(context, result_meshes, settings)
+
             self.report({"INFO"}, authority)
             pipeline.append_ledger(
                 context.scene,
@@ -3043,16 +3296,7 @@ class BF_OT_VRC_AtlasBake(Operator):
             context.view_layer.objects.active = joined
             _deselect_all_objects_directly(context.view_layer)
             joined.select_set(True)
-            _run_with_view3d_context(
-                context,
-                bpy.ops.object.bake,
-                "Bake atlas texture",
-                type="DIFFUSE",
-                pass_filter={"COLOR"},
-                use_selected_to_active=False,
-                margin=settings.atlas_padding_pixels,
-                use_clear=True,
-            )
+            _bake_albedo_to_atlas(context, joined, atlas_img, settings)
             alpha_sources = None
             if needs_alpha_atlas:
                 alpha_sources = _bake_alpha_mask_to_atlas(context, joined, atlas_img, settings, atlas_name, res)
