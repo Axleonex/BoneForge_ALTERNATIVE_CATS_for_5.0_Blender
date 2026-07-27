@@ -202,12 +202,10 @@ def _material_alpha_mode(mat) -> str:
     if mat is None:
         return "OPAQUE"
 
-    # MToon materials: the VRM add-on's own alpha mode is the ONLY valid
-    # signal, and MToon materials never fall through to the host checks.
-    # The add-on sets surface_render_method=BLENDED on every MToon
-    # material (alpha is handled inside its shader), so the Blender 5
-    # fallback below would misread an entire VRoid outfit — skin
-    # included — as transparent.
+    # Use the VRM add-on's alpha mode when the material actually carries
+    # that data. Some imported/instanced MToon materials retain the MToon
+    # nodes but lose ``mtoon1``; those must fall through to Blender's
+    # authored HASHED/BLEND setting instead of being guessed Opaque.
     if _is_mtoon_material(mat):
         mtoon1 = getattr(
             getattr(mat, "vrm_addon_extension", None), "mtoon1", None
@@ -217,7 +215,8 @@ def _material_alpha_mode(mat) -> str:
             return "BLEND"
         if mode == "MASK":
             return "CLIP"
-        return "OPAQUE"
+        if mode == "OPAQUE":
+            return "OPAQUE"
 
     blend = str(getattr(mat, "blend_method", "") or "").upper()
     if blend in ("BLEND", "HASHED"):
@@ -278,7 +277,8 @@ def _sampled_alpha_below(image, uv_points, threshold=0.98) -> bool:
         width, height = int(image.size[0]), int(image.size[1])
         if width <= 0 or height <= 0:
             return False
-        pixels = image.pixels
+        pixels = array("f", [0.0]) * (width * height * 4)
+        image.pixels.foreach_get(pixels)
         for u, v in uv_points:
             x = min(width - 1, max(0, int((u % 1.0) * width)))
             y = min(height - 1, max(0, int((v % 1.0) * height)))
@@ -1511,7 +1511,7 @@ def _populate_group_sources(
             mat_item.diagnostic_warnings = "; ".join(mat_report["warnings"])
             mat_item.duplicate_group = ""
             mat_item.fallback_size = 512
-            material_pairs.append((mat_item, mat_source))
+            material_pairs.append((len(group.materials) - 1, mat_source))
 
             is_mtoon = _is_mtoon_material(mat)
             base_color_image = _mtoon_base_color_image(mat) if is_mtoon else None
@@ -1563,27 +1563,28 @@ def _populate_group_sources(
                 tex_item.diagnostic_status = str(tex_report["status"])
                 tex_item.diagnostic_warnings = "; ".join(tex_report["warnings"])
                 tex_item.duplicate_group = ""
-                texture_pairs.append((tex_item, tex_source))
+                texture_pairs.append((len(group.textures) - 1, tex_source))
 
     texture_duplicates = find_duplicate_texture_groups(
-        [source for _item, source in texture_pairs]
+        [source for _item_index, source in texture_pairs]
     )
     for duplicate_index, duplicate in enumerate(texture_duplicates, start=1):
         key = duplicate["key"]
         marker = f"T{duplicate_index}"
-        for item, source in texture_pairs:
+        for item_index, source in texture_pairs:
             if duplicate_texture_key(source) == key:
-                item.duplicate_group = marker
+                group.textures[item_index].duplicate_group = marker
 
     material_duplicates = find_shared_material_groups(
-        [source for _item, source in material_pairs]
+        [source for _item_index, source in material_pairs]
     )
     for duplicate_index, duplicate in enumerate(material_duplicates, start=1):
         marker = f"M{duplicate_index}"
         names = set(duplicate["materials"])
-        for item, _source in material_pairs:
+        for item_index, _source in material_pairs:
+            item = group.materials[item_index]
             if item.material_name in names:
-                item.duplicate_group = marker
+                group.materials[item_index].duplicate_group = marker
 
     group.duplicate_count = len(texture_duplicates) + len(material_duplicates)
     group.unknown_texture_roles = sum(

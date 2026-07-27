@@ -43,10 +43,6 @@ expected = [
         "slots": [
             {"slot_index": 0, "enabled": True, "render_type": "Opaque"},
             {"slot_index": 1, "enabled": True, "render_type": "Opaque"},
-            {"slot_index": 3, "enabled": True, "render_type": "Opaque"},
-            {"slot_index": 5, "enabled": True, "render_type": "Opaque"},
-            {"slot_index": 6, "enabled": True, "render_type": "Opaque"},
-            {"slot_index": 9, "enabled": True, "render_type": "Opaque"},
         ],
     },
     {
@@ -54,6 +50,10 @@ expected = [
         "enabled": False,
         "slots": [
             {"slot_index": 2, "enabled": False, "render_type": "Alpha Blend"},
+            {"slot_index": 3, "enabled": False, "render_type": "Alpha Blend"},
+            {"slot_index": 5, "enabled": False, "render_type": "Alpha Blend"},
+            {"slot_index": 6, "enabled": False, "render_type": "Alpha Blend"},
+            {"slot_index": 9, "enabled": False, "render_type": "Alpha Blend"},
         ],
     },
 ]

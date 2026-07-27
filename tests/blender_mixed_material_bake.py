@@ -46,8 +46,8 @@ kept = kept_objects[0]
 assert atlas.name.startswith("ATLAS_Opaque_2048px"), atlas.name
 assert len(atlas.data.materials) == 1
 assert atlas["boneforge_atlas_output_material_type"] == "Opaque"
-assert len(kept.data.materials) == 1
-assert json.loads(kept["boneforge_atlas_preserved_slots"]) == [2]
+assert len(kept.data.materials) == 5
+assert json.loads(kept["boneforge_atlas_preserved_slots"]) == [2, 3, 5, 6, 9]
 assert len(kept.data.polygons) > 0
 assert body.hide_get() is True
 assert bpy.data.objects.get("PRE_ATLAS_Body") is not None
@@ -69,7 +69,7 @@ print("BONEFORGE_MIXED_BAKE_PASS=" + json.dumps(report, sort_keys=True))
 
 validation_blend = os.path.join(
     os.environ["BONEFORGE_INTEGRATION_OUTPUT"],
-    "BoneForge-8.6.4-mixed-material-validation.blend",
+    "BoneForge-8.6.5-mixed-material-validation.blend",
 )
 bpy.ops.wm.save_as_mainfile(filepath=validation_blend)
 print("BONEFORGE_VALIDATION_BLEND=" + validation_blend)
