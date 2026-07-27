@@ -2,7 +2,7 @@
 
 Open-Blender BoneForge package for standard Blender users.
 
-This repository is the non-exclusive Blender build. It is centered on the CATS-style VRChat avatar workflow and packages the CATS-compatible BoneForge 8.6.3 add-on for standard Blender. Matching the B4Artists version number does not make this the B4Artists-exclusive payload.
+This repository is the non-exclusive Blender build. It is centered on the CATS-style VRChat avatar workflow and packages the CATS-compatible BoneForge 8.6.4 add-on for standard Blender. Matching the B4Artists version number does not make this the B4Artists-exclusive payload.
 
 This build is an attempted revival and continuation of no-longer-maintained free Blender avatar tools that helped VRChat artists prepare, clean, optimize, and export avatars. The focus is CATS first, because CATS is the core workflow named by this repository, with Material Combiner and UVToolkit-derived atlas controls integrated where they support that CATS workflow.
 
@@ -12,11 +12,11 @@ B4Artists-exclusive files must not be committed here.
 > If you hit a problem, a screenshot or a short note about what you were doing
 > helps a lot — please open an [issue](../../issues).
 
-## What's new in 8.6.3
+## What's new in 8.6.4
 
-- Material Atlas now bakes MToon base-color textures through temporary Cycles-safe graphs, preventing black RGB tiles in combined VRM/VRoid atlases.
-- Texture-driven and nested MToon alpha sources are preserved instead of falling back to opaque black blocks.
-- **Copy Debug** now refreshes after a successful bake and includes the generated atlas object's per-tile diagnostics.
+- Material Atlas now classifies each used material slot independently, so one transparent clothing or hair material no longer turns the entire mesh into an Alpha Blend atlas.
+- Alpha Blend geometry is preserved by default as a compact `KEPT_` mesh, protecting VRChat draw order while the opaque materials bake into one atlas.
+- Empty material slots are excluded from analysis and output; backup/revert still preserves the untouched original.
 ## Requirements
 
 - **Blender 4.0 or newer.** The add-on manifest declares a minimum of Blender 4.0, and packaging is oriented toward the Blender 5.0 release.
@@ -25,10 +25,10 @@ B4Artists-exclusive files must not be committed here.
 
 ## Install
 
-1. Download the add-on zip: **[BoneForge-8.6.3.zip](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/raw/main/releases/BoneForge-8.6.3.zip)** (or grab it from the [Releases](../../releases) page).
+1. Download the add-on zip: **[BoneForge-8.6.4.zip](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/raw/main/releases/BoneForge-8.6.4.zip)** (or grab it from the [Releases](../../releases) page).
 2. In Blender, open **Edit → Preferences → Add-ons**.
 3. Click the **dropdown arrow (˅) at the top-right of the Add-ons panel → Install from Disk…**
-4. Select the `BoneForge-8.6.3.zip` you downloaded.
+4. Select the `BoneForge-8.6.4.zip` you downloaded.
 5. Tick the checkbox next to **BoneForge** to enable it.
 6. In the 3D Viewport, press **N** to open the sidebar — BoneForge adds its tabs there.
 

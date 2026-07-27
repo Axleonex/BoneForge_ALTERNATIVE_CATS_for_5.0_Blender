@@ -43,6 +43,9 @@ from boneforge.vrchat.cats.uv_tools import (
     method_uses_seed,
     summarize_atlas_uv_result,
 )
+from boneforge.vrchat.cats.material_atlas_planning import (
+    plan_material_slot_groups,
+)
 from boneforge.vrchat.cats.material_atlas_quality import (
     CHANNEL_PACK_CONVENTION,
     PACKING_PRESETS,
@@ -80,8 +83,6 @@ logger = logging.getLogger(__name__)
 
 _RANK_THRESHOLDS = {"Excellent": 4, "Good": 8, "Medium": 16, "Poor": 32}
 _RANK_ORDER = ["Excellent", "Good", "Medium", "Poor"]
-_RENDER_TYPES = ["Opaque", "Alpha Clip", "Alpha Blend", "Emissive"]
-
 # ── MToon / VRoid recognition ────────────────────────────────────────
 # The VRM add-on names every MToon texture node "Mtoon1<Slot>Texture.Image".
 _MTOON_NODE_PREFIX = "Mtoon1"
@@ -562,22 +563,6 @@ def _mtoon_actually_emits(mat) -> bool:
         if image is not None and not _is_vroid_placeholder_image(image):
             return True
     return False
-
-
-def _dominant_render_type(obj) -> str:
-    """Return the dominant render type for a mesh object."""
-    if not obj.data.materials:
-        return "Opaque"
-    types = [
-        _effective_render_type(obj, slot_index, m)
-        for slot_index, m in enumerate(obj.data.materials)
-        if m
-    ]
-    # Priority: Alpha Blend > Emissive > Alpha Clip > Opaque
-    for priority in ("Alpha Blend", "Emissive", "Alpha Clip", "Opaque"):
-        if priority in types:
-            return priority
-    return "Opaque"
 
 
 def _output_material_type_label(settings) -> str:
@@ -1480,8 +1465,13 @@ def _detected_slots_by_object(group):
     return result
 
 
-def _populate_group_sources(group, objs):
-    """Populate selectable material and texture rows for a group."""
+def _populate_group_sources(
+    group,
+    objs,
+    allowed_slot_keys=None,
+    default_material_enabled=True,
+):
+    """Populate selectable material and texture rows for selected material slots."""
     group.materials.clear()
     group.textures.clear()
     material_pairs = []
@@ -1489,6 +1479,9 @@ def _populate_group_sources(group, objs):
 
     for obj in objs:
         for _obj, slot_index, mat in _iter_material_slots(obj):
+            slot_key = (obj.name, int(slot_index))
+            if allowed_slot_keys is not None and slot_key not in allowed_slot_keys:
+                continue
             mat_name = mat.name if mat else "<empty>"
             tex_nodes = list(_iter_texture_nodes(mat))
             mat_source = _material_quality_source(obj, slot_index, mat)
@@ -1500,7 +1493,7 @@ def _populate_group_sources(group, objs):
             }
 
             mat_item = group.materials.add()
-            mat_item.enabled = True
+            mat_item.enabled = bool(default_material_enabled)
             mat_item.object_name = obj.name
             mat_item.slot_index = slot_index
             mat_item.material_name = mat_name
@@ -1534,7 +1527,7 @@ def _populate_group_sources(group, objs):
                 tex_source = _texture_quality_source(mat_name, node, image)
                 tex_report = diagnose_texture(tex_source)
                 tex_item = group.textures.add()
-                tex_item.enabled = image is not None
+                tex_item.enabled = bool(default_material_enabled and image is not None)
                 if _is_vroid_placeholder_image(image):
                     # An 8x8 "unused slot" stub. Keep the row visible so the
                     # report stays honest, but never bake it.
@@ -1725,6 +1718,27 @@ def _route_source_image_nodes_to_uv(mat, uv_map_name):
             routed += 1
     return routed
 
+
+def _compact_material_slots(mesh):
+    """Remove unused slots while preserving every polygon's material."""
+    used_indices = sorted({
+        int(poly.material_index)
+        for poly in mesh.polygons
+        if 0 <= int(poly.material_index) < len(mesh.materials)
+    })
+    if not used_indices:
+        mesh.materials.clear()
+        mesh.update()
+        return 0
+    materials = [mesh.materials[index] for index in used_indices]
+    index_map = {old_index: new_index for new_index, old_index in enumerate(used_indices)}
+    for poly in mesh.polygons:
+        poly.material_index = index_map[int(poly.material_index)]
+    mesh.materials.clear()
+    for material in materials:
+        mesh.materials.append(material)
+    mesh.update()
+    return len(materials)
 
 def _assign_single_atlas_material(mesh, atlas_mat):
     mesh.materials.clear()
@@ -2232,6 +2246,7 @@ class BF_AtlasGroup(PropertyGroup):
     active_material_index: IntProperty(name="Active Material", default=0)
     active_texture_index: IntProperty(name="Active Texture", default=0)
     render_type: StringProperty(name="Render Type", default="Opaque")
+    preserve_reason: StringProperty(name="Preserve Reason", default="")
     resolution: EnumProperty(
         name="Resolution",
         items=[
@@ -2550,59 +2565,90 @@ class BF_OT_VRC_AtlasAnalyze(Operator):
             _store_debug_report(context, meshes, settings)
             return {"CANCELLED"}
 
-        # Classify each mesh
-        group_map = {rt: [] for rt in _RENDER_TYPES}
-        total_mats = 0
-
+        # Classify used material slots independently. A mixed mesh may feed
+        # more than one render-type group, but transparent Alpha Blend slots
+        # stay disabled by default so their draw order is preserved.
+        slot_sources = []
+        mesh_by_name = {}
         for obj in meshes:
             if not obj.data.materials:
                 continue
-            rt = _dominant_render_type(obj)
-            group_map[rt].append(obj)
-            total_mats += len(obj.data.materials)
+            mesh_by_name[obj.name] = obj
+            used_slot_indices = sorted({
+                int(poly.material_index)
+                for poly in obj.data.polygons
+                if 0 <= int(poly.material_index) < len(obj.data.materials)
+            })
+            for slot_index in used_slot_indices:
+                mat = obj.data.materials[slot_index]
+                slot_sources.append({
+                    "object_name": obj.name,
+                    "slot_index": slot_index,
+                    "render_type": _effective_render_type(obj, slot_index, mat),
+                    "has_faces": True,
+                })
 
+        group_plans = plan_material_slot_groups(slot_sources)
+        total_mats = len(slot_sources)
         settings.total_mats_before = total_mats
         settings.rank_before = _get_rank(total_mats)
 
-        # Create groups in priority order
-        for rt in _RENDER_TYPES:
-            objs = group_map[rt]
+        for plan in group_plans:
+            rt = plan["render_type"]
+            plan_slots = plan["slots"]
+            slot_keys = {
+                (slot["object_name"], int(slot["slot_index"]))
+                for slot in plan_slots
+            }
+            object_names = list(dict.fromkeys(
+                slot["object_name"] for slot in plan_slots
+            ))
+            objs = [mesh_by_name[name] for name in object_names if name in mesh_by_name]
             if not objs:
                 continue
+
             group = settings.atlas_groups.add()
-            group.name = f"Group — {rt}"
+            group.name = (
+                f"Preserved \u2014 {rt} (render order)"
+                if plan["preserve_reason"] == "render_order"
+                else f"Group \u2014 {rt}"
+            )
             group.render_type = rt
-            group.enabled = True
+            group.preserve_reason = plan["preserve_reason"]
+            group.enabled = bool(plan["enabled"])
             group.resolution = "2048"
 
-            mat_count = 0
             has_overlap = False
             has_high_em = False
-
             for obj in objs:
+                object_slot_count = sum(
+                    1 for slot in plan_slots if slot["object_name"] == obj.name
+                )
                 item = group.meshes.add()
                 item.object_name = obj.name
                 item.render_type = rt
-                item.mat_count = len(obj.data.materials)
+                item.mat_count = object_slot_count
                 item.has_shape_keys = bool(obj.data.shape_keys)
                 item.has_overlapping_uvs = _has_overlapping_uvs(obj)
                 item.has_high_emission = _has_high_emission(obj)
-                mat_count += len(obj.data.materials)
-                if item.has_overlapping_uvs:
-                    has_overlap = True
-                if item.has_high_emission:
-                    has_high_em = True
+                has_overlap = has_overlap or item.has_overlapping_uvs
+                has_high_em = has_high_em or item.has_high_emission
 
-            group.mat_count = mat_count
+            group.mat_count = len(plan_slots)
             group.warn_overlap = has_overlap
             group.warn_emission = has_high_em
             group.has_warnings = (
-                rt in ("Alpha Blend", "Emissive")
+                bool(plan["preserve_reason"])
+                or rt == "Emissive"
                 or has_overlap
                 or has_high_em
             )
-            _populate_group_sources(group, objs)
-
+            _populate_group_sources(
+                group,
+                objs,
+                allowed_slot_keys=slot_keys,
+                default_material_enabled=group.enabled,
+            )
         _store_debug_report(context, meshes, settings)
         projected = _projected_mat_count(settings)
         rank_after = _get_rank(projected)
@@ -2781,7 +2827,12 @@ class BF_OT_VRC_AtlasBake(Operator):
 
         for group in settings.atlas_groups:
             if not group.enabled:
-                lines_skip.append(f"  {group.name} — disabled by user")
+                if group.preserve_reason == "render_order":
+                    lines_skip.append(
+                        f"  {group.name} — preserved automatically for render order"
+                    )
+                else:
+                    lines_skip.append(f"  {group.name} — disabled by user")
                 continue
             enabled_mats = _group_enabled_material_count(group)
             detected_mats = _group_detected_material_count(group)
@@ -2995,14 +3046,19 @@ class BF_OT_VRC_AtlasBake(Operator):
             mats_before = settings.total_mats_before
             mats_after_count = mats_before
             results = []
+            completed_groups = []
 
             for step, group in enumerate(bake_groups):
                 wm.progress_update(step)
                 result = self._bake_group(context, group, settings)
                 if result:
                     results.append(result)
+                    completed_groups.append(group)
                     mats_after_count -= (_group_enabled_material_count(group) - 1)
 
+            kept_results = self._finalize_source_partitions(
+                context, completed_groups, settings
+            )
             wm.progress_end()
 
             # Post-bake authority sentence (unanimous addition R)
@@ -3020,7 +3076,7 @@ class BF_OT_VRC_AtlasBake(Operator):
             # captured before baking only describes the source meshes and
             # cannot include the per-tile statistics stored by _bake_group.
             result_meshes = []
-            for object_name in results:
+            for object_name in results + kept_results:
                 result_obj = bpy.data.objects.get(object_name)
                 if result_obj is not None:
                     result_meshes.append(result_obj)
@@ -3101,6 +3157,54 @@ class BF_OT_VRC_AtlasBake(Operator):
                 return result
         return None
 
+    def _finalize_source_partitions(self, context, bake_groups, settings):
+        """Preserve unbaked slots once, then retire each shared source object."""
+        source_objects = {}
+        baked_slots_by_object = {}
+        for group in bake_groups:
+            enabled_by_object = _enabled_slots_by_object(group)
+            for item in group.meshes:
+                obj = bpy.data.objects.get(item.object_name)
+                if obj is None or obj.type != "MESH":
+                    continue
+                source_objects[obj.name] = obj
+                baked_slots_by_object.setdefault(obj.name, set()).update(
+                    enabled_by_object.get(obj.name, set())
+                )
+
+        kept_names = []
+        for object_name, obj in source_objects.items():
+            used_slots = {
+                int(poly.material_index)
+                for poly in obj.data.polygons
+                if 0 <= int(poly.material_index) < len(obj.data.materials)
+            }
+            baked_slots = set(baked_slots_by_object.get(object_name, set()))
+            unbaked_slots = used_slots - baked_slots
+            if unbaked_slots:
+                keep = obj.copy()
+                keep.data = obj.data.copy()
+                _copy_material_slots(keep.data)
+                remove_slots = set(range(len(keep.data.materials))) - unbaked_slots
+                if _remove_faces_by_material_slots(keep, remove_slots):
+                    _compact_material_slots(keep.data)
+                    keep.name = f"KEPT_{obj.name}"
+                    context.scene.collection.objects.link(keep)
+                    keep["boneforge_atlas_backup"] = settings.backup_collection_name
+                    keep["boneforge_atlas_sources"] = json.dumps([obj.name])
+                    keep["boneforge_atlas_preserved_slots"] = json.dumps(sorted(unbaked_slots))
+                    kept_names.append(keep.name)
+                else:
+                    bpy.data.objects.remove(keep, do_unlink=True)
+
+            if settings.preserve_originals:
+                obj.hide_set(True)
+                obj.hide_render = True
+            else:
+                bpy.data.objects.remove(obj, do_unlink=True)
+
+        return kept_names
+
     def _bake_group(self, context, group, settings):
         """
         Bake one atlas group.
@@ -3124,7 +3228,6 @@ class BF_OT_VRC_AtlasBake(Operator):
         arm = active_armature(context)
         scene = context.scene
         enabled_slots_by_obj = _enabled_slots_by_object(group)
-        detected_slots_by_obj = _detected_slots_by_object(group)
         enabled_texture_keys = _enabled_texture_keys(group)
 
         # Collect source objects
@@ -3139,28 +3242,16 @@ class BF_OT_VRC_AtlasBake(Operator):
         source_names = [obj.name for obj in source_objs]
 
         # ── Create working duplicates ──────────────────────────
+        # Source objects remain available until every render-type group has
+        # baked. This lets one mesh safely feed Opaque and Emissive/Clip
+        # atlases without the first group deleting the source for the next.
         _ensure_object_mode(context, "Prepare atlas bake")
         _deselect_all_objects_directly(context.view_layer)
         work_objs = []
-        keep_objs = []
         for obj in source_objs:
-            detected_slots = detected_slots_by_obj.get(obj.name, set(range(len(obj.data.materials))))
-            enabled_slots = enabled_slots_by_obj.get(obj.name, set())
-            disabled_slots = set(detected_slots) - set(enabled_slots)
-
-            if disabled_slots:
-                keep = obj.copy()
-                keep.data = obj.data.copy()
-                _copy_material_slots(keep.data)
-                keep.name = f"ATLAS_KEEP_{obj.name}"
-                scene.collection.objects.link(keep)
-                if not _remove_faces_by_material_slots(keep, set(enabled_slots)):
-                    bpy.data.objects.remove(keep, do_unlink=True)
-                else:
-                    if arm:
-                        keep.parent = arm
-                    keep["boneforge_atlas_excluded_materials"] = json.dumps(sorted(disabled_slots))
-                    keep_objs.append(keep)
+            enabled_slots = set(enabled_slots_by_obj.get(obj.name, set()))
+            all_slots = set(range(len(obj.data.materials)))
+            disabled_slots = all_slots - enabled_slots
 
             dup = obj.copy()
             dup.data = obj.data.copy()
@@ -3185,10 +3276,7 @@ class BF_OT_VRC_AtlasBake(Operator):
             work_objs.append(dup)
 
         if not work_objs:
-            for keep in keep_objs:
-                bpy.data.objects.remove(keep, do_unlink=True)
             return None
-
         # ── Preserve original UV map ──────────────────────────
         for obj in work_objs:
             mesh = obj.data
@@ -3210,9 +3298,7 @@ class BF_OT_VRC_AtlasBake(Operator):
             for w in work_objs:
                 if w.name in bpy.data.objects:
                     bpy.data.objects.remove(w, do_unlink=True)
-            for keep in keep_objs:
-                if keep.name in bpy.data.objects:
-                    bpy.data.objects.remove(keep, do_unlink=True)
+
             raise RuntimeError(f"Join failed — work objects cleaned up: {join_err}")
         joined = context.view_layer.objects.active
         joined.name = f"__BF_ATLAS_{group.render_type.replace(' ', '_')}"
@@ -3528,14 +3614,6 @@ class BF_OT_VRC_AtlasBake(Operator):
                 armature_mod = joined.modifiers.new("Armature", "ARMATURE")
             armature_mod.object = arm
 
-        # ── Hide original source objects ──────────────────────
-        for obj in source_objs:
-            if settings.preserve_originals:
-                obj.hide_set(True)
-                obj.hide_render = True
-            else:
-                bpy.data.objects.remove(obj, do_unlink=True)
-
         # Clean up working name
         joined.name = (
             f"ATLAS_{group.render_type.replace(' ', '_')}_{res}px"
@@ -3560,10 +3638,6 @@ class BF_OT_VRC_AtlasBake(Operator):
         joined["boneforge_atlas_outputs"] = json.dumps(
             {role: image.name for role, image in extra_images.items()}
         )
-        for keep in keep_objs:
-            keep.name = keep.name.replace("ATLAS_KEEP_", "KEPT_", 1)
-            keep["boneforge_atlas_backup"] = settings.backup_collection_name
-            keep["boneforge_atlas_source_group"] = group.name
 
         return joined.name
 
@@ -3807,7 +3881,16 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
                         icon="BLANK1",
                     )
 
-                if active_group.render_type in ("Alpha Blend", "Emissive"):
+                if active_group.preserve_reason == "render_order":
+                    dcol.label(
+                        text=T("[i] Alpha Blend — preserved automatically for render order"),
+                        icon="INFO",
+                    )
+                    dcol.label(
+                        text=T("     Enable manually only if draw-order changes are acceptable"),
+                        icon="BLANK1",
+                    )
+                elif active_group.render_type in ("Alpha Blend", "Emissive"):
                     dcol.label(
                         text=f"[i] {active_group.render_type} — kept in separate group",
                         icon="INFO",
