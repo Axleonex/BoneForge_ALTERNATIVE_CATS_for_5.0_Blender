@@ -12,17 +12,6 @@ B4Artists-exclusive files must not be committed here.
 > If you hit a problem, a screenshot or a short note about what you were doing
 > helps a lot — please open an [issue](../../issues).
 
-## What's new in 8.6.5
-
-- Imported or instanced MToon materials that lost their VRM `mtoon1.alpha_mode` record now fall back to Blender's authored `HASHED`/Blend setting instead of being guessed Opaque.
-- Belt, clothing, and decal materials with real texture transparency remain preserved, preventing transparent texture padding from baking as blocky black patches.
-- Material diagnostics now use stable collection indices, preventing Blender RNA crashes while analyzing duplicate textures across mixed render groups.
-## Requirements
-
-- **Blender 4.0 or newer.** The add-on manifest declares a minimum of Blender 4.0, and packaging is oriented toward the Blender 5.0 release.
-- This is a **legacy add-on** (`bl_info`), not a Blender 4.2+ Extension. Install it with **Install from Disk**, as described below — it will not appear in the Extensions online repository.
-- Optional bridges only light up when their external dependency is already installed: MMD tools for PMX/VMD, and the VRM add-on for VRM.
-
 ## Install
 
 1. Download the add-on zip: **[BoneForge-8.6.5.zip](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/raw/main/releases/BoneForge-8.6.5.zip)** (or grab it from the [Releases](../../releases) page).
