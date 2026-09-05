@@ -50,7 +50,7 @@ BoneForge does not upload avatars directly to VRChat. The final Unity/VRChat upl
 
 ## What Is Not Included Here
 
-This repository is not the B4Artists-exclusive BoneForge package. The open Blender build should not include:
+This repository is not the B4Artists-exclusive BoneForge package. The open Blender build does not include:
 
 - B4Artists host lockout or BFA marker files.
 - Production control-rig construction.
