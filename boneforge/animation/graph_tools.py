@@ -86,10 +86,30 @@ def _find_neighbor_keys(fcurve, frame):
     return prev_kf, next_kf
 
 
+def _action_fcurves(action):
+    """F-curves across legacy and layered (Blender 4.4+/5.x) action APIs.
+
+    Blender 5 removed ``Action.fcurves``: curves live in
+    ``layers[].strips[].channelbags[].fcurves``.
+    """
+    if action is None:
+        return []
+    layers = getattr(action, "layers", None)
+    if layers:
+        fcurves = []
+        for layer in layers:
+            for strip in layer.strips:
+                for bag in getattr(strip, "channelbags", []):
+                    fcurves.extend(bag.fcurves)
+        if fcurves:
+            return fcurves
+    return list(getattr(action, "fcurves", []))
+
+
 def _bone_fcurves(action, bone_name):
     """Yield FCurves belonging to *bone_name*."""
     prefix = f'pose.bones["{bone_name}"].'
-    for fc in action.fcurves:
+    for fc in _action_fcurves(action):
         if fc.data_path.startswith(prefix):
             yield fc
 
@@ -612,7 +632,7 @@ class BF_OT_EulerFilter(bpy.types.Operator):
             # Find the three euler rotation fcurves
             euler_fcs = {}
             dp = f'pose.bones["{pbone.name}"].rotation_euler'
-            for fc in action.fcurves:
+            for fc in _action_fcurves(action):
                 if fc.data_path == dp:
                     euler_fcs[fc.array_index] = fc
 

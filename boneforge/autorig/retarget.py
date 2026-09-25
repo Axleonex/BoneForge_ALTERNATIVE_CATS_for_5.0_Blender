@@ -145,6 +145,38 @@ def _normalize_bone_name(name):
     return cleaned.lower()
 
 
+def _action_fcurves(action):
+    """F-curves across legacy and layered (Blender 4.4+/5.x) action APIs.
+
+    Blender 5 removed ``Action.fcurves``: curves live in
+    ``layers[].strips[].channelbags[].fcurves``.
+    """
+    if action is None:
+        return []
+    layers = getattr(action, "layers", None)
+    if layers:
+        fcurves = []
+        for layer in layers:
+            for strip in layer.strips:
+                for bag in getattr(strip, "channelbags", []):
+                    fcurves.extend(bag.fcurves)
+        if fcurves:
+            return fcurves
+    return list(getattr(action, "fcurves", []))
+
+
+def _new_fcurve(action, id_owner, data_path, index):
+    """Create an F-curve on legacy or layered (Blender 4.4+/5.x) actions."""
+    if hasattr(action, "fcurves"):
+        return action.fcurves.new(data_path=data_path, index=index)
+    # one layer, one keyframe strip, one slot for the target object
+    layer = action.layers[0] if len(action.layers) else action.layers.new("Layer")
+    strip = layer.strips[0] if len(layer.strips) else layer.strips.new(type='KEYFRAME')
+    slot = action.slots[0] if len(action.slots) else action.slots.new(
+        id_type='OBJECT', name=id_owner.name)
+    return strip.channelbag(slot, ensure=True).fcurves.new(data_path, index=index)
+
+
 def _extract_bone_names_from_action(action):
     """Extract unique bone names referenced by an action's FCurves.
 
@@ -157,7 +189,7 @@ def _extract_bone_names_from_action(action):
         Sorted list of bone name strings.
     """
     bone_names = set()
-    for fcurve in action.fcurves:
+    for fcurve in _action_fcurves(action):
         if fcurve.data_path.startswith('pose.bones["'):
             bone_name = fcurve.data_path.split('"')[1]
             bone_names.add(bone_name)
@@ -173,7 +205,7 @@ def _find_action_with_bone_animation():
     for action in bpy.data.actions:
         has_bone_curves = any(
             fcurve.data_path.startswith('pose.bones[')
-            for fcurve in action.fcurves
+            for fcurve in _action_fcurves(action)
         )
         if has_bone_curves:
             return action
@@ -484,7 +516,7 @@ def retarget_action(source_action, target_armature, mappings, rest_offset):
     new_action = bpy.data.actions.new(name=new_action_name)
 
     # Copy and remap FCurves
-    for source_fcurve in source_action.fcurves:
+    for source_fcurve in _action_fcurves(source_action):
         data_path = source_fcurve.data_path
         if not data_path.startswith('pose.bones["'):
             continue
@@ -504,10 +536,8 @@ def retarget_action(source_action, target_armature, mappings, rest_offset):
         new_data_path = f'pose.bones["{target_bone_name}"].{property_suffix}'
 
         # Create new FCurve and copy keyframes
-        new_fcurve = new_action.fcurves.new(
-            data_path=new_data_path,
-            index=source_fcurve.array_index,
-        )
+        new_fcurve = _new_fcurve(new_action, target_armature, new_data_path,
+                                 source_fcurve.array_index)
 
         for keyframe in source_fcurve.keyframe_points:
             new_keyframe = new_fcurve.keyframe_points.insert(
@@ -522,7 +552,7 @@ def retarget_action(source_action, target_armature, mappings, rest_offset):
         new_fcurve.update()
 
     # If no FCurves were copied, clean up
-    if len(new_action.fcurves) == 0:
+    if not _action_fcurves(new_action):
         bpy.data.actions.remove(new_action)
         return None
 

@@ -1,5 +1,5 @@
 # Documentation BoneForge
-### Version 8.5.0 | Pour les utilisateurs VRChat
+### Version 8.6.8 | Pour les utilisateurs VRChat
 
 ---
 
@@ -2361,5 +2361,5 @@ Utilisez cette section quand quelque chose s'est mal passé et que vous devez tr
 
 ---
 
-*Documentation BoneForge | Version 8.5.0*
+*Documentation BoneForge | Version 8.6.8*
 *Pour le support, consultez la page GitHub de BoneForge ou le Discord de la communauté.*
