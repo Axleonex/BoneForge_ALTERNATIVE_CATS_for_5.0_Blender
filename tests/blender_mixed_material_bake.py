@@ -6,7 +6,31 @@ import os
 import bpy
 
 
+
+def uv_signature(mesh, uv_name, material_index):
+    uv_data = mesh.uv_layers[uv_name].data
+    return sorted(
+        (round(uv_data[loop_index].uv.x, 6), round(uv_data[loop_index].uv.y, 6))
+        for polygon in mesh.polygons
+        if polygon.material_index == material_index
+        for loop_index in polygon.loop_indices
+    )
+
+
 body = bpy.data.objects["Body"]
+source_vertex_count = len(body.data.vertices)
+source_edge_count = len(body.data.edges)
+source_polygon_count = len(body.data.polygons)
+source_parent_name = body.parent.name if body.parent else None
+source_shape_keys = (
+    [key.name for key in body.data.shape_keys.key_blocks]
+    if body.data.shape_keys else []
+)
+preserved_source_slots = [2, 3, 5, 6, 9]
+source_uv_signatures = [
+    uv_signature(body.data, body.data.uv_layers.active.name, slot)
+    for slot in preserved_source_slots
+]
 for obj in bpy.context.selected_objects:
     obj.select_set(False)
 body.hide_set(False)
@@ -35,33 +59,38 @@ session_objects = [
     for obj in bpy.context.scene.objects
     if obj.get("boneforge_atlas_backup") == session_name
 ]
-atlas_objects = [obj for obj in session_objects if obj.name.startswith("ATLAS_")]
-kept_objects = [obj for obj in session_objects if obj.name.startswith("KEPT_")]
+assert len(session_objects) == 1, [obj.name for obj in session_objects]
 
-assert len(atlas_objects) == 1, [obj.name for obj in session_objects]
-assert len(kept_objects) == 1, [obj.name for obj in session_objects]
-
-atlas = atlas_objects[0]
-kept = kept_objects[0]
-assert atlas.name.startswith("ATLAS_Opaque_2048px"), atlas.name
-assert len(atlas.data.materials) == 1
-assert atlas["boneforge_atlas_output_material_type"] == "Opaque"
-assert len(kept.data.materials) == 5
-assert json.loads(kept["boneforge_atlas_preserved_slots"]) == [2, 3, 5, 6, 9]
-assert len(kept.data.polygons) > 0
+combined = session_objects[0]
+assert combined.name.startswith("ATLAS_Body"), combined.name
+assert len(combined.data.vertices) == source_vertex_count
+assert len(combined.data.edges) == source_edge_count
+assert len(combined.data.polygons) == source_polygon_count
+assert len(combined.data.materials) == 6
+assert (combined.parent.name if combined.parent else None) == source_parent_name
+assert (
+    [key.name for key in combined.data.shape_keys.key_blocks]
+    if combined.data.shape_keys else []
+) == source_shape_keys
+assert [
+    uv_signature(combined.data, "atlas_uv", material_index)
+    for material_index in range(1, 6)
+] == source_uv_signatures
+assert combined["boneforge_atlas_output_material_type"] == "Opaque"
+assert json.loads(combined["boneforge_atlas_preserved_slots"]) == [2, 3, 5, 6, 9]
 assert body.hide_get() is True
 assert bpy.data.objects.get("PRE_ATLAS_Body") is not None
 assert not any(obj.name.startswith("ATLAS_Alpha_Blend") for obj in session_objects)
+assert not any(obj.name.startswith("KEPT_") for obj in session_objects)
 
 report = {
-    "atlas": atlas.name,
-    "atlas_materials": len(atlas.data.materials),
-    "atlas_polygons": len(atlas.data.polygons),
-    "atlas_output_type": atlas["boneforge_atlas_output_material_type"],
-    "kept": kept.name,
-    "kept_materials": len(kept.data.materials),
-    "kept_polygons": len(kept.data.polygons),
-    "kept_slots": json.loads(kept["boneforge_atlas_preserved_slots"]),
+    "combined": combined.name,
+    "combined_materials": len(combined.data.materials),
+    "combined_vertices": len(combined.data.vertices),
+    "combined_edges": len(combined.data.edges),
+    "combined_polygons": len(combined.data.polygons),
+    "atlas_output_type": combined["boneforge_atlas_output_material_type"],
+    "preserved_slots": json.loads(combined["boneforge_atlas_preserved_slots"]),
     "source_hidden": body.hide_get(),
     "backup": session_name,
 }
@@ -69,7 +98,7 @@ print("BONEFORGE_MIXED_BAKE_PASS=" + json.dumps(report, sort_keys=True))
 
 validation_blend = os.path.join(
     os.environ["BONEFORGE_INTEGRATION_OUTPUT"],
-    "BoneForge-8.6.5-mixed-material-validation.blend",
+    "BoneForge-8.6.6-mixed-material-validation.blend",
 )
 bpy.ops.wm.save_as_mainfile(filepath=validation_blend)
 print("BONEFORGE_VALIDATION_BLEND=" + validation_blend)

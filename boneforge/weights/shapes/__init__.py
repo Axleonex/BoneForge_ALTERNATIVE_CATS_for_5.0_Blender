@@ -707,8 +707,6 @@ def register():
     for cls in _classes:
         bpy.utils.register_class(cls)
 
-    PropertyGroup.boneforge_shapes = CollectionProperty(type=BONEFORGE_ShapeItem)
-
 def unregister():
     for cls in reversed(_classes):
         bpy.utils.unregister_class(cls)

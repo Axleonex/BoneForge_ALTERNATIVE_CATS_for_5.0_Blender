@@ -104,6 +104,8 @@ _VROID_PLACEHOLDER_MAX_PX = 8
 _ATLAS_MATERIAL_PREFIX = "M_bf_atlas"
 _ATLAS_EMISSION_NODE = "Atlas Emission"
 _ATLAS_NODE_NAMES = frozenset({"Atlas", "BF_ATLAS_TARGET"})
+_SOURCE_POLYGON_ATTRIBUTE = "boneforge_source_polygon"
+_SOURCE_OBJECT_ATTRIBUTE = "boneforge_source_object"
 _OUTPUT_MATERIAL_TYPE_ITEMS = [
     ("AUTO", "Auto (Group)", "Use each atlas group's detected render type"),
     ("OPAQUE", "Opaque", "Force generated atlas materials to opaque"),
@@ -1608,6 +1610,31 @@ def _copy_material_slots(mesh):
             mesh.materials[mat_index] = mat.copy()
 
 
+def _stamp_source_polygon_indices(mesh, source_object_index):
+    """Attach stable source polygon indices before a bake partition is cut."""
+    existing = mesh.attributes.get(_SOURCE_POLYGON_ATTRIBUTE)
+    if existing is not None:
+        mesh.attributes.remove(existing)
+    attribute = mesh.attributes.new(
+        name=_SOURCE_POLYGON_ATTRIBUTE,
+        type="INT",
+        domain="FACE",
+    )
+    attribute.data.foreach_set("value", list(range(len(mesh.polygons))))
+    object_attribute = mesh.attributes.get(_SOURCE_OBJECT_ATTRIBUTE)
+    if object_attribute is not None:
+        mesh.attributes.remove(object_attribute)
+    object_attribute = mesh.attributes.new(
+        name=_SOURCE_OBJECT_ATTRIBUTE,
+        type="INT",
+        domain="FACE",
+    )
+    object_attribute.data.foreach_set(
+        "value", [source_object_index] * len(mesh.polygons)
+    )
+    return attribute
+
+
 def _remove_faces_by_material_slots(obj, slots_to_remove):
     """Remove faces assigned to material slots in *slots_to_remove*."""
     if not slots_to_remove:
@@ -1767,6 +1794,21 @@ def _validate_atlas_mesh(obj, atlas_mat):
         errors.append(f"{stale_faces} face(s) still point to old material slots")
     if errors:
         raise RuntimeError("Atlas validation failed: " + "; ".join(errors))
+
+
+def _mirror_active_uv_to_atlas(mesh):
+    """Keep preserved faces on their authored UVs in the rebuilt atlas mesh."""
+    source_uv = mesh.uv_layers.active
+    if source_uv is None:
+        return False
+    if source_uv.name != "UVMap_pre_atlas":
+        source_uv.name = "UVMap_pre_atlas"
+    atlas_uv = mesh.uv_layers.get("atlas_uv")
+    if atlas_uv is None:
+        atlas_uv = mesh.uv_layers.new(name="atlas_uv")
+    for source_loop, atlas_loop in zip(source_uv.data, atlas_uv.data):
+        atlas_loop.uv = source_loop.uv
+    return _activate_atlas_uv(mesh)
 
 
 def _activate_atlas_uv(mesh):
@@ -3057,8 +3099,8 @@ class BF_OT_VRC_AtlasBake(Operator):
                     completed_groups.append(group)
                     mats_after_count -= (_group_enabled_material_count(group) - 1)
 
-            kept_results = self._finalize_source_partitions(
-                context, completed_groups, settings
+            finalized_results = self._finalize_source_partitions(
+                context, completed_groups, settings, results
             )
             wm.progress_end()
 
@@ -3077,7 +3119,7 @@ class BF_OT_VRC_AtlasBake(Operator):
             # captured before baking only describes the source meshes and
             # cannot include the per-tile statistics stored by _bake_group.
             result_meshes = []
-            for object_name in results + kept_results:
+            for object_name in results + finalized_results:
                 result_obj = bpy.data.objects.get(object_name)
                 if result_obj is not None:
                     result_meshes.append(result_obj)
@@ -3158,8 +3200,10 @@ class BF_OT_VRC_AtlasBake(Operator):
                 return result
         return None
 
-    def _finalize_source_partitions(self, context, bake_groups, settings):
-        """Preserve unbaked slots once, then retire each shared source object."""
+    def _finalize_source_partitions(
+        self, context, bake_groups, settings, atlas_result_names
+    ):
+        """Rebuild every bake on a full copy of each original source mesh."""
         source_objects = {}
         baked_slots_by_object = {}
         for group in bake_groups:
@@ -3173,7 +3217,23 @@ class BF_OT_VRC_AtlasBake(Operator):
                     enabled_by_object.get(obj.name, set())
                 )
 
-        kept_names = []
+        atlas_by_source = {}
+        for result_name in atlas_result_names:
+            result_obj = bpy.data.objects.get(result_name)
+            if result_obj is None:
+                continue
+            try:
+                result_sources = json.loads(
+                    result_obj.get("boneforge_atlas_sources", "[]")
+                )
+            except (TypeError, ValueError):
+                result_sources = []
+            for source_object_index, source_name in enumerate(result_sources):
+                atlas_by_source.setdefault(source_name, []).append(
+                    (result_obj, source_object_index)
+                )
+
+        finalized_names = []
         for object_name, obj in source_objects.items():
             used_slots = {
                 int(poly.material_index)
@@ -3181,22 +3241,113 @@ class BF_OT_VRC_AtlasBake(Operator):
                 if 0 <= int(poly.material_index) < len(obj.data.materials)
             }
             baked_slots = set(baked_slots_by_object.get(object_name, set()))
-            unbaked_slots = used_slots - baked_slots
-            if unbaked_slots:
-                keep = obj.copy()
-                keep.data = obj.data.copy()
-                _copy_material_slots(keep.data)
-                remove_slots = set(range(len(keep.data.materials))) - unbaked_slots
-                if _remove_faces_by_material_slots(keep, remove_slots):
-                    _compact_material_slots(keep.data)
-                    keep.name = f"KEPT_{obj.name}"
-                    context.scene.collection.objects.link(keep)
-                    keep["boneforge_atlas_backup"] = settings.backup_collection_name
-                    keep["boneforge_atlas_sources"] = json.dumps([obj.name])
-                    keep["boneforge_atlas_preserved_slots"] = json.dumps(sorted(unbaked_slots))
-                    kept_names.append(keep.name)
+            unbaked_slots = sorted(used_slots - baked_slots)
+            source_atlases = atlas_by_source.get(object_name, [])
+
+            if source_atlases:
+                combined = obj.copy()
+                combined.data = obj.data.copy()
+                _copy_material_slots(combined.data)
+                original_materials = list(combined.data.materials)
+                original_polygon_slots = [
+                    int(polygon.material_index)
+                    for polygon in combined.data.polygons
+                ]
+                _mirror_active_uv_to_atlas(combined.data)
+                combined.data.materials.clear()
+
+                for atlas_obj, _source_object_index in source_atlases:
+                    if not atlas_obj.data.materials:
+                        raise RuntimeError(
+                            f"Atlas result '{atlas_obj.name}' has no material"
+                        )
+                    combined.data.materials.append(atlas_obj.data.materials[0])
+                for slot_index in unbaked_slots:
+                    combined.data.materials.append(original_materials[slot_index])
+
+                preserved_index = {
+                    slot_index: len(source_atlases) + offset
+                    for offset, slot_index in enumerate(unbaked_slots)
+                }
+                for polygon, source_slot in zip(
+                    combined.data.polygons, original_polygon_slots
+                ):
+                    polygon.material_index = preserved_index.get(source_slot, 0)
+
+                combined_uv = combined.data.uv_layers["atlas_uv"].data
+                for atlas_index, (
+                    atlas_obj, source_object_index
+                ) in enumerate(source_atlases):
+                    source_face_ids = atlas_obj.data.attributes.get(
+                        _SOURCE_POLYGON_ATTRIBUTE
+                    )
+                    source_object_ids = atlas_obj.data.attributes.get(
+                        _SOURCE_OBJECT_ATTRIBUTE
+                    )
+                    atlas_uv = atlas_obj.data.uv_layers.get("atlas_uv")
+                    if (
+                        source_face_ids is None
+                        or source_object_ids is None
+                        or atlas_uv is None
+                    ):
+                        raise RuntimeError(
+                            f"Atlas result '{atlas_obj.name}' lost its source-face map"
+                        )
+                    for atlas_polygon in atlas_obj.data.polygons:
+                        if int(
+                            source_object_ids.data[atlas_polygon.index].value
+                        ) != source_object_index:
+                            continue
+                        source_polygon_index = int(
+                            source_face_ids.data[atlas_polygon.index].value
+                        )
+                        target_polygon = combined.data.polygons[source_polygon_index]
+                        if len(target_polygon.loop_indices) != len(
+                            atlas_polygon.loop_indices
+                        ):
+                            raise RuntimeError(
+                                "Atlas/source polygon loop counts no longer match"
+                            )
+                        target_polygon.material_index = atlas_index
+                        for target_loop, atlas_loop in zip(
+                            target_polygon.loop_indices,
+                            atlas_polygon.loop_indices,
+                        ):
+                            combined_uv[target_loop].uv = atlas_uv.data[atlas_loop].uv
+
+                _activate_atlas_uv(combined.data)
+                context.scene.collection.objects.link(combined)
+                first_atlas = source_atlases[0][0]
+                for key in first_atlas.keys():
+                    combined[key] = first_atlas[key]
+                combined.name = f"ATLAS_{obj.name}"
+                combined["boneforge_atlas_backup"] = settings.backup_collection_name
+                combined["boneforge_atlas_sources"] = json.dumps([obj.name])
+                combined["boneforge_atlas_preserved_slots"] = json.dumps(
+                    unbaked_slots
+                )
+                finalized_names.append(combined.name)
+            elif unbaked_slots:
+                preserved = obj.copy()
+                preserved.data = obj.data.copy()
+                _copy_material_slots(preserved.data)
+                remove_slots = set(range(len(preserved.data.materials))) - set(
+                    unbaked_slots
+                )
+                if _remove_faces_by_material_slots(preserved, remove_slots):
+                    _compact_material_slots(preserved.data)
+                    preserved.name = f"KEPT_{obj.name}"
+                    context.scene.collection.objects.link(preserved)
+                    preserved["boneforge_atlas_backup"] = (
+                        settings.backup_collection_name
+                    )
+                    preserved["boneforge_atlas_sources"] = json.dumps([obj.name])
+                    preserved["boneforge_atlas_preserved_slots"] = json.dumps(
+                        unbaked_slots
+                    )
+                    finalized_names.append(preserved.name)
                 else:
-                    bpy.data.objects.remove(keep, do_unlink=True)
+                    bpy.data.objects.remove(preserved, do_unlink=True)
 
             if settings.preserve_originals:
                 obj.hide_set(True)
@@ -3204,7 +3355,12 @@ class BF_OT_VRC_AtlasBake(Operator):
             else:
                 bpy.data.objects.remove(obj, do_unlink=True)
 
-        return kept_names
+        for result_name in atlas_result_names:
+            atlas_obj = bpy.data.objects.get(result_name)
+            if atlas_obj is not None:
+                bpy.data.objects.remove(atlas_obj, do_unlink=True)
+
+        return finalized_names
 
     def _bake_group(self, context, group, settings):
         """
@@ -3249,7 +3405,7 @@ class BF_OT_VRC_AtlasBake(Operator):
         _ensure_object_mode(context, "Prepare atlas bake")
         _deselect_all_objects_directly(context.view_layer)
         work_objs = []
-        for obj in source_objs:
+        for source_object_index, obj in enumerate(source_objs):
             enabled_slots = set(enabled_slots_by_obj.get(obj.name, set()))
             all_slots = set(range(len(obj.data.materials)))
             disabled_slots = all_slots - enabled_slots
@@ -3257,6 +3413,7 @@ class BF_OT_VRC_AtlasBake(Operator):
             dup = obj.copy()
             dup.data = obj.data.copy()
             _copy_material_slots(dup.data)
+            _stamp_source_polygon_indices(dup.data, source_object_index)
             if not _remove_faces_by_material_slots(dup, disabled_slots):
                 bpy.data.objects.remove(dup, do_unlink=True)
                 continue
