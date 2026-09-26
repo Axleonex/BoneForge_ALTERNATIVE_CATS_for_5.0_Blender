@@ -722,12 +722,19 @@ class BF_OT_SelectValidationBone(bpy.types.Operator):
         # pose operators, which go through the same code path the UI
         # uses.  ``select_pattern`` takes a glob and matches exact name
         # if no wildcards are present.
+        # Blender / Bforartists 5 select on the pose bone; ``pose.select_pattern``
+        # (the last fallback below) no longer exists there.
         selected = False
-        try:
-            bone.select = True
+        pose_bone = armature.pose.bones.get(self.bone_name)
+        if pose_bone is not None and hasattr(pose_bone, "select"):
+            pose_bone.select = True
             selected = True
-        except AttributeError:
-            pass
+        if not selected:
+            try:
+                bone.select = True
+                selected = True
+            except AttributeError:
+                pass
         if not selected:
             try:
                 bone.select_head = True

@@ -438,3 +438,11 @@ _classes = [
 def register():
     for cls in _classes:
         bpy.utils.register_class(cls)
+
+
+def unregister():
+    for cls in reversed(_classes):
+        try:
+            bpy.utils.unregister_class(cls)
+        except (RuntimeError, ValueError):
+            pass

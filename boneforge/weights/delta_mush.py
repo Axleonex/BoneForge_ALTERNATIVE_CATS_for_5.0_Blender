@@ -140,16 +140,19 @@ class BF_OT_BindDeltaMush(Operator):
         mesh_obj = context.object
         mod = mesh_obj.modifiers["DeltaMush"]
 
-        # In Blender, Corrective Smooth uses rest_source = 'BIND' for binding
-        # The binding happens when rest_source is set and the modifier is evaluated
-        # We need to force evaluation
-        if hasattr(mod, 'rest_source'):
-            if mod.rest_source != 'BIND':
-                mod.rest_source = 'BIND'
-
-        # Force depsgraph evaluation
-        depsgraph = context.evaluated_depsgraph_get()
-        mesh_obj.evaluated_get(depsgraph)
+        # Setting rest_source = 'BIND' alone binds nothing: Blender stores the
+        # rest shape only when its own bind operator runs (it toggles, so an
+        # existing bind is released first). Before this the button changed
+        # nothing at all.
+        if hasattr(mod, 'rest_source') and mod.rest_source != 'BIND':
+            mod.rest_source = 'BIND'
+        with context.temp_override(object=mesh_obj, active_object=mesh_obj):
+            if getattr(mod, "is_bind", False):
+                bpy.ops.object.correctivesmooth_bind(modifier=mod.name)   # release
+            bpy.ops.object.correctivesmooth_bind(modifier=mod.name)
+        if not getattr(mod, "is_bind", True):
+            self.report({'ERROR'}, "Delta Mush could not be bound")
+            return {'CANCELLED'}
 
         self.report({'INFO'}, "Delta Mush bound to rest pose")
         return {'FINISHED'}

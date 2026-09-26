@@ -1,5 +1,5 @@
 # BoneForge 문서
-### 버전 8.6.8 | VRChat 사용자용
+### 버전 8.6.9 | VRChat 사용자용
 
 ---
 
@@ -2489,5 +2489,5 @@ Mixamo와의 통합입니다.
 
 ---
 
-*BoneForge 문서 | 버전 8.6.8*
+*BoneForge 문서 | 버전 8.6.9*
 *지원이 필요하면 BoneForge GitHub 페이지 또는 커뮤니티 Discord를 확인하세요.*

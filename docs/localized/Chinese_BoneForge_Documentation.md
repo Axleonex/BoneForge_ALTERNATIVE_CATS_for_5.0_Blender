@@ -1,5 +1,5 @@
 # BoneForge 文档
-### 版本 8.6.8 | VRChat 用户指南
+### 版本 8.6.9 | VRChat 用户指南
 
 ---
 
@@ -2364,5 +2364,5 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 
 ---
 
-*BoneForge 文档 | 版本 8.6.8*
+*BoneForge 文档 | 版本 8.6.9*
 *如需支持，检查 BoneForge GitHub 页面或社区 Discord。*

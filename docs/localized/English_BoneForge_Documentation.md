@@ -1,5 +1,5 @@
 # BoneForge Documentation
-### Version 8.6.8 | For VRChat Users
+### Version 8.6.9 | For VRChat Users
 
 ---
 
@@ -66,12 +66,12 @@ BoneForge is a Blender add-on that helps you prepare 3D avatars for VRChat, VRoi
 
 BoneForge has two 8.5.0 builds with different package boundaries. Matching version numbers do not mean the same payload.
 
-| Area | Open Blender BoneForge 8.6.8 | BoneForge BFA 8.6.7 |
+| Area | Open Blender BoneForge 8.6.9 | BoneForge BFA 8.6.7 |
 | --- | --- | --- |
 | Host | Standard Blender | Bforartists only |
 | Add-on identity | `BoneForge` | `BoneForge BFA` |
 | Repository | `Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender` | `Axleonex/BoneForge_B4Artists` |
-| Release zip | `BoneForge-8.6.8.zip` | `BoneForge-BFA-8.6.7.zip` |
+| Release zip | `BoneForge-8.6.9.zip` | `BoneForge-BFA-8.6.7.zip` |
 | CATS avatar cleanup | Included | Included |
 | Material Combiner | Included | Included |
 | UVToolkit-derived Material Combiner controls | Included, including Advanced Variation and Rotation Step | Included, same CATS / Material Combiner / UVToolkit behavior |
@@ -2391,5 +2391,5 @@ Use this section when something has gone wrong and you need to find the answer f
 
 ---
 
-*BoneForge Documentation | Version 8.6.8*
+*BoneForge Documentation | Version 8.6.9*
 *For support, check the BoneForge GitHub page or community Discord.*
