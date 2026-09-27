@@ -2184,8 +2184,11 @@ def _build_status_sentence(settings) -> str:
         return "Press Analyze to detect materials"
 
     if not groups:
+        if not any(group.enabled for group in settings.atlas_groups):
+            return (f"{total_before} materials detected — "
+                    f"check a box under Atlas Groups to enable baking")
         return (f"{total_before} materials detected — "
-                f"no groups with 2+ materials enabled")
+                f"check 2+ materials in an enabled Atlas Group")
 
     shape_key_note = ""
     for group in settings.atlas_groups:
@@ -2944,7 +2947,12 @@ class BF_OT_VRC_AtlasBake(Operator):
                 )
 
         if not bake_groups:
-            errors.append("No groups with 2+ materials are enabled. Nothing to bake.")
+            if not settings.atlas_groups:
+                errors.append("Click Analyze to create an Atlas Group before baking.")
+            elif not any(group.enabled for group in settings.atlas_groups):
+                errors.append("Check the box beside a group under Atlas Groups to enable baking.")
+            else:
+                errors.append("Check at least two materials in an enabled Atlas Group to bake.")
 
         if settings.keep_source_uv_maps:
             lines_change.append(

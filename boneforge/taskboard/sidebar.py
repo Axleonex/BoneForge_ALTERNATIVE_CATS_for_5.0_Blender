@@ -874,6 +874,8 @@ class BF_PT_sb_weights(Panel):
             "Paint and adjust vertex weights that control mesh deformation.",
             "Use when the mesh pinches, collapses, or moves wrong during posing.",
         )
+        from boneforge.weights.weight_tools import draw_automatic_weight_recalculation
+        draw_automatic_weight_recalculation(layout, context)
         for module_path, class_name in (
             ("boneforge.weights.weight_tools",    "BONEFORGE_PT_p2b_flood_fill"),
             ("boneforge.weights.weight_transfer", "BONEFORGE_PT_p2b_weight_transfer"),

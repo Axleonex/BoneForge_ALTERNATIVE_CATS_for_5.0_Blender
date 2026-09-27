@@ -582,6 +582,43 @@ class CATS_PT_armature_tools(Panel):
         armature_tools.draw_merge_armatures_ui(self.layout, context)
 
 
+# ── Sub-panel: Automatic Bone Weight Recalculation ─────────────────────────
+
+class CATS_PT_automatic_bone_weight_recalculation(Panel):
+    """Simple weight repair beside CATS bone and armature tools."""
+    bl_label = " "
+    bl_idname = "CATS_PT_automatic_bone_weight_recalculation"
+    bl_space_type = _SPACE
+    bl_region_type = _REGION
+    bl_category = _CATEGORY
+    bl_parent_id = "CATS_PT_main"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, context):
+        self.layout.label(text=T("Smart Automatic Weights"), icon='MOD_VERTEX_WEIGHT')
+
+    @classmethod
+    def poll(cls, context):
+        return any(obj.type == 'ARMATURE' for obj in context.scene.objects)
+
+    def draw(self, context):
+        layout = self.layout
+        if not hasattr(context.scene, "boneforge_weight_recalculation"):
+            layout.label(text=T("Enable Weight & Deform Tools first"), icon='INFO')
+            return
+        action = layout.operator(
+            "boneforge.automatic_bone_weight_recalculation",
+            text=T("Smart Automatic Weights"), icon='MOD_VERTEX_WEIGHT')
+        action.smart = True
+        row = layout.row()
+        expanded = context.scene.boneforge_cats_weight_advanced
+        row.prop(context.scene, "boneforge_cats_weight_advanced",
+                 text=T("Advanced Recalculation"),
+                 icon='TRIA_DOWN' if expanded else 'TRIA_RIGHT', emboss=False)
+        if expanded:
+            layout.box().label(text="BoneForge > Skin > Weight Tools", icon='INFO')
+
+
 # ── Sub-panel: Operation Ledger ─────────────────────────────────────────────
 
 class CATS_PT_ledger(Panel):
@@ -648,6 +685,7 @@ classes = (
     CATS_PT_transforms,
     CATS_PT_bone_tools,
     CATS_PT_armature_tools,
+    CATS_PT_automatic_bone_weight_recalculation,
     CATS_PT_ledger,
 )
 
@@ -664,6 +702,8 @@ def register():
         items=_cats_armature_items,
         update=_cats_target_armature_update,
     )
+    bpy.types.Scene.boneforge_cats_weight_advanced = bpy.props.BoolProperty(
+        name="Advanced Recalculation", default=False)
     for cls in classes:
         bpy.utils.register_class(cls)
 
@@ -671,6 +711,8 @@ def register():
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
+    if hasattr(bpy.types.Scene, "boneforge_cats_weight_advanced"):
+        del bpy.types.Scene.boneforge_cats_weight_advanced
     if hasattr(bpy.types.Scene, "boneforge_cats_target_armature_name"):
         del bpy.types.Scene.boneforge_cats_target_armature_name
     if hasattr(bpy.types.Scene, "boneforge_cats_target_armature"):
