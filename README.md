@@ -6,8 +6,6 @@ This repository is the non-exclusive Blender build. It is centered on the CATS-s
 
 This build is an attempted revival and continuation of no-longer-maintained free Blender avatar tools that helped VRChat artists prepare, clean, optimize, and export avatars. The focus is CATS first, because CATS is the core workflow named by this repository, with Material Combiner and UVToolkit-derived atlas controls integrated where they support that CATS workflow.
 
-B4Artists-exclusive files must not be committed here.
-
 > This tool was built with heavy AI assistance and is under active bug-fixing.
 > If you hit a problem, a screenshot or a short note about what you were doing
 > helps a lot — please open an [issue](../../issues).
@@ -47,20 +45,6 @@ Many VRChat artists look for CATS-style tools because the hard part is not just 
 - CATS cleanup, material atlas, and UV packing tools intended to reduce material and texture friction before export.
 
 BoneForge does not upload avatars directly to VRChat. The final Unity/VRChat upload still belongs in the VRChat Creator Companion and SDK workflow.
-
-## What Is Not Included Here
-
-This repository is not the B4Artists-exclusive BoneForge package. The open Blender build does not include:
-
-- B4Artists host lockout or BFA marker files.
-- Production control-rig construction.
-- Smart landmark/joint detection suite.
-- Animator control layer.
-- Control Picker / rig UI.
-- Advanced B4Artists-only retargeting source maps.
-- Profile-driven B4Artists production export suite.
-
-Those features belong only in the separate B4Artists-exclusive repository.
 
 ## Documentation
 
