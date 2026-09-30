@@ -1,10 +1,8 @@
 # BoneForge Alternative CATS for Blender 5.0
 
-Open-Blender BoneForge package for standard Blender users.
+This repository is centered on the CATS-style VRChat avatar workflow and packages the CATS-compatible BoneForge add-on for Blender 5.0 and 4.0 versions.
 
-This repository is the non-exclusive Blender build. It is centered on the CATS-style VRChat avatar workflow and packages the CATS-compatible BoneForge 8.6.9 add-on for standard Blender. Matching the B4Artists version number does not make this the B4Artists-exclusive payload.
-
-This build is an attempted revival and continuation of no-longer-maintained free Blender avatar tools that helped VRChat artists prepare, clean, optimize, and export avatars. The focus is CATS first, because CATS is the core workflow named by this repository, with Material Combiner and UVToolkit-derived atlas controls integrated where they support that CATS workflow.
+This build is an attempted revival and continuation of no-longer-maintained free Blender avatar tools that helped VRChat artists prepare, clean, optimize, and export avatars. The focus is CATS first, with Material Combiner and UVToolkit-derived atlas controls integrated where they support that CATS workflow.
 
 > This tool was built with heavy AI assistance and is under active bug-fixing.
 > If you hit a problem, a screenshot or a short note about what you were doing
@@ -23,7 +21,7 @@ Do not unzip the file by hand. Blender installs directly from the `.zip`.
 
 **Updating from an older version:** disable and remove the previous BoneForge add-on in Preferences first, then restart Blender before installing the new zip. Installing over a live copy can leave stale registered classes behind.
 
-## What Alternative CATS Offers
+## Other Features BoneForge Offers
 
 - CATS-focused avatar cleanup and preparation inside Blender.
 - VRChat-oriented bone naming, humanoid mapping, viseme, eye tracking, mesh cleanup, transform, and performance helper workflows.
@@ -31,7 +29,7 @@ Do not unzip the file by hand. Blender installs directly from the `.zip`.
 - Material and texture review before baking, including source material inspection, texture role labels, duplicate/shared source markers, and per-material controls.
 - UVToolkit-derived atlas variation controls inside the CATS Material Combiner workflow, including selectable packing methods, Advanced Variation, Rotation Step, UV margin, seeded variation, oriented packing, and 0-1 bounds fitting.
 - Basic BoneForge and Mixamo-style rigging helpers for the standard Blender package.
-- Blender 5.0-oriented packaging for the non-exclusive/open Blender release.
+- Auto-rigging and Rigify Mesh Creation Rigbuilder. 
 
 ## Import And Export Features
 
