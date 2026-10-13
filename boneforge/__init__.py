@@ -62,7 +62,7 @@ active armature.
 Version history note
 --------------------
 v3.3.0 introduced the Tool Registry and ``ToolManifest`` pattern.
-v7.2.1 (this release) renames the historical ``phaseN`` directories
+v7.2.1 renamed the historical ``phaseN`` directories
 to descriptive category names (``ui_panels``, ``animation``,
 ``weights``, ``advanced_rigging``, ``autorig``) without changing
 manifest ids, public operator bl_idnames, panel bl_idnames, or scene
@@ -73,7 +73,7 @@ unchanged.
 bl_info = {
     "name": "BoneForge",
     "author": "BoneForge Team",
-    "version": (8, 6, 9),
+    "version": (9, 0, 0),
     "blender": (4, 0, 0),
     "location": "3D Viewport > Sidebar > BoneForge / Rig Builder",
     "description": (
