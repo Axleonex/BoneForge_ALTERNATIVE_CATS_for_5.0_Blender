@@ -38,25 +38,6 @@ Do not unzip the file by hand. Blender installs directly from the `.zip`.
 
 **Updating from an older version:** disable and remove the previous BoneForge add-on in Preferences first, then restart Blender before installing the new zip. Installing over a live copy can leave stale registered classes behind.
 
-## Interface in 9.0.1
-
-BoneForge uses the shared-tool layout from BoneCraft, adapted to standard Blender:
-
-- **Rig Builder** sidebar: Auto-Rig Wizard, Quick Rig, and Mannequin.
-- **BoneForge** sidebar: existing rig setup, weights/correctives, and review tools.
-- **CATS** sidebar: CATS cleanup, Avatar Tools, VRChat Tools, and Import / Export.
-  Naming, clothing, and performance are grouped under VRChat Tools.
-- **Properties → Scene**: optional copies of Rig Builder and CATS sections. These
-  remain available when the sidebar tabs are hidden. Show/hide them in the
-  add-on preferences under **Tabs → Scene Properties**.
-- **Add → Armature → BoneForge**, **Pose → BoneForge**, and
-  **Weights → BoneForge**: shortcuts to existing rig, pose, and weight tools.
-
-Quick Rig options are folded, and help text wraps in narrow panels. The existing
-basic marker guessing remains available; the disabled inference-based joint
-detection is not exposed as a working action. This is an interface update;
-it introduces no BoneCraft-exclusive rigging, picker, or mechanism features.
-
 ## Other Features BoneForge Offers
 
 - CATS-focused avatar cleanup and preparation inside Blender.
