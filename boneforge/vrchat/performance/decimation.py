@@ -414,7 +414,7 @@ class BONEFORGE_PT_vrc_decimation(Panel):
 
         # Preview and apply buttons
         row = layout.row(align=True)
-        row.operator("boneforge.vrc_preview_decimation", text=T("Preview"), icon='EYE')
+        row.operator("boneforge.vrc_preview_decimation", text=T("Preview"), icon='HIDE_OFF')
         row.operator("boneforge.vrc_decimate", text=T("Apply"), icon='CHECKMARK')
 
 

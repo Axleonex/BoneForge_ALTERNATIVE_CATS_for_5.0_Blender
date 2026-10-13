@@ -787,7 +787,7 @@ class BONEFORGE_UL_ValidationResults(bpy.types.UIList):
             props.bone_name = item.affected_bone
 
         if item.fix_operator:
-            row.operator(item.fix_operator, text=T("Fix"), icon='TOOL_BRUSH')
+            row.operator(item.fix_operator, text=T("Fix"), icon='BRUSH_DATA')
 
 
 class BONEFORGE_PT_p2c_rig_validator(bpy.types.Panel):

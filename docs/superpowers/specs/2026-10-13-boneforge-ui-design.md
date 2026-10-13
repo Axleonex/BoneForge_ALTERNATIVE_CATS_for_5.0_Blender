@@ -52,8 +52,8 @@ can reach the same working tools through familiar groups without new features.
 Standard Blender 5.1.2: 604 recorded panel/menu draws pass, with the same 273
 operators and unchanged execute/invoke/modal/poll bodies. Visibility, dependency
 rejection, module toggle, reload, Quick Rig helpers, and seven languages pass.
-Native Blender icons replace inherited unsupported icons at delegated draw
-boundaries. The CATS visibility preference and existing Object Data mirror
+Native Blender icons replace inherited unsupported icon names directly in the
+shared panels. The CATS visibility preference and existing Object Data mirror
 helper/registration issues were corrected as UI infrastructure.
 
 R4 deviation: standard Blender has no Bforartists Tool Shelf tabs; native

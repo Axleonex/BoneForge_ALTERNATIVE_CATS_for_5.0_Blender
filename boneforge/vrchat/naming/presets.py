@@ -198,7 +198,7 @@ class BF_OT_VRC_ApplyNamingPreset(Operator):
 
             if matches:
                 box = col.box()
-                box.label(text=T("Will rename:"), icon='CONFIRM')
+                box.label(text=T("Will rename:"), icon='CHECKMARK')
                 for source, target in matches[:5]:  # Show first 5
                     box.label(text=f"  {source} → {target}", icon='NONE')
                 if len(matches) > 5:

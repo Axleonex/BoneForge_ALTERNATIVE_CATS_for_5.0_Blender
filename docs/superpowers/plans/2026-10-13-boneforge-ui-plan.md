@@ -1,6 +1,6 @@
 # BoneForge UI Adaptation Implementation Plan
 
-> For the executing agent: execute task-by-task through the owner-required Prime code router. Native continuation is authorized by receipt 67d2fac622324978893fe4458a0daf5a.
+> Implement each task in order and run the Blender UI checks before packaging.
 
 **Goal:** Apply the approved BoneCraft layout to shared BoneForge tools locally.
 **Architecture:** Reuse existing panel draw methods and operator IDs. Add small

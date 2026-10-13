@@ -540,9 +540,9 @@ class BONEFORGE_PT_vrc_batch_rename(Panel):
 
         # Find and Replace
         col = layout.column(align=True)
-        col.label(text=T("Find and Replace"), icon='FIND')
+        col.label(text=T("Find and Replace"), icon='VIEWZOOM')
         col.operator("boneforge.vrc_find_replace", text=T("Find and Replace"),
-                    icon='FIND_AND_REPLACE')
+                    icon='SORTALPHA')
 
         # Prefix
         col.separator()

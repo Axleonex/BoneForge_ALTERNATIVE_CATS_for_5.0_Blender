@@ -10,7 +10,8 @@ Quick Rig; rig options fold; narrow layouts wrap help. Native Add/Armature,
 Pose and Weights menus expose existing operators. Optional Scene Properties
 mirrors preserve panel helpers and stay accessible when sidebar tabs are hidden.
 Package toggles rebuild both Scene and Object Data mirrors without stale copies.
-Inherited non-Blender icons are adapted in delegated/mirrored UI only.
+Inherited non-Blender icons use native Blender equivalents; no icon-conversion
+wrapper is required. New translation entries use readable multiline dictionaries.
 
 The release keeps all 273 existing operators and their execute/invoke/modal/poll
 implementations. Tool-toggle infrastructure refreshes UI mirrors. It adds no
@@ -26,7 +27,7 @@ A visible-window screenshot and the operator execution workflows were not
 retested; the change preserves existing action implementations. The declared
 minimum remains Blender 4.0; that older host was not run during this update.
 
-Package entries: 156. SHA-256: `572a5824ea5b6a2493a9d51cdc1f3a1142d454a4c5e1fed91b7d9dec4e768763`.
+Package entries: 156. SHA-256: `b8e5b6d2170b91b22a692938ff2bf5ef34a6594e3ae1dec3174d22885926fbbb`.
 
 ## 9.0.0 — standard Blender release
 

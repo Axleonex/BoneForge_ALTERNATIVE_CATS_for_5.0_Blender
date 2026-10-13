@@ -465,7 +465,7 @@ def _draw_bookmark_slot(parent, bm, index, removable=False):
     # Restore button (main)
     if bm.is_set:
         op = row.operator("boneforge.restore_bookmark",
-                           text=bm.bm_name, icon='BOOKMARK')
+                           text=bm.bm_name, icon='FILE_TICK')
         op.slot_index = index
     else:
         row.label(text=f"[ {bm.bm_name} ]", icon='BOOKMARKS')

@@ -379,7 +379,7 @@ class BONEFORGE_PT_vrc_optimizer(Panel):
         if settings.what_if_mode:
             layout.label(text=T("Changes will be simulated only"), icon='INFO')
         else:
-            layout.label(text=T("Changes will be applied directly"), icon='ALERT')
+            layout.label(text=T("Changes will be applied directly"), icon='ERROR')
 
         layout.separator()
 

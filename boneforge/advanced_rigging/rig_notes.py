@@ -303,7 +303,7 @@ class BONEFORGE_PT_p2c_rig_notes(Panel):
                 notes = notes_data.get("notes", [])
 
                 if notes:
-                    layout.label(text=T("Annotations"), icon='ANNOTATIONS')
+                    layout.label(text=T("Annotations"), icon='TEXT')
 
                     for idx, note in enumerate(notes):
                         box = layout.box()

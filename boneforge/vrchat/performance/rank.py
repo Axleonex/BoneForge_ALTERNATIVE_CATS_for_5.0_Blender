@@ -354,7 +354,7 @@ class BONEFORGE_PT_vrc_performance(Panel):
                 row.label(text=f"  Next tier at {threshold} (+{gap})", icon='BLANK1')
 
         layout.separator()
-        layout.operator("boneforge.vrc_calculate_rank", icon='REFRESH')
+        layout.operator("boneforge.vrc_calculate_rank", icon='FILE_REFRESH')
 
 
 # ── Registration ────────────────────────────────────────────────

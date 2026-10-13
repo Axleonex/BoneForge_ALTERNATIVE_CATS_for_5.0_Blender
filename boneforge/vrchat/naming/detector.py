@@ -332,7 +332,7 @@ class BONEFORGE_PT_vrc_naming_detect(Panel):
 
             if ambiguous:
                 col.separator()
-                col.label(text=T("Ambiguous with:"), icon='WARNING')
+                col.label(text=T("Ambiguous with:"), icon='ERROR')
                 for name, alt_score in ambiguous:
                     col.label(text=f"  {name} ({alt_score})", icon='NONE')
 

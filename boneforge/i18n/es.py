@@ -810,4 +810,16 @@ STRINGS: dict[str, str] = {
 }
 
 # Shared layout labels.
-STRINGS.update({'Avatar Tools': 'Herramientas de avatar', 'VRChat Tools': 'Herramientas VRChat', 'Scene Properties': 'Propiedades de escena', 'Tabs': 'Pestañas', 'Options': 'Opciones', 'Select an armature or mesh to use avatar tools.': 'Selecciona un esqueleto o una malla para usar las herramientas de avatar.', 'Enable the matching tool package in preferences.': 'Activa el paquete de herramientas correspondiente en las preferencias.', 'Humanoid bones, hair physics, visemes and avatar export.': 'Huesos humanoides, física del cabello, visemas y exportación del avatar.', 'Naming, clothing and performance are in VRChat Tools.': 'Nombres, ropa y rendimiento están en Herramientas VRChat.', 'Naming, clothing and performance tools for your avatar.': 'Herramientas de nombres, ropa y rendimiento del avatar.', 'Need precise marker placement? Use the Auto-Rig Wizard above.': '¿Necesitas colocar marcadores con precisión? Usa el asistente de rig de arriba.'})
+STRINGS.update({
+    "Avatar Tools": "Herramientas de avatar",
+    "VRChat Tools": "Herramientas VRChat",
+    "Scene Properties": "Propiedades de escena",
+    "Tabs": "Pestañas",
+    "Options": "Opciones",
+    "Select an armature or mesh to use avatar tools.": "Selecciona un esqueleto o una malla para usar las herramientas de avatar.",
+    "Enable the matching tool package in preferences.": "Activa el paquete de herramientas correspondiente en las preferencias.",
+    "Humanoid bones, hair physics, visemes and avatar export.": "Huesos humanoides, física del cabello, visemas y exportación del avatar.",
+    "Naming, clothing and performance are in VRChat Tools.": "Nombres, ropa y rendimiento están en Herramientas VRChat.",
+    "Naming, clothing and performance tools for your avatar.": "Herramientas de nombres, ropa y rendimiento del avatar.",
+    "Need precise marker placement? Use the Auto-Rig Wizard above.": "¿Necesitas colocar marcadores con precisión? Usa el asistente de rig de arriba."
+})
