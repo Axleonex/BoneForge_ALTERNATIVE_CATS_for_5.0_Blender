@@ -42,6 +42,8 @@ def _iter_candidate_panels():
     """
     seen = set()
     for cls in bpy.types.Panel.__subclasses__():
+        if not getattr(cls, "is_registered", False):
+            continue
         if cls in seen:
             continue
         seen.add(cls)
@@ -88,6 +90,14 @@ def _default_armature_poll(cls, context):
     return active is not None and active.type == "ARMATURE"
 
 
+def _mirror_draw(original, method):
+    """Preserve helper methods when a panel draws in Object Data Properties."""
+    def draw(self, context):
+        from .ui_layout import PanelDrawTarget
+        getattr(PanelDrawTarget(original, self.layout), method)(context)
+    return draw
+
+
 def _build_mirror(orig_cls, mirror_id_map):
     """Synthesise a Properties-editor mirror of *orig_cls*.
 
@@ -112,13 +122,13 @@ def _build_mirror(orig_cls, mirror_id_map):
         "bl_options": set(getattr(orig_cls, "bl_options", set()))
         | {"DEFAULT_CLOSED"},
         "bl_order": getattr(orig_cls, "bl_order", 0),
-        "draw": orig_cls.draw,
+        "draw": _mirror_draw(orig_cls, "draw"),
     }
 
     # Preserve optional hooks if defined on the original.
     for hook in ("draw_header", "draw_header_preset"):
         if hasattr(orig_cls, hook):
-            attrs[hook] = getattr(orig_cls, hook)
+            attrs[hook] = _mirror_draw(orig_cls, hook)
 
     # Poll needs an extra armature gate so the mirror hides for other
     # object types (the Armature-data tab is only shown for armatures
@@ -156,10 +166,23 @@ def register():
     is logged and skipped — failure here must not break the addon.
     """
     global _mirror_classes
+    unregister()
     _mirror_classes = []
 
     # Order parents before children so bl_parent_id can resolve.
-    candidates = list(_iter_candidate_panels())
+    by_id = {getattr(cls, "bl_idname", cls.__name__): cls for cls in _iter_candidate_panels()}
+    candidates = []
+    pending = list(by_id.values())
+    while pending:
+        ready = [cls for cls in pending if not getattr(cls, "bl_parent_id", "")
+                 or getattr(cls, "bl_parent_id", "") not in by_id
+                 or any(parent.bl_idname == cls.bl_parent_id for parent in candidates)]
+        if not ready:
+            logger.warning("[BoneForge] unresolved panel parent hierarchy")
+            break
+        for cls in ready:
+            candidates.append(cls)
+            pending.remove(cls)
     candidates.sort(key=lambda c: 1 if getattr(c, "bl_parent_id", None) else 0)
 
     # v3.1.6 (Mod-3): use the module logger so messages respect the user's

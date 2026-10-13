@@ -821,3 +821,6 @@ STRINGS: dict[str, str] = {
     "Viseme Generator": "Viseme Generator",
     "Visemes": "Visemes",
 }
+
+# Shared layout labels.
+STRINGS.update({'Avatar Tools': 'Avatar Tools', 'VRChat Tools': 'VRChat Tools', 'Scene Properties': 'Scene Properties', 'Tabs': 'Tabs', 'Options': 'Options', 'Select an armature or mesh to use avatar tools.': 'Select an armature or mesh to use avatar tools.', 'Enable the matching tool package in preferences.': 'Enable the matching tool package in preferences.', 'Humanoid bones, hair physics, visemes and avatar export.': 'Humanoid bones, hair physics, visemes and avatar export.', 'Naming, clothing and performance are in VRChat Tools.': 'Naming, clothing and performance are in VRChat Tools.', 'Naming, clothing and performance tools for your avatar.': 'Naming, clothing and performance tools for your avatar.', 'Need precise marker placement? Use the Auto-Rig Wizard above.': 'Need precise marker placement? Use the Auto-Rig Wizard above.'})

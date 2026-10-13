@@ -73,7 +73,7 @@ unchanged.
 bl_info = {
     "name": "BoneForge",
     "author": "BoneForge Team",
-    "version": (9, 0, 0),
+    "version": (9, 0, 1),
     "blender": (4, 0, 0),
     "location": "3D Viewport > Sidebar > BoneForge / Rig Builder",
     "description": (
@@ -338,6 +338,11 @@ def register():
         )
 
 
+    from boneforge.core import access, scene_tab_mirror
+    access.register()
+    scene_tab_mirror.register()
+
+
 def unregister():
     """Unregister BoneForge, scrub state, leave Blender clean.
 
@@ -358,6 +363,10 @@ def unregister():
     would leak property registrations into the next install.
     """
     global _registered_manifest_ids
+
+    from boneforge.core import access, scene_tab_mirror
+    scene_tab_mirror.unregister()
+    access.unregister()
 
     # 1. Properties mirror.
     try:

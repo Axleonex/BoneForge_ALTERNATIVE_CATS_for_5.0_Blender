@@ -53,8 +53,8 @@ class BF_PT_sb_io(Panel):
     bl_idname      = "BF_PT_sb_io"
     bl_space_type  = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category    = "BoneForge"
-    bl_order       = -2000   # first panel in the BoneForge tab
+    bl_category    = "CATS"
+    bl_order       = 37   # after Avatar Tools and VRChat Tools
 
     def draw_header(self, context):
         self.layout.label(text=T("Import / Export"))
@@ -63,7 +63,7 @@ class BF_PT_sb_io(Panel):
     def poll(cls, context):
         try:
             prefs = context.preferences.addons["boneforge"].preferences
-            if not prefs.show_tab_boneforge:
+            if not prefs.show_tab_cats:
                 return False
         except Exception:
             pass

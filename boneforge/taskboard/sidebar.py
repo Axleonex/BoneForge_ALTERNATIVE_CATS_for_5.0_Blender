@@ -1,76 +1,11 @@
-"""BoneForge — Sidebar tab consolidation (v6.1.1 UX revision).
+"""BoneForge shared-tool layout, adapted from BoneCraft for standard Blender.
 
-5 tabs in the BoneForge category, plus the unchanged Rig Builder tab:
+Rig Builder: manual-marker wizard, existing Quick Rig library, Mannequin.
+BoneForge: project overview, rig setup, weights/correctives and review tools.
+CATS: cleanup, Avatar Tools, VRChat Tools and Import / Export.
 
-  [Import/Export]  (order=-2000, registered by io_hub/panel.py)
-                   Format bridges (VRM, MMD), Unity/VRChat export, Unreal FBX
-
-  [Setup Rigging]  (order=10)
-                   Retarget, Rigify Tools
-
-  [Skin]           (order=20)
-                   Weight Tools, Correctives
-
-  [VRChat]         (order=35, bl_category=CATS — moved to CATS tab)
-                   Cluster A — VRChat Setup:   A-Naming Extras,
-                                               A-Set Up Humanoid Bones
-                   Cluster B — Body & Physics: B-Add Hair Physics,
-                                               B-Attach Clothing,
-                                               B-Create Visemes
-                   Cluster C — Finalize:       C-Check Performance,
-                                               C-Export to VRChat
-
-  [Review]         (order=40)   (bl_idname=BF_PT_sb_animate — kept for child links)
-                   Collections, Pose Library, Graph Tools,
-                   Rig Validator, Rig Readme, Bone Inspector
-
-Project strip: Overview (order=-1000) — avatar name + Task Board + Rig Notes.
-Task Board and Bone Inspector are registered by panel.py / bone_inspector.py.
-
-REGISTRATION ORDER: sidebar.py registers before panel.py / bone_inspector.py
-so parent idnames exist when those modules register their children.
-
-Hierarchy (all bl_space_type=VIEW_3D, bl_region_type=UI, bl_category=BoneForge)
----------------------------------------------------------------------------
-BF_PT_sb_overview      "Overview"    order=-1000   (project strip)
-    BONEFORGE_PT_taskboard          <- panel.py
-    BONEFORGE_PT_taskboard_no_arm   <- panel.py
-    BF_PT_sb_rig_notes   "Rig Notes"
-
-BF_PT_sb_setup         "Setup Rigging"  order=10
-    BF_PT_sb_retarget    "Retarget"
-    BF_PT_sb_rigify      "Rigify Tools"
-
-BF_PT_rb_setup         "Setup Rigging"  order=0   (bl_category=Rig Builder)
-    BF_PT_sb_quick_rig   "Quick Rig"
-    BF_PT_sb_wizard      "Auto-Rig Wizard"
-    BF_PT_rb_mannequin   "Mannequin"
-
-BF_PT_sb_skin          "Skin"        order=20
-    BF_PT_sb_weights     "Weight Tools"
-    BF_PT_sb_correctives "Correctives"
-
-BF_PT_sb_vrchat        "VRChat"      order=35
-    BF_PT_sb_vrc_naming    "VRChat Naming Extras" order=1  (cluster A)
-    BF_PT_sb_vrc_humanoid  "Set Up Humanoid Bones" order=2  (cluster A)
-    BF_PT_sb_vrc_hair      "Add Hair Physics"      order=4  (cluster B)
-    BF_PT_sb_vrc_clothing  "Attach Clothing"       order=5  (cluster B)
-    BF_PT_sb_vrc_visemes   "Create Visemes"        order=6  (cluster B)
-    BF_PT_sb_vrc_perf      "Check Performance"     order=7  (cluster C)
-    BF_PT_sb_vrc_export    "Export to VRChat"      order=8  (cluster C)
-
-BF_PT_sb_animate       "Review"      order=40   (bl_idname kept for child links)
-    BF_PT_sb_collections  "Collections"
-    BF_PT_sb_pose_lib     "Pose Library"
-    BF_PT_sb_graph        "Graph Tools"
-    BF_PT_sb_rig_validator "Rig Validator"
-    BF_PT_sb_rig_readme    "Rig Readme"
-    BONEFORGE_PT_bone_inspector     <- bone_inspector.py
-    BONEFORGE_PT_control_layer      <- advanced_rigging/control_layer.py
-    BONEFORGE_PT_picker             <- control_ui/picker.py
-
-BF_PT_sb_io            "Import / Export"      <- io_hub/panel.py
-    BONEFORGE_PT_profile_export     <- io_hub/profile_export.py
+Panel identifiers remain stable. Menus and Scene Properties mirrors reference
+only BoneForge's existing tools; no BoneCraft-exclusive features are loaded.
 """
 
 import bpy
@@ -297,52 +232,40 @@ def _draw_confession_layer(layout, context):
 
 
 def _delegate_draw(self, context, import_path: str, class_name: str):
-    """Import *class_name* from *import_path* and call its draw().
-
-    Exception handling is intentionally split:
-    - ImportError   : phase not loaded — expected in partial installs.
-    - AttributeError: class name mismatch — developer error.
-    - All others    : runtime draw crash — log + show ERROR label.
-    """
+    """Draw an existing panel with its own helper methods."""
+    from boneforge.core.ui_layout import PanelDrawTarget
+    from boneforge.core.tool_registry import get_registry
+    package = import_path.split(".")[1]
+    tool_id = {"autorig": "phase3_autorig", "animation": "phase2_animation",
+               "weights": "phase2b_weights", "advanced_rigging": "phase2c_advanced",
+               "vrchat": "vrchat_avatar"}.get(package)
+    if tool_id and not get_registry().is_enabled(tool_id):
+        self.layout.label(text=T("Enable the matching tool package in preferences."), icon='INFO')
+        return
     try:
-        mod = __import__(import_path, fromlist=[class_name])
+        module = __import__(import_path, fromlist=[class_name])
+        panel = getattr(module, class_name)
+        panel.draw(PanelDrawTarget(panel, self.layout), context)
     except ImportError:
-        self.layout.label(
-            text=f"{import_path.split('.')[-1]} not loaded",
-            icon='INFO',
-        )
-        return
-
-    try:
-        cls = getattr(mod, class_name)
-    except AttributeError:
-        self.layout.label(
-            text=f"{class_name} not found in module",
-            icon='QUESTION',
-        )
-        return
-
-    try:
-        cls.draw(self, context)
+        self.layout.label(text=T("Enable the matching tool package in preferences."), icon='INFO')
+    except AttributeError as exc:
+        logger.debug("[BoneForge] unavailable panel %s: %s", class_name, exc)
+        self.layout.label(text=T("Enable the matching tool package in preferences."), icon='INFO')
     except Exception as exc:
-        logger.warning(f"[BoneForge Sidebar] draw error in {class_name}: {exc}")
+        logger.warning("[BoneForge Sidebar] draw error in %s: %s", class_name, exc)
         self.layout.label(text=T("Draw error -- see console"), icon='ERROR')
 
 
 def _draw_explainer(layout, context, line1, line2=None):
-    """Render always-visible explainer text.
-
-    Hidden when the user has enabled Compact Mode on the VRChat hub.
-    Uses a subdued box so it reads as ambient context, not instruction.
-    """
+    """Width-aware help, omitted in Compact Mode."""
     if getattr(context.scene, "boneforge_vrc_compact_mode", False):
         return
-    box = layout.box()
-    col = box.column(align=True)
-    col.scale_y = 0.75
-    col.label(text=line1, icon='INFO')
+    from boneforge.core.ui_layout import draw_wrapped
+    col = layout.box().column(align=True)
+    col.scale_y = 0.85
+    draw_wrapped(col, context, T(line1), icon='INFO')
     if line2:
-        col.label(text=line2)
+        draw_wrapped(col, context, T(line2))
 
 
 # =============================================================
@@ -428,7 +351,7 @@ class BF_PT_rb_setup(Panel):
     bl_order       = 0
 
     def draw_header(self, context):
-        self.layout.label(text=T("Setup Rigging"))
+        self.layout.label(text=T("Rig Builder"))
 
     @classmethod
     def poll(cls, context):
@@ -438,7 +361,8 @@ class BF_PT_rb_setup(Panel):
                 return False
         except Exception:
             pass
-        return True
+        from boneforge.core.tool_registry import get_registry
+        return get_registry().is_enabled("phase3_autorig")
 
     def draw(self, context):
         layout = self.layout
@@ -493,6 +417,7 @@ class BF_PT_sb_setup(Panel):
 class BF_PT_sb_quick_rig(Panel):
     """Premade Quick Rig library — Rig Builder tab."""
     bl_label       = " "
+    bl_order       = 2
     bl_idname      = "BF_PT_sb_quick_rig"
     bl_space_type  = _SPACE
     bl_region_type = _REGION
@@ -545,7 +470,7 @@ class BF_PT_sb_quick_rig(Panel):
                 ("unknown", "Other"),
             ):
                 try:
-                    self._draw_group(col, groups[group_key], group_label, scene)
+                    self._draw_group(col, groups[group_key], group_label, scene, context)
                 except Exception as exc:
                     logger.exception(
                         "[BoneForge] Quick Rig %s group draw failed",
@@ -584,20 +509,29 @@ class BF_PT_sb_quick_rig(Panel):
         op.initial_pose          = _sp("boneforge_quick_rig_initial_pose", 'NONE')
 
         col.separator()
-        col.label(text=T("Options for the next click:"), icon='SETTINGS')
-        if hasattr(scene, "boneforge_quick_rig_fit_to_mesh"):
-            col.prop(scene, "boneforge_quick_rig_fit_to_mesh",
-                     text=T("Fit Rig to Active Mesh"),
-                     toggle=True, icon='FULLSCREEN_ENTER')
-            col.prop(scene, "boneforge_quick_rig_auto_weight",
-                     toggle=True, icon='MOD_VERTEX_WEIGHT')
-            col.prop(scene, "boneforge_quick_rig_generate_controls",
-                     text=T("Add IK/FK Controllers"),
-                     toggle=True, icon='CON_KINEMATIC')
-            col.prop(scene, "boneforge_quick_rig_initial_pose",
-                     text=T("Initial Pose"))
+        if hasattr(col, "panel"):
+            header, options = layout.panel("boneforge_quick_rig_options", default_closed=True)
+            header.label(text=T("Options"))
         else:
-            col.label(text="Reopen Blender to load rig options.", icon='INFO')
+            options = col.box()
+            options.label(text=T("Options"))
+        if options is not None:
+            options.use_property_split = True
+            options.use_property_decorate = False
+        if options is not None:
+            if hasattr(scene, "boneforge_quick_rig_fit_to_mesh"):
+                options.prop(scene, "boneforge_quick_rig_fit_to_mesh",
+                         text=T("Fit Rig to Active Mesh"),
+                         icon='FULLSCREEN_ENTER')
+                options.prop(scene, "boneforge_quick_rig_auto_weight",
+                         icon='MOD_VERTEX_WEIGHT')
+                options.prop(scene, "boneforge_quick_rig_generate_controls",
+                         text=T("Add IK/FK Controllers"),
+                         icon='CON_KINEMATIC')
+                options.prop(scene, "boneforge_quick_rig_initial_pose",
+                         text=T("Initial Pose"))
+            else:
+                options.label(text="Reopen Blender to load rig options.", icon='INFO')
 
         from boneforge.autorig.quick_human import _is_rigify_metarig
         if _is_rigify_metarig(context.active_object):
@@ -621,7 +555,7 @@ class BF_PT_sb_quick_rig(Panel):
             )
 
         col.label(
-            text=T("Need precise marker placement? Use the Auto-Rig Wizard below."),
+            text=T("Need precise marker placement? Use the Auto-Rig Wizard above."),
             icon='INFO',
         )
 
@@ -659,15 +593,16 @@ class BF_PT_sb_quick_rig(Panel):
             icon='CONSOLE',
         )
 
-    def _draw_group(self, col, rigs, group_label, scene):
+    def _draw_group(self, col, rigs, group_label, scene, context):
         """Render two-buttons-per-row grid for a metarig group."""
         if not rigs:
             return
         col.label(text=group_label, icon='BLANK1')
         rig_index = 0
+        columns = 1 if getattr(getattr(context, "region", None), "width", 300) < 360 else 2
         while rig_index < len(rigs):
             row = col.row(align=True)
-            for column_index in range(2):
+            for column_index in range(columns):
                 descriptor_index = rig_index + column_index
                 if descriptor_index >= len(rigs):
                     row.label(text="")
@@ -699,12 +634,13 @@ class BF_PT_sb_quick_rig(Panel):
                              f"failed: {exc}]",
                         icon='ERROR',
                     )
-            rig_index += 2
+            rig_index += columns
 
 
 class BF_PT_sb_wizard(Panel):
     """Auto-Rig Wizard — Rig Builder tab."""
     bl_label       = " "
+    bl_order       = 1
     bl_idname      = "BF_PT_sb_wizard"
     bl_space_type  = _SPACE
     bl_region_type = _REGION
@@ -727,6 +663,7 @@ class BF_PT_sb_wizard(Panel):
 class BF_PT_rb_mannequin(Panel):
     """Mannequin generation — Rig Builder tab."""
     bl_label       = " "
+    bl_order       = 3
     bl_idname      = "BF_PT_rb_mannequin"
     bl_space_type  = _SPACE
     bl_region_type = _REGION
@@ -927,58 +864,64 @@ class BF_PT_sb_correctives(Panel):
 # =============================================================
 
 class BF_PT_sb_vrchat(Panel):
-    """BoneForge -> VRChat hub: avatar assembly and publishing."""
-    bl_label       = " "
-    bl_idname      = "BF_PT_sb_vrchat"
-    bl_space_type  = _SPACE
+    """Shared avatar setup and physics tools."""
+    bl_label = " "
+    bl_idname = "BF_PT_sb_vrchat"
+    bl_space_type = _SPACE
     bl_region_type = _REGION
-    bl_category    = _CATS_CAT
-    bl_order       = 35
+    bl_category = _CATS_CAT
+    bl_order = 35
 
     def draw_header(self, context):
-        self.layout.label(text=T("VRChat"))
+        self.layout.label(text=T("Avatar Tools"))
 
     @classmethod
     def poll(cls, context):
-        try:
-            prefs = context.preferences.addons["boneforge"].preferences
-            if not prefs.show_tab_cats:
-                return False
-        except Exception:
-            pass
-        obj = context.active_object
-        return obj is not None and obj.type in {'ARMATURE', 'MESH'}
+        from boneforge.core.prefs import addon_prefs
+        prefs = addon_prefs(context)
+        from boneforge.core.tool_registry import get_registry
+        return (prefs is None or prefs.show_tab_cats) and get_registry().is_enabled("vrchat_avatar")
 
     def draw(self, context):
+        from boneforge.core.ui_layout import draw_wrapped
         layout = self.layout
         obj = context.active_object
-        layout.label(text=obj.name if obj else "No object", icon='COMMUNITY')
+        if obj is None or obj.type not in {'ARMATURE', 'MESH'}:
+            draw_wrapped(layout, context, T("Select an armature or mesh to use avatar tools."), icon='INFO')
+            return
+        draw_wrapped(layout, context, obj.name, icon='COMMUNITY')
+        layout.prop(context.scene, "boneforge_vrc_compact_mode", text=T("Compact Mode"))
+        _draw_explainer(layout, context, "Humanoid bones, hair physics, visemes and avatar export.",
+                        "Naming, clothing and performance are in VRChat Tools.")
 
-        # Compact Mode toggle — hides explainer text for experienced users.
-        layout.prop(
-            context.scene,
-            "boneforge_vrc_compact_mode",
-            text=T("Compact Mode"),
-            toggle=True,
-            icon='HIDE_OFF',
-        )
 
-        # Cluster overview — always visible regardless of compact mode.
-        layout.separator(factor=0.3)
-        col = layout.column(align=True)
-        col.scale_y = 0.8
-        col.label(text=T("A — VRChat setup: naming extras and humanoid."), icon='STRIP_COLOR_01')
-        col.label(text=T("B — Body & Physics: hair, clothing, visemes."),    icon='STRIP_COLOR_04')
-        col.label(text=T("C — Finalize: performance check, then export."),   icon='STRIP_COLOR_05')
+class BF_PT_cats_vrc_tools(Panel):
+    """Shared naming, clothing and performance sections."""
+    bl_label = " "
+    bl_idname = "BF_PT_cats_vrc_tools"
+    bl_space_type = _SPACE
+    bl_region_type = _REGION
+    bl_category = _CATS_CAT
+    bl_order = 36
+    bl_options = {'DEFAULT_CLOSED'}
 
-        layout.separator(factor=0.3)
-        cats_hint = layout.box()
-        cats_hint.scale_y = 0.85
-        cats_hint.label(
-            text=T("Cats users: Fix Model / Join Meshes / Cleanup /"),
-            icon='INFO',
-        )
-        cats_hint.label(text=T("Translate live in the main CATS tool stack."))
+    def draw_header(self, context):
+        self.layout.label(text=T("VRChat Tools"))
+
+    @classmethod
+    def poll(cls, context):
+        from boneforge.core.prefs import addon_prefs
+        prefs = addon_prefs(context)
+        from boneforge.core.tool_registry import get_registry
+        return (prefs is None or prefs.show_tab_cats) and get_registry().is_enabled("vrchat_avatar")
+
+    def draw(self, context):
+        from boneforge.core.ui_layout import draw_wrapped
+        obj = context.active_object
+        if obj is None or obj.type not in {'ARMATURE', 'MESH'}:
+            draw_wrapped(self.layout, context, T("Select an armature or mesh to use avatar tools."), icon='INFO')
+        else:
+            _draw_explainer(self.layout, context, "Naming, clothing and performance tools for your avatar.")
 
 
 # ── Cluster A — VRChat Setup ───────────────────────────────────
@@ -990,7 +933,7 @@ class BF_PT_sb_vrc_naming(Panel):
     bl_space_type  = _SPACE
     bl_region_type = _REGION
     bl_category    = _CATS_CAT
-    bl_parent_id   = "BF_PT_sb_vrchat"
+    bl_parent_id   = "BF_PT_cats_vrc_tools"
     bl_order       = 1
     bl_options     = {'DEFAULT_CLOSED'}
 
@@ -1104,7 +1047,7 @@ class BF_PT_sb_vrc_clothing(Panel):
     bl_space_type  = _SPACE
     bl_region_type = _REGION
     bl_category    = _CATS_CAT
-    bl_parent_id   = "BF_PT_sb_vrchat"
+    bl_parent_id   = "BF_PT_cats_vrc_tools"
     bl_order       = 5
     bl_options     = {'DEFAULT_CLOSED'}
 
@@ -1126,7 +1069,6 @@ class BF_PT_sb_vrc_clothing(Panel):
             "Run after weight painting the base body in the Skin tab.",
         )
         for module_path, class_name in (
-            ("boneforge.vrchat.clothing.bone_match", "BONEFORGE_PT_vrc_bone_match"),
             ("boneforge.vrchat.clothing.collision",  "BONEFORGE_PT_vrc_collision"),
             ("boneforge.vrchat.clothing.merge",      "BONEFORGE_PT_vrc_clothing_merge"),
         ):
@@ -1179,7 +1121,7 @@ class BF_PT_sb_vrc_perf(Panel):
     bl_space_type  = _SPACE
     bl_region_type = _REGION
     bl_category    = _CATS_CAT
-    bl_parent_id   = "BF_PT_sb_vrchat"
+    bl_parent_id   = "BF_PT_cats_vrc_tools"
     bl_order       = 7
     bl_options     = {'DEFAULT_CLOSED'}
 
@@ -1543,6 +1485,7 @@ _CLASSES = (
     BF_PT_sb_correctives,
     # VRChat hub — parent before children (A then B then C)
     BF_PT_sb_vrchat,
+    BF_PT_cats_vrc_tools,
     BF_PT_sb_vrc_naming,     # A-1
     BF_PT_sb_vrc_humanoid,   # A-2
     BF_PT_sb_vrc_hair,       # B-4

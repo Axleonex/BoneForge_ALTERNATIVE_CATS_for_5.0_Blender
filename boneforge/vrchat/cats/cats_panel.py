@@ -127,11 +127,13 @@ class CATS_PT_main(Panel):
     bl_order = 0
 
     def draw_header(self, context):
-        self.layout.label(text="CATS", icon='ARMATURE_DATA')
+        self.layout.label(text="CATS")
 
     @classmethod
     def poll(cls, context):
-        return True  # Tab always visible; sub-panels gate per armature
+        from boneforge.core.prefs import addon_prefs
+        prefs = addon_prefs(context)
+        return prefs is None or prefs.show_tab_cats
 
     def draw(self, context):
         pass
@@ -175,7 +177,7 @@ class CATS_PT_pipeline_status(Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Pipeline Status"), icon='STRIP_COLOR_04')
+        self.layout.label(text=T('Pipeline Status'))
 
     @classmethod
     def poll(cls, context):
@@ -208,7 +210,7 @@ class CATS_PT_fix_model(Panel):
     bl_parent_id = "CATS_PT_main"
 
     def draw_header(self, context):
-        self.layout.label(text=T("Fix Model"), icon='MODIFIER')
+        self.layout.label(text=T('Fix Model'))
 
     @classmethod
     def poll(cls, context):
@@ -247,7 +249,7 @@ class CATS_PT_translate(Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Translate Bone Names"), icon='FILE_REFRESH')
+        self.layout.label(text=T('Translate Bone Names'))
 
     @classmethod
     def poll(cls, context):
@@ -271,7 +273,7 @@ class CATS_PT_visemes(Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Visemes"), icon='SHAPEKEY_DATA')
+        self.layout.label(text=T('Visemes'))
 
     @classmethod
     def poll(cls, context):
@@ -313,7 +315,7 @@ class CATS_PT_eye_tracking(Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Eye Tracking"), icon='HIDE_OFF')
+        self.layout.label(text=T('Eye Tracking'))
 
     @classmethod
     def poll(cls, context):
@@ -358,7 +360,7 @@ class CATS_PT_pose_shape(Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Pose & Shape Keys"), icon='POSE_HLT')
+        self.layout.label(text=T('Pose & Shape Keys'))
 
     @classmethod
     def poll(cls, context):
@@ -393,7 +395,7 @@ class CATS_PT_material_atlas(Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Material Atlas"), icon='MATERIAL')
+        self.layout.label(text=T('Material Atlas'))
 
     @classmethod
     def poll(cls, context):
@@ -419,7 +421,7 @@ class CATS_PT_mesh_tools(Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Mesh Tools"), icon='MESH_DATA')
+        self.layout.label(text=T('Mesh Tools'))
 
     @classmethod
     def poll(cls, context):
@@ -459,7 +461,7 @@ class CATS_PT_join_meshes(Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Join Meshes"), icon='MESH_DATA')
+        self.layout.label(text=T('Join Meshes'))
 
     @classmethod
     def poll(cls, context):
@@ -483,7 +485,7 @@ class CATS_PT_transforms(Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Transforms & FBT"), icon='OBJECT_ORIGIN')
+        self.layout.label(text=T('Transforms & FBT'))
 
     @classmethod
     def poll(cls, context):
@@ -524,7 +526,7 @@ class CATS_PT_bone_tools(Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Bone Tools"), icon='BONE_DATA')
+        self.layout.label(text=T('Bone Tools'))
 
     @classmethod
     def poll(cls, context):
@@ -571,7 +573,7 @@ class CATS_PT_armature_tools(Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Armature Tools"), icon='ARMATURE_DATA')
+        self.layout.label(text=T('Armature Tools'))
 
     @classmethod
     def poll(cls, context):
@@ -595,7 +597,7 @@ class CATS_PT_automatic_bone_weight_recalculation(Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Smart Automatic Weights"), icon='MOD_VERTEX_WEIGHT')
+        self.layout.label(text=T('Smart Automatic Weights'))
 
     @classmethod
     def poll(cls, context):
@@ -633,7 +635,7 @@ class CATS_PT_ledger(Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("Operation Ledger"), icon='TEXT')
+        self.layout.label(text=T('Operation Ledger'))
 
     @classmethod
     def poll(cls, context):

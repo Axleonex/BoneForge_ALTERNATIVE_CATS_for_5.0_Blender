@@ -62,6 +62,9 @@ class BF_OT_ToggleTool(DeferredMutationOperator):
             logger.error("[BoneForge] toggle: unknown tool %r", tool_id)
             return
 
+        from . import properties_mirror, scene_tab_mirror
+        scene_tab_mirror.unregister()
+        properties_mirror.unregister()
         try:
             if registry.is_enabled(tool_id):
                 registry.disable(tool_id)
@@ -70,6 +73,9 @@ class BF_OT_ToggleTool(DeferredMutationOperator):
         except (ValueError, KeyError) as exc:
             logger.error("[BoneForge] toggle %s failed: %s", tool_id, exc)
             return
+        finally:
+            properties_mirror.register()
+            scene_tab_mirror.register()
 
         # Persist the enabled set so the toggle survives Blender restarts.
         try:

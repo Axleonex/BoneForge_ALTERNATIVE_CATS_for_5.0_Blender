@@ -1,5 +1,33 @@
 # BoneForge releases
 
+## 9.0.1 — shared interface layout (local)
+
+Download: [BoneForge-9.0.1.zip](BoneForge-9.0.1.zip).
+
+Adopts BoneCraft's layout for existing BoneForge tools in standard Blender:
+CATS groups Avatar Tools, VRChat Tools and Import / Export; the wizard precedes
+Quick Rig; rig options fold; narrow layouts wrap help. Native Add/Armature,
+Pose and Weights menus expose existing operators. Optional Scene Properties
+mirrors preserve panel helpers and stay accessible when sidebar tabs are hidden.
+Package toggles rebuild both Scene and Object Data mirrors without stale copies.
+Inherited non-Blender icons are adapted in delegated/mirrored UI only.
+
+The release keeps all 273 existing operators and their execute/invoke/modal/poll
+implementations. Tool-toggle infrastructure refreshes UI mirrors. It adds no
+BoneCraft-exclusive functionality or Bforartists requirement. Basic mesh-based
+marker guessing remains unchanged; inference-based detection stays disabled.
+
+Verified on standard Blender 5.1.2 using `tests/blender_ui_layout.py`: 604 panel
+and menu draws across empty/mesh/armature selection and narrow/normal widths,
+Quick Rig helper reuse, sidebar/Scene visibility, dependency-blocked and normal
+package toggles, unregister/re-register, and all seven supported languages.
+Archive CRC, source parity, version metadata, and absence of host gates pass.
+A visible-window screenshot and the operator execution workflows were not
+retested; the change preserves existing action implementations. The declared
+minimum remains Blender 4.0; that older host was not run during this update.
+
+Package entries: 156. SHA-256: `572a5824ea5b6a2493a9d51cdc1f3a1142d454a4c5e1fed91b7d9dec4e768763`.
+
 ## 9.0.0 — standard Blender release
 
 BoneForge 9.0.0 establishes the permanent naming and host-support boundary:

@@ -10,7 +10,7 @@ This build is an attempted revival and continuation of no-longer-maintained free
 
 ## Version and Blender support
 
-**Current release: BoneForge 9.0.0.**
+**Current release: BoneForge 9.0.1.**
 
 BoneForge 9.0.0 and all future BoneForge releases support standard Blender.
 BoneForge does not require Bforartists and must not contain a Bforartists host
@@ -27,16 +27,35 @@ See [release notes](releases/README.md). The existing manuals describe 8.6.9.
 
 ## Install
 
-1. Download the add-on zip: **[BoneForge-9.0.0.zip](releases/BoneForge-9.0.0.zip)** (or grab it from the [Releases](../../releases) page).
+1. Download the add-on zip: **[BoneForge-9.0.1.zip](releases/BoneForge-9.0.1.zip)** (or grab it from the [Releases](../../releases) page).
 2. In Blender, open **Edit → Preferences → Add-ons**.
 3. Click the **dropdown arrow (˅) at the top-right of the Add-ons panel → Install from Disk…**
-4. Select the `BoneForge-9.0.0.zip` you downloaded.
+4. Select the `BoneForge-9.0.1.zip` you downloaded.
 5. Tick the checkbox next to **BoneForge** to enable it.
 6. In the 3D Viewport, press **N** to open the sidebar — BoneForge adds its tabs there.
 
 Do not unzip the file by hand. Blender installs directly from the `.zip`.
 
 **Updating from an older version:** disable and remove the previous BoneForge add-on in Preferences first, then restart Blender before installing the new zip. Installing over a live copy can leave stale registered classes behind.
+
+## Interface in 9.0.1
+
+BoneForge uses the shared-tool layout from BoneCraft, adapted to standard Blender:
+
+- **Rig Builder** sidebar: Auto-Rig Wizard, Quick Rig, and Mannequin.
+- **BoneForge** sidebar: existing rig setup, weights/correctives, and review tools.
+- **CATS** sidebar: CATS cleanup, Avatar Tools, VRChat Tools, and Import / Export.
+  Naming, clothing, and performance are grouped under VRChat Tools.
+- **Properties → Scene**: optional copies of Rig Builder and CATS sections. These
+  remain available when the sidebar tabs are hidden. Show/hide them in the
+  add-on preferences under **Tabs → Scene Properties**.
+- **Add → Armature → BoneForge**, **Pose → BoneForge**, and
+  **Weights → BoneForge**: shortcuts to existing rig, pose, and weight tools.
+
+Quick Rig options are folded, and help text wraps in narrow panels. The existing
+basic marker guessing remains available; the disabled inference-based joint
+detection is not exposed as a working action. This is an interface update;
+it introduces no BoneCraft-exclusive rigging, picker, or mechanism features.
 
 ## Other Features BoneForge Offers
 

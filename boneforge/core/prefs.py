@@ -308,6 +308,12 @@ class BoneForgePreferences(bpy.types.AddonPreferences):
         default=True,
     )
 
+    show_scene_tab: BoolProperty(
+        name="Scene Properties",
+        description="Show Rig Builder and CATS sections in Properties > Scene",
+        default=True,
+    )
+
     def draw(self, context):
         from boneforge.i18n import T
         layout = self.layout
@@ -320,11 +326,12 @@ class BoneForgePreferences(bpy.types.AddonPreferences):
 
         # ── Sidebar Tabs ────────────────────────────────────────
         tabs_box = layout.box()
-        tabs_box.label(text=T("Sidebar Tabs"), icon='WINDOW')
+        tabs_box.label(text=T("Tabs"))
         col = tabs_box.column(align=True)
         col.prop(self, "show_tab_boneforge")
         col.prop(self, "show_tab_cats")
         col.prop(self, "show_tab_rig_builder")
+        col.prop(self, "show_scene_tab", text=T("Scene Properties"))
         layout.separator(factor=0.5)
 
         # v3.3.1: Tools list driven by the registry. Two-column split
