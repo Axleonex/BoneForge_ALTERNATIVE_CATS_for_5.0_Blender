@@ -5,7 +5,7 @@ Registers one top-level panel in the dedicated 'BoneForge' N-panel tab:
     BONEFORGE_PT_taskboard
         ├─ Health bar row   (score badge + label + armature name)
         ├─ Quick Win section (top-3 highest impact/effort ratio tasks)
-        └─ Full task list   (grouped by category, each group collapsible)
+        └─ Remaining tasks (grouped by category, each group collapsible)
 
 Each task card shows:
     [status icon]  Title  [Fix button if operator is set]
@@ -159,25 +159,61 @@ class BF_OT_InvalidateAllTaskCache(Operator):
 
 
 class BF_OT_OpenHealthCheck(Operator):
-    """Open the BoneForge Health Check (Rig Validator) popup."""
-    bl_idname  = "boneforge.open_health_check"
-    bl_label   = "Open Health Check"
+    """Run the avatar's rig checks and display the results."""
+    bl_idname = "boneforge.open_health_check"
+    bl_label = "Open Health Check"
     bl_options = {'REGISTER'}
 
     @classmethod
     def poll(cls, context):
-        return (
-            context.active_object is not None
-            and context.active_object.type == 'ARMATURE'
-        )
+        from boneforge.core import find_avatar_armature
+        if find_avatar_armature(context) is None:
+            cls.poll_message_set(T("Select an armature or a mesh bound to one."))
+            return False
+        return True
 
     def execute(self, context):
-        # Delegate to the rig_validator operator if registered.
+        from boneforge.core import find_avatar_armature
+        from boneforge.core.tool_registry import get_registry
+        armature = find_avatar_armature(context)
+        if armature is None:
+            self.report({'WARNING'}, T("Select an armature or a mesh bound to one."))
+            return {'CANCELLED'}
+        if not get_registry().is_enabled("phase2c_advanced"):
+            self.report({'WARNING'}, T("Enable Advanced Rigging Systems in add-on preferences."))
+            return {'CANCELLED'}
         try:
-            bpy.ops.boneforge.run_rig_validation()
-        except AttributeError:
-            self.report({'WARNING'}, "Rig Validator not available.")
-        return {'FINISHED'}
+            bpy.ops.boneforge.run_validation.get_rna_type()
+        except (AttributeError, KeyError, RuntimeError):
+            self.report({'ERROR'}, T("Rig Validator failed to register. Check the console for details."))
+            return {'CANCELLED'}
+        with context.temp_override(active_object=armature, object=armature):
+            result = bpy.ops.boneforge.run_validation()
+        invalidate(armature.name)
+        return result
+
+    def invoke(self, context, event):
+        result = self.execute(context)
+        if result != {'FINISHED'}:
+            return result
+        return context.window_manager.invoke_popup(self, width=480)
+
+    def draw(self, context):
+        layout = self.layout
+        wm = context.window_manager
+        layout.label(text=T("Rig Validator"))
+        if not hasattr(wm, "boneforge_validation_results"):
+            layout.label(text=T("Enable Advanced Rigging Systems in add-on preferences."), icon='INFO')
+            return
+        results = wm.boneforge_validation_results
+        failed = sum(item.status == 'fail' for item in results)
+        warnings = sum(item.status == 'warn' for item in results)
+        layout.label(text=T("Failed checks: {count}").format(count=failed))
+        layout.label(text=T("Warnings: {count}").format(count=warnings))
+        layout.template_list("BONEFORGE_UL_ValidationResults", "health_check_results", wm,
+                             "boneforge_validation_results", wm, "boneforge_validation_index", rows=8)
+        layout.operator_context = 'EXEC_DEFAULT'
+        layout.operator("boneforge.open_health_check", text=T("Refresh Results"), icon='FILE_REFRESH')
 
 
 # ── Main panel ────────────────────────────────────────────────
@@ -247,12 +283,21 @@ class BONEFORGE_PT_taskboard(Panel):
             for task in quick_wins:
                 _draw_task_card(layout, task, context, compact=False)
 
-        # ── Full task list ────────────────────────────────────
+        # Quick Wins are already shown above; each task gets one card.
+        quick_win_ids = {task.task_id for task in quick_wins}
+        remaining_count = sum(task.task_id not in quick_win_ids for task in tasks)
+        if not remaining_count:
+            return
+
+        # ── Remaining task list ───────────────────────────────
         layout.separator(factor=0.5)
         all_row = layout.row()
-        all_row.label(text=f"All Tasks ({len(tasks)})", icon="LINENUMBERS_ON")
+        all_row.label(text=f"{T('Remaining Tasks')} ({remaining_count})", icon="LINENUMBERS_ON")
 
         for category, cat_tasks in get_tasks_by_category(arm_obj):
+            cat_tasks = [task for task in cat_tasks if task.task_id not in quick_win_ids]
+            if not cat_tasks:
+                continue
             cat_label = CATEGORY_LABELS.get(category, category.title())
             cat_icon  = CATEGORY_ICONS.get(category, "DOT")
 

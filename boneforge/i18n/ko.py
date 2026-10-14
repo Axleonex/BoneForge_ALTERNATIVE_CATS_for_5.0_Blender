@@ -825,3 +825,14 @@ STRINGS.update({
 })
 
 STRINGS["Facial"] = '얼굴'
+
+# Task Board: distinct recommendations and working health results.
+STRINGS.update({
+    "Remaining Tasks": "남은 작업",
+    "Select an armature or a mesh bound to one.": "아마추어 또는 연결된 메시를 선택하세요.",
+    "Enable Advanced Rigging Systems in add-on preferences.": "애드온 환경설정에서 Advanced Rigging Systems를 활성화하세요.",
+    "Rig Validator failed to register. Check the console for details.": "Rig Validator 등록에 실패했습니다. 자세한 내용은 콘솔을 확인하세요.",
+    "Failed checks: {count}": "실패한 검사: {count}",
+    "Warnings: {count}": "경고: {count}",
+    "Refresh Results": "결과 새로 고침",
+})

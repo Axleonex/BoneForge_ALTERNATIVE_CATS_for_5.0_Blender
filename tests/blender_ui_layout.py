@@ -13,6 +13,7 @@ import addon_utils
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "tests"))
 from boneforge.core.ui_layout import PanelDrawTarget, operator_exists
 
 def operator_contract(source):
@@ -41,7 +42,10 @@ with zipfile.ZipFile(ROOT / "releases/BoneForge-9.0.0.zip") as baseline:
             before.update(operator_contract(baseline.read(name)))
     for path in (ROOT / "boneforge").rglob("*.py"):
         after.update(operator_contract(path.read_bytes()))
-    assert before == after, "Operator IDs or behavior changed"
+    assert before.keys() == after.keys(), "Operator IDs changed"
+    changed = {idname for idname in before if before[idname] != after[idname]}
+    # Reviewed behavior fix; the focused regression below covers this operator.
+    assert changed == {"boneforge.open_health_check"}, changed
 
 ICONS = {item.identifier for item in bpy.types.UILayout.bl_rna.functions["operator"].parameters["icon"].enum_items}
 
@@ -247,4 +251,8 @@ assert module is not None and registered_ops() == original_ops
 print("CHECK: unregister", flush=True)
 addon_utils.disable("boneforge", default_set=True)
 faulthandler.cancel_dump_traceback_later()
-print("PASS:", draws, "panel/menu draws; 273 unchanged operators; sidebar/Scene visibility; toggles; reload; seven languages; Blender", bpy.app.version_string)
+print("PASS:", draws, "panel/menu draws; 273 registered operators, only Health Check behavior changed; sidebar/Scene visibility; toggles; reload; seven languages; Blender", bpy.app.version_string)
+
+# Verify the intentional operator correction and nonduplicated Task Board.
+import blender_taskboard_health
+blender_taskboard_health.run()

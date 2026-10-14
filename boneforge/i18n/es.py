@@ -825,3 +825,14 @@ STRINGS.update({
 })
 
 STRINGS["Facial"] = 'Facial'
+
+# Task Board: distinct recommendations and working health results.
+STRINGS.update({
+    "Remaining Tasks": "Tareas restantes",
+    "Select an armature or a mesh bound to one.": "Selecciona una armadura o una malla vinculada a ella.",
+    "Enable Advanced Rigging Systems in add-on preferences.": "Activa Advanced Rigging Systems en las preferencias del complemento.",
+    "Rig Validator failed to register. Check the console for details.": "Rig Validator no se ha registrado. Consulta la consola para ver los detalles.",
+    "Failed checks: {count}": "Comprobaciones fallidas: {count}",
+    "Warnings: {count}": "Advertencias: {count}",
+    "Refresh Results": "Actualizar resultados",
+})
