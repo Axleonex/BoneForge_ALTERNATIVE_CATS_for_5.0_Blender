@@ -50,8 +50,6 @@ Do not unzip the file by hand. Blender installs directly from the `.zip`.
 
 ## Import And Export Features
 
-Many VRChat artists look for CATS-style tools because the hard part is not just editing an avatar, but getting it back out cleanly for Unity, VRChat, or another engine. This open Blender build includes an Import / Export hub for format bridge visibility and game export access.
-
 - VRChat / Unity export access through the VRChat phase, including the `Export to VRChat (Unity)` operator when that phase is available.
 - Performance rank checking for VRChat-oriented cleanup before export.
 - MMD bridge visibility for PMX import/export when the external MMD tool dependency is installed.
