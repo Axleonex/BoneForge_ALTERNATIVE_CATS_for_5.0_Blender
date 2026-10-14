@@ -1,8 +1,8 @@
 # BoneForge releases
 
-## 9.0.4 — Health Check and Task Board (local candidate)
+## 9.0.4 — Health Check and Task Board (repository build)
 
-Candidate: [BoneForge-9.0.4.zip](BoneForge-9.0.4.zip). Not published.
+Repository package: [BoneForge-9.0.4.zip](BoneForge-9.0.4.zip). No 9.0.4 GitHub Release has been published.
 
 - Open Health Check runs the registered validator and displays refreshable results.
 - Accepts an armature or a mesh bound to one; explains a disabled or unavailable validator.

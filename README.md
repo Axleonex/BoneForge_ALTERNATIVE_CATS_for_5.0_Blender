@@ -8,14 +8,14 @@ This build is an attempted revival and continuation of no-longer-maintained free
 > If you hit a problem, a screenshot or a short note about what you were doing
 > helps a lot — please open an [issue](../../issues).
 
-**Local candidate: BoneForge 9.0.4.** Fixes Open Health Check and repeated Task Board cards. [Installable candidate ZIP](releases/BoneForge-9.0.4.zip), [checks and release notes](releases/README.md#904--health-check-and-task-board-local-candidate). Not published; the published download below remains 9.0.3.
+**Current repository build: BoneForge 9.0.4.** Fixes Open Health Check and repeated Task Board cards. [Checks and release notes](releases/README.md#904--health-check-and-task-board-repository-build). The latest tagged GitHub Release remains 9.0.3.
 
 ## Install
 
-1. Download the add-on zip: **[BoneForge-9.0.3.zip](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/raw/refs/heads/main/releases/BoneForge-9.0.3.zip)** (or grab it from the [Releases](../../releases) page).
+1. Download the current repository build: **[BoneForge-9.0.4.zip](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/raw/refs/heads/main/releases/BoneForge-9.0.4.zip)**. Tagged releases are listed on the [Releases](../../releases) page.
 2. In Blender, open **Edit → Preferences → Add-ons**.
 3. Click the **dropdown arrow (˅) at the top-right of the Add-ons panel → Install from Disk…**
-4. Select the `BoneForge-9.0.3.zip` you downloaded.
+4. Select the `BoneForge-9.0.4.zip` you downloaded.
 5. Tick the checkbox next to **BoneForge** to enable it.
 6. In the 3D Viewport, press **N** to open the sidebar — BoneForge adds its tabs there.
 
