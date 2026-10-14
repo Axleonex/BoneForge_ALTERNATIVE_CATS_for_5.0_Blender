@@ -23,7 +23,7 @@ BoneForge releases.
 Version 9.0.0 continues the open Blender 8.6.9 codebase, including the weight
 recalculation tools and atlas selection guidance already committed in this
 repository. The older 8.6.9 zip does not contain those committed updates.
-See [release notes](releases/README.md). The existing manuals describe 8.6.9.
+See [release notes](releases/README.md). The [manual](docs/BoneForge_Documentation.md) and [translated editions](docs/localized/) describe the 9.0.2 interface, including tabs, nested sections and moved tool locations.
 
 ## Install
 

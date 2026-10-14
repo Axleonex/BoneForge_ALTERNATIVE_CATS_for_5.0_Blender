@@ -1,34 +1,34 @@
 # BoneForge ドキュメント
-### バージョン 8.6.9 | VRChat ユーザー向け
+### バージョン 9.0.2 | VRChat ユーザー向け
 
 ---
 
 ## 目次
 
-- [はじめに](#getting-started)
-  - [BoneForge とは?](#what-is-boneforge)
-  - [BoneForge のインストール](#installing-boneforge)
-  - [Blender で BoneForge を見つける](#finding-boneforge-in-blender)
-  - [どこから始めるべきか?](#where-should-i-start)
-- [クイックガイド](#quick-guides)
-  1. [最初のアバターを VRChat に導入する](#guide-1-get-your-first-avatar-into-vrchat)
-  2. [VRoid アバターを VRChat に導入する](#guide-2-bring-a-vroid-avatar-into-vrchat)
-  3. [MMD アバターを VRChat に導入する](#guide-3-bring-an-mmd-avatar-into-vrchat)
-  4. [アバターのボーン名を修正する](#guide-4-fix-your-avatars-bone-names)
-  5. [アバターを VRChat のボディシステムにマッピングする](#guide-5-map-your-avatar-to-vrchats-body-system)
-  6. [髪の物理演算を追加する](#guide-6-add-hair-physics)
-  7. [体に合わせて動く衣服を取り付ける](#guide-7-attach-clothing-that-moves-with-your-body)
-  8. [リップシンクをセットアップする](#guide-8-set-up-lip-sync)
-  9. [アバターのパフォーマンスを改善する](#guide-9-improve-your-avatars-performance)
-  10. [ポーズを保存して再利用する](#guide-10-save-and-reuse-poses)
-  11. [2 つのリグをマージする](#guide-11-merge-two-rigs-together)
-  12. [アップロードの問題を修正する](#guide-12-fix-upload-problems)
-  13. [CATS を使ってアバターを VRChat 対応にする](#guide-13-get-your-avatar-vrchat-ready-with-cats)
-- [CATS プラグイン — 開始する前に: パイプラインの順序](#cats-plugin--before-you-begin-the-pipeline-order)
-- [機能リファレンス](#feature-reference)
-- [CATS ツールリファレンス](#cats-tool-reference)
-- [クイック修正インデックス](#quick-fix-index)
-- [用語集](#glossary)
+- [はじめに](#はじめに)
+  - [BoneForge とは?](#boneforge-とは)
+  - [BoneForge のインストール](#boneforge-のインストール)
+  - [Blender で BoneForge を見つける](#blender-で-boneforge-を見つける)
+  - [どこから始めるべきか?](#どこから始めるべきか)
+- [クイックガイド](#クイックガイド)
+  1. [最初のアバターを VRChat に導入する](#ガイド-1-最初のアバターを-vrchat-に導入する)
+  2. [VRoid アバターを VRChat に導入する](#ガイド-2-vroid-アバターを-vrchat-に導入する)
+  3. [MMD アバターを VRChat に導入する](#ガイド-3-mmd-アバターを-vrchat-に導入する)
+  4. [アバターのボーン名を修正する](#ガイド-4-アバターのボーン名を修正する)
+  5. [アバターを VRChat のボディシステムにマッピングする](#ガイド-5-アバターを-vrchat-のボディシステムにマッピングする)
+  6. [髪の物理演算を追加する](#ガイド-6-髪の物理演算を追加する)
+  7. [体に合わせて動く衣服を取り付ける](#ガイド-7-体に合わせて動く衣服を取り付ける)
+  8. [リップシンクをセットアップする](#ガイド-8-リップシンクをセットアップする)
+  9. [アバターのパフォーマンスを改善する](#ガイド-9-アバターのパフォーマンスを改善する)
+  10. [ポーズを保存して再利用する](#ガイド-10-ポーズを保存して再利用する)
+  11. [2 つのリグをマージする](#ガイド-11-2-つのリグをマージする)
+  12. [アップロードの問題を修正する](#ガイド-12-アップロードの問題を修正する)
+  13. [CATS を使ってアバターを VRChat 対応にする](#ガイド-13-cats-でアバターを-vrchat-対応にする)
+- [CATS プラグイン — 開始する前に: パイプラインの順序](#cats-プラグイン--開始する前に-パイプラインの順序)
+- [機能リファレンス](#機能リファレンス)
+- [CATS ツールリファレンス](#cats-ツールリファレンス)
+- [クイック修正インデックス](#クイック修正インデックス)
+- [用語集](#用語集)
 
 ---
 
@@ -84,23 +84,33 @@ BoneForge は、VRChat、VRoid/VRM、MMD 用に 3D アバターを準備する�
 
 ## Blender で BoneForge を見つける
 
-BoneForge がインストールされている場合、すべてがここにあります:
+タブで機能グループを選びます。Setup Rigging、Skin、Review、Avatar Tools、Facial はタブ内の展開可能なセクションで、独立したタブではありません。以下は英語 UI のラベルです。翻訳名は Language 設定に従います。
 
-**サイドバー (最も一般的):** 3D ビューポートで **N** キーを押して、右側のパネルを開きます。BoneForge のツールがタスク別に整理されたタブが表示されます。
+| タブ | 初期位置 | セクション |
+| --- | --- | --- |
+| Rig Builder | 右サイドバー（N） | Auto-Rig Wizard, Quick Rig - premade armatures, Mannequin |
+| BoneForge | 右サイドバー（N） | Overview, Setup Rigging, Skin, Review |
+| CATS | 右サイドバー（N） | CATS, Avatar Tools, VRChat Tools, Import / Export |
 
-**最も使用するタブ:**
-- **Rig Builder** — ゼロからリグを構築
-- **Setup Rigging** — リターゲティングと Rigify ツール
-- **Skin** — ウェイトと変形ツール
-- **VRChat** — VRChat エクスポート用のすべて
-- **Review / Animate** — ボーン表示、ポーズライブラリ、検証
-- **CATS** — モデルクリーンアップ、ビジェーム、アイトラッキング、完全な VRChat 準備パイプライン *(7.1.1 の新機能)*
+| ツール | 開く場所 |
+| --- | --- |
+| Bone Merge | BoneForge → Setup Rigging → Bone Merge |
+| Delta Mush / Proximity Wrap | BoneForge → Skin → Delta Mush / Proximity Wrap |
+| Viseme Library / Lip Sync | CATS → Avatar Tools → Viseme Library → Lip Sync |
+| VRChat Viseme Mapping / Face Tracking | CATS → VRChat Tools → Facial |
+| Humanoid / Hair / VRChat export | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics / Export to VRChat |
+| VRM / MMD / I/O Hub | CATS → Import / Export → VRM / VRoid, MMD / PMX, Game Engine Export |
+| Performance / Clothing / Naming | CATS → VRChat Tools → Check Performance / Attach Clothing / VRChat Naming Extras |
 
-**CATS タブはメイン BoneForge タブとは別のタブです。** サイドバータブリストをスクロールダウンしてもすぐに表示されない場合は、BoneForge タブの後に表示されます。
+リグとビジェームライブラリにはアーマチュアを選択します。Delta Mush と Proximity Wrap にはオブジェクトモードのメッシュが必要です。Lip Sync はポーズモードのアーマチュアで使います。三角を押して展開します。Options は任意設定です。即時実行ツールは、次の操作の前に「最後の操作を調整」で設定を変更できます。
 
-**常にモデルを最初に修正:** CATS タブを使用する場合、他の CATS ツールを実行する前に常に **Fix Model** から始めてください。CATS パイプラインはレジャーを使用して、完了したステップを追跡します。各ツールはレジャーをチェックし、順序に従わずに実行しようとすると警告します。詳細は [CATS プラグイン — 開始する前に: パイプラインの順序](#cats-plugin--before-you-begin-the-pipeline-order) を参照してください。
+設定：Edit → Preferences → Add-ons → BoneForge → Tabs でタブの表示を変更します。Scene Properties は初期状態でオンで、Properties → Scene の Rig Builder と CATS パネルを個別に制御します。Language は表示言語、Tools は各パッケージの有効化です。Ctrl+Shift+R でクイックパネルを開きます。
 
-**N パネルホットキー:** 3D ビューポートで **Ctrl+Shift+R** を押すと、サイドバーに移動することなく、カーソルの位置で BoneForge のクイックパネルがポップアップします。
+BoneForge は右 N サイドバーを使います。標準 Blender に Bforartists の Left / Right タブ配置はありません。メニュー：Add → Armature → BoneForge、Pose → BoneForge、Weights → BoneForge。
+
+顔の操作は三種類です。CATS のビジェーム生成は口のシェイプキーを作成し、Viseme Library / Lip Sync はポーズ保存とアニメーションキー生成を行い、Facial は既存キーの VRChat 対応付けと顔トラッキング設定を行います。UVToolkit 由来の設定は CATS → Material Atlas → Override Inherited Settings → UV Packing にあります。共有アトラス機能であり、独立した UVToolkit 全体ではありません。
+
+BoneForge 9.0.0 以降は標準 Blender 用です。BoneCraft は独立した Bforartists 用アドオンです。両方に Auto-Rig Wizard、Quick Rig、Mannequin、共有 CATS/Material Atlas ツールがあります。BoneCraft にはさらに Mechanisms、Control Picker、制作向け制御リグ、関節検出、プロファイル別エクスポートがあります。同じ配置にしてもこれらは BoneForge に追加されません。
 
 ---
 
@@ -109,22 +119,22 @@ BoneForge がインストールされている場合、すべてがここにあ�
 あなたに最も当てはまる説明を選択してください:
 
 > **「新しい 3D モデルファイル (FBX、OBJ、または Blender ファイル) があり、VRChat 用にゼロからリグを組みたい人です。」**
-> → [ガイド 1: 最初のアバターを VRChat に導入する](#guide-1-get-your-first-avatar-into-vrchat) に移動
+> → [ガイド 1: 最初のアバターを VRChat に導入する](#ガイド-1-最初のアバターを-vrchat-に導入する) に移動
 
 > **「VRoid Studio でアバターを作成し、VRM ファイルをエクスポートしました。」**
-> → [ガイド 2: VRoid アバターを VRChat に導入する](#guide-2-bring-a-vroid-avatar-into-vrchat) に移動
+> → [ガイド 2: VRoid アバターを VRChat に導入する](#ガイド-2-vroid-アバターを-vrchat-に導入する) に移動
 
 > **「MMD モデル (PMX ファイル) があり、VRChat で使用したいです。」**
-> → [ガイド 3: MMD アバターを VRChat に導入する](#guide-3-bring-an-mmd-avatar-into-vrchat) に移動
+> → [ガイド 3: MMD アバターを VRChat に導入する](#ガイド-3-mmd-アバターを-vrchat-に導入する) に移動
 
 > **「既にリグが組まれたアバターがありますが、ボーンの名前が間違っているため、アップロードできません。」**
-> → [ガイド 4: アバターのボーン名を修正する](#guide-4-fix-your-avatars-bone-names) に移動
+> → [ガイド 4: アバターのボーン名を修正する](#ガイド-4-アバターのボーン名を修正する) に移動
 
 > **「リグが組まれたアバターがあり、完全に VRChat 対応にしたい — リップシンク、アイトラッキング、クリーンなメッシュ、すべて一度に。」**
-> → [ガイド 13: CATS でアバターを VRChat 対応にする](#guide-13-get-your-avatar-vrchat-ready-with-cats) に移動
+> → [ガイド 13: CATS でアバターを VRChat 対応にする](#ガイド-13-cats-でアバターを-vrchat-対応にする) に移動
 
 > **「特定の問題を修正したいです。」**
-> → [クイック修正インデックス](#quick-fix-index) に移動
+> → [クイック修正インデックス](#クイック修正インデックス) に移動
 
 ---
 
@@ -147,9 +157,9 @@ BoneForge がインストールされている場合、すべてがここにあ�
 
 ### ステップ 1 — Rig Builder を開く
 
-右サイドバーで (**N** キーが見えない場合は押します)、**Rig Builder** タブをクリックします。Quick Rig、Wizard、Mannequin の 3 つのオプションが表示されます。
+右サイドバーで (**N** キーが見えない場合は押します)、**Rig Builder** タブをクリックします。Auto-Rig Wizard → Quick Rig → Mannequin の 3 つのオプションが表示されます。
 
-**Wizard** をクリックしてガイド付きリギングプロセスを開始します。
+**Auto-Rig Wizard** をクリックしてガイド付きリギングプロセスを開始します。
 
 **見えるはず:** 「Start」と書かれたパネルとウィザードを開始するボタンが表示されます。
 
@@ -229,7 +239,7 @@ IK が有効な場合、生成されたリグには `hand_ik.L`、`hand_ik.R`、
 
 ### ステップ 8 — VRChat 用にボーン名を修正
 
-生成後、ボーンは VRChat の命名ルールに従う必要があります。サイドバーの **VRChat** タブに移動し、**Fix Bone Names > Auto-Detect and Rename** をクリックします。
+生成後、ボーンは VRChat の命名ルールに従う必要があります。サイドバーの **CATS → Avatar Tools** タブに移動し、**Fix Bone Names > Auto-Detect and Rename** をクリックします。
 
 **見えるはず:** リスト内のすべてのボーンが緑色のチェックマークを表示します。
 
@@ -237,7 +247,7 @@ IK が有効な場合、生成されたリグには `hand_ik.L`、`hand_ik.R`、
 
 ### ステップ 9 — VRChat Humanoid にマッピング
 
-引き続き VRChat タブで、**Humanoid Mapper** セクションを見つけます。**Auto-Map Humanoid** をクリックします。これにより、アバターの各ボーンが VRChat の humanoid システムに接続されます (VRChat が現実世界の動きに合わせてアバターを同期させるために使用するシステム)。
+引き続き CATS → VRChat Tools → Facial タブで、**Humanoid Mapper** セクションを見つけます。**Auto-Map Humanoid** をクリックします。これにより、アバターの各ボーンが VRChat の humanoid システムに接続されます (VRChat が現実世界の動きに合わせてアバターを同期させるために使用するシステム)。
 
 **Validate Humanoid** を実行して、残りの問題をチェックします。
 
@@ -247,7 +257,7 @@ IK が有効な場合、生成されたリグには `hand_ik.L`、`hand_ik.R`、
 
 ### ステップ 10 — VRChat 用にエクスポート
 
-**VRChat** タブ → **Export** セクションに移動します。**Export to VRChat (FBX)** をクリックします。
+**CATS → Avatar Tools → Export to VRChat** セクションに移動します。**Export to VRChat (FBX)** をクリックします。
 
 保存場所を選択して **Export** をクリックします。
 
@@ -287,7 +297,7 @@ BoneForge は VRM ファイルを開くためのヘルパーアドオンが必�
 
 ### ステップ 3 — VRChat Humanoid に自動マッピング
 
-BoneForge サイドバーの **VRChat** タブに移動します。**Auto-Map Humanoid** をクリックします。VRoid アバターは標準スケルトン形式に従うため、通常は手動調整なしで自動的に完了します。
+BoneForge サイドバーの **CATS → Avatar Tools** タブに移動します。**Auto-Map Humanoid** をクリックします。VRoid アバターは標準スケルトン形式に従うため、通常は手動調整なしで自動的に完了します。
 
 ---
 
@@ -299,7 +309,7 @@ BoneForge サイドバーの **VRChat** タブに移動します。**Auto-Map Hu
 
 ### ステップ 5 — ビジェーム (リップシンク) をセットアップ
 
-VRoid アバターには既にブレンドシェイプ (表情とリップシンク用の顔の動き) が組み込まれています。**VRChat** タブ → **Visemes** に移動し、**Auto-Map Visemes** をクリックします。BoneForge は VRoid のシェイプキーを VRChat の 15 のリップシンク音素に自動的にマッチングします。
+VRoid アバターには既にブレンドシェイプ (表情とリップシンク用の顔の動き) が組み込まれています。**CATS → VRChat Tools → Facial** タブ → **Visemes** に移動し、**Auto-Map Visemes** をクリックします。BoneForge は VRoid のシェイプキーを VRChat の 15 のリップシンク音素に自動的にマッチングします。
 
 ---
 
@@ -339,7 +349,7 @@ BoneForge サイドバーで **MMD** セクションをスクロールし、**In
 
 ### ステップ 3 — ボーン名を修正
 
-MMD は VRChat が理解できない日本語のボーン名を使用します。**VRChat > Naming** セクションで **Detect Convention** をクリックします。BoneForge は MMD 命名スタイルを認識します。次に **Translate Bone Names** をクリックして、VRChat 互換の名前に変換します。
+MMD は VRChat が理解できない日本語のボーン名を使用します。**CATS → VRChat Tools → VRChat Naming Extras** セクションで **Detect Convention** をクリックします。BoneForge は MMD 命名スタイルを認識します。次に **Translate Bone Names** をクリックして、VRChat 互換の名前に変換します。
 
 別の方法として、**CATS タブ → Bone Name Translation** ツールを使用します。これは日本語、中国語、韓国語、ポルトガル語、スペイン語、フランス語のボーン名の自動言語検出をサポートし、1 クリックですべてを処理します。
 
@@ -352,7 +362,7 @@ MMD モデルには余分なジオメトリと重複した頂点がしばしば�
 - **Join Meshes** — 体部分を 1 つのメッシュに統合 (VRChat に推奨)
 - **Remove Unused Vertex Groups** — 空のボーン割り当てを削除
 
-ガイド付きでパイプラインの順序付けされたバージョンのこのクリーンアップについては、**CATS タブ** を使用し、[ガイド 13](#guide-13-get-your-avatar-vrchat-ready-with-cats) で説明されているパイプラインの順序に従ってください。
+ガイド付きでパイプラインの順序付けされたバージョンのこのクリーンアップについては、**CATS タブ** を使用し、[ガイド 13](#ガイド-13-cats-でアバターを-vrchat-対応にする) で説明されているパイプラインの順序に従ってください。
 
 ---
 
@@ -383,7 +393,7 @@ VRChat Humanoid セクションで **Auto-Map Humanoid** をクリックしま�
 
 ### ステップ 1 — 現在の命名スタイルを検出
 
-**VRChat** タブ → **Naming** セクションに移動します。**Detect Convention** をクリックします。BoneForge はボーン名を分析し、検出されたスタイルを表示します (Mixamo、Ready Player Me、Unity、またはカスタム)。
+**CATS → VRChat Tools → VRChat Naming Extras** セクションに移動します。**Detect Convention** をクリックします。BoneForge はボーン名を分析し、検出されたスタイルを表示します (Mixamo、Ready Player Me、Unity、またはカスタム)。
 
 日本語、中国語、韓国語、ポルトガル語、スペイン語、フランス語のボーン名を持つモデルの場合は、代わりに **CATS タブ → Bone Name Translation** ツールを使用します。ソース言語を自動検出し、1 ステップで英語 VRChat 名にすべてを変換します。
 
@@ -431,7 +441,7 @@ BoneForge が既知の命名スタイルを検出した場合、**Translate Bone
 
 ### ステップ 1 — Humanoid Mapper を開く
 
-**VRChat** タブ → **Humanoid** セクションに移動します。
+**CATS → Avatar Tools → Set Up Humanoid Bones** セクションに移動します。
 
 ---
 
@@ -465,7 +475,7 @@ BoneForge が既知の命名スタイルを検出した場合、**Translate Bone
 
 アバターに目ボーンがある場合は、**Eye Setup** セクションに移動します。**Fix Eye Bones** をクリックして、両目ボーンが正しく名付けられ、位置付けられていることを確認します。**Auto-Map Blink Shapes** をクリックしてまばたきアニメーションを接続します。
 
-制約作成と VRChat LeftEye/RightEye ボーン命名を含むより完全なアイトラッキングセットアップについては、[ガイド 13、フェーズ 3](#phase-3--eye-tracking) で説明されている **CATS タブ → Eye Tracking Setup** ツールを使用します。
+制約作成と VRChat LeftEye/RightEye ボーン命名を含むより完全なアイトラッキングセットアップについては、[ガイド 13、フェーズ 3](#フェーズ-3--アイトラッキング) で説明されている **CATS タブ → Eye Tracking Setup** ツールを使用します。
 
 **これが開き込むもの:** humanoid マッピングが完了すると、アバターは VRChat で適切に動作します。IK (逆運動学、リアルコントローラーに従うゲーム内ハンドシステム) が動作し、アバターは現実世界の動きを正しく追跡します。
 
@@ -486,7 +496,7 @@ BoneForge が既知の命名スタイルを検出した場合、**Translate Bone
 
 ### ステップ 1 — 髪のチェーンを検出
 
-**VRChat** タブ → **Hair Physics** セクションに移動します。**Detect Hair Chains** をクリックします。
+**CATS → Avatar Tools → Add Hair Physics** セクションに移動します。**Detect Hair Chains** をクリックします。
 
 BoneForge はスケルトンをスキャンして髪のように見えるボーンのチェーン (複数のボーンが端から端まで連鎖し、ルートから分岐) を探します。検出されたすべてのチェーンをリストします。
 
@@ -558,7 +568,7 @@ BoneForge はスケルトンをスキャンして髪のように見えるボー�
 
 ### ステップ 1 — 衣服ツールを開く
 
-**VRChat** タブ → **Clothing** セクションに移動します。
+**CATS → VRChat Tools → Attach Clothing** セクションに移動します。
 
 ---
 
@@ -621,7 +631,7 @@ BoneForge はスケルトンをスキャンして髪のように見えるボー�
 
 ### ステップ 1 — ビジェームマッパーを開く
 
-**VRChat** タブ → **Visemes** セクションに移動します。
+**CATS → VRChat Tools → Facial** タブ → **Visemes** セクションに移動します。
 
 ---
 
@@ -645,7 +655,7 @@ BoneForge はスケルトンをスキャンして髪のように見えるボー�
 | `mm` | 唇一緒 (M、B、P) | mouth_m、MM、lips_together |
 | `ss` | 「sss」 / 「zzz」 | mouth_s、SS |
 
-**代替 — CATS ビジェームジェネレータ:** アバターに既存のビジェームシェイプキーがない場合は、**CATS タブ → Viseme Generator** を使用して、わずか 3 つのベース形状 (A、O、CH) から 15 個の VRChat ビジェームをゼロから作成します。ステップバイステップの説明については、[ガイド 13、フェーズ 2](#phase-2--viseme-generation) を参照してください。
+**代替 — CATS ビジェームジェネレータ:** アバターに既存のビジェームシェイプキーがない場合は、**CATS タブ → Viseme Generator** を使用して、わずか 3 つのベース形状 (A、O、CH) から 15 個の VRChat ビジェームをゼロから作成します。ステップバイステップの説明については、[ガイド 13、フェーズ 2](#フェーズ-2--ビジェーム生成) を参照してください。
 
 ---
 
@@ -678,7 +688,7 @@ VRChat の顔トラッキングをアバターで機能させたい場合は、F
 
 ### ステップ 1 — 現在のパフォーマンスランクをチェック
 
-**VRChat** タブ → **Performance** セクションに移動します。**Calculate Rank** をクリックします。BoneForge は現在の推定ランクと、その原因となっている特定の数値 (ポリゴン数、マテリアル数、ボーン数など) を表示します。
+**CATS → VRChat Tools → Check Performance** セクションに移動します。**Calculate Rank** をクリックします。BoneForge は現在の推定ランクと、その原因となっている特定の数値 (ポリゴン数、マテリアル数、ボーン数など) を表示します。
 
 ---
 
@@ -740,7 +750,7 @@ CATS タブの **Material Atlas Combiner** は、同じ Accept/Revert ワーク�
 
 ### ステップ 1 — ポーズライブラリを開く
 
-BoneForge サイドバーで **Review** タブに移動し、**Pose Library** セクションを見つけます。
+BoneForge サイドバーで **BoneForge → Review** タブに移動し、**Pose Library** セクションを見つけます。
 
 ---
 
@@ -790,7 +800,7 @@ Pose Library パネルで保存されたポーズの任意のサムネイル画�
 
 ### ステップ 1 — ボーンマージを開く
 
-**Review** タブ → **Bone Merge** セクションに移動します。またはサイドバーの Bone Merge タブで見つけます。
+**BoneForge → Setup Rigging → Bone Merge**.
 
 ---
 
@@ -846,55 +856,55 @@ BoneForge が認識できないボーンの場合は、**Propose** をクリッ�
 
 ### 「アップロード失敗 — ボーンが認識されていません」
 
-ボーンには VRChat が理解していない名前があります。→ [ガイド 4: アバターのボーン名を修正する](#guide-4-fix-your-avatars-bone-names) に移動
+ボーンには VRChat が理解していない名前があります。→ [ガイド 4: アバターのボーン名を修正する](#ガイド-4-アバターのボーン名を修正する) に移動
 
 ---
 
 ### 「アバターが T ポーズ / VRChat で私と一緒に動いていない」
 
-humanoid マッピングが見つからないか正しくありません。→ [ガイド 5: アバターを VRChat のボディシステムにマッピングする](#guide-5-map-your-avatar-to-vrchats-body-system) に移動
+humanoid マッピングが見つからないか正しくありません。→ [ガイド 5: アバターを VRChat のボディシステムにマッピングする](#ガイド-5-アバターを-vrchat-のボディシステムにマッピングする) に移動
 
 ---
 
 ### 「メッシュが奇妙に変形しているまたはスキンが間違った方向に伸びている」
 
-ボーンウェイトを調整する必要があります。→ [機能リファレンス](#feature-reference) で **Weight Transfer** と **Weight Mirror** を参照してください。
+ボーンウェイトを調整する必要があります。→ [機能リファレンス](#機能リファレンス) で **Weight Transfer** と **Weight Mirror** を参照してください。
 
 ---
 
 ### 「髪が頭を貫通しているので」
 
-髪コライダーが欠落しているか小さすぎます。→ [ガイド 6: 髪の物理演算を追加する](#guide-6-add-hair-physics)、ステップ 6 に移動
+髪コライダーが欠落しているか小さすぎます。→ [ガイド 6: 髪の物理演算を追加する](#ガイド-6-髪の物理演算を追加する)、ステップ 6 に移動
 
 ---
 
 ### 「アバターが Very Poor のパフォーマンスで、他のプレイヤーによってブロックされています」
 
-→ [ガイド 9: アバターのパフォーマンスを改善する](#guide-9-improve-your-avatars-performance) に移動
+→ [ガイド 9: アバターのパフォーマンスを改善する](#ガイド-9-アバターのパフォーマンスを改善する) に移動
 
 ---
 
 ### 「リップシンクが機能していない」
 
-ビジェームが正しくマップされていません。→ [ガイド 8: リップシンクをセットアップする](#guide-8-set-up-lip-sync) に移動
+ビジェームが正しくマップされていません。→ [ガイド 8: リップシンクをセットアップする](#ガイド-8-リップシンクをセットアップする) に移動
 
 ---
 
 ### 「リグバリデータが赤いエラーを表示」
 
-**Review** タブ → **Rig Validator** セクションに移動します。**Run Validation** をクリックします。赤いエラーごとに、エラーメッセージをクリックします。BoneForge が問題のあるボーンを選択してくれます。エラーの説明を読み、その提案に従うか、[クイック修正インデックス](#quick-fix-index) をチェックしてください。
+**BoneForge → Review** タブ → **Rig Validator** セクションに移動します。**Run Validation** をクリックします。赤いエラーごとに、エラーメッセージをクリックします。BoneForge が問題のあるボーンを選択してくれます。エラーの説明を読み、その提案に従うか、[クイック修正インデックス](#クイック修正インデックス) をチェックしてください。
 
 ---
 
 ### 「VRM インポートが機能していない」
 
-VRM ブリッジアドオンがインストールされていない可能性があります。→ [ガイド 2](#guide-2-bring-a-vroid-avatar-into-vrchat)、ステップ 1 に移動
+VRM ブリッジアドオンがインストールされていない可能性があります。→ [ガイド 2](#ガイド-2-vroid-アバターを-vrchat-に導入する)、ステップ 1 に移動
 
 ---
 
 ### 「MMD インポートが機能していない」
 
-MMD Tools アドオンがインストールされていない可能性があります。→ [ガイド 3](#guide-3-bring-an-mmd-avatar-into-vrchat)、ステップ 1 に移動
+MMD Tools アドオンがインストールされていない可能性があります。→ [ガイド 3](#ガイド-3-mmd-アバターを-vrchat-に導入する)、ステップ 1 に移動
 
 ---
 
@@ -909,7 +919,7 @@ CATS ツールは **パイプライン** システムを使用します。各フ
 
 **常に Fix Model で開始してください。毎回。例外なく。**
 
-まだ読んでいない場合は、続行する前に [CATS プラグイン — 開始する前に: パイプラインの順序](#cats-plugin--before-you-begin-the-pipeline-order) を読んでください。
+まだ読んでいない場合は、続行する前に [CATS プラグイン — 開始する前に: パイプラインの順序](#cats-プラグイン--開始する前に-パイプラインの順序) を読んでください。
 
 **開始する前に以下を確認してください:**
 - [ ] アバターが Blender にインポートされ、3D ビューポートに表示されています
@@ -946,7 +956,7 @@ Fix Model ステップは CATS の他のすべてのための必須の基盤で�
 
 要件: Fix Model ✓
 
-Viseme Generator は 3 つのベース形状から 15 個のすべての VRChat リップシンク口の形を作成します。アバターに既に完全なビジェームシェイプキーがある場合は、このフェーズをスキップできます。ただし、VRChat タブのビジェームマッパーを確認して、キーが正しく名付けられていることを確認する必要があります。
+Viseme Generator は 3 つのベース形状から 15 個のすべての VRChat リップシンク口の形を作成します。アバターに既に完全なビジェームシェイプキーがある場合は、このフェーズをスキップできます。ただし、CATS → Avatar Tools タブのビジェームマッパーを確認して、キーが正しく名付けられていることを確認する必要があります。
 
 **Viseme Generator が行うこと:**
 
@@ -1039,7 +1049,7 @@ Fix Model ステップを実行しない場合、頂点の順序は削除され�
 2. **CATS** タブで **Transform Tools** セクションを見つけます
 3. **Apply All Transforms** をクリック
 4. **Ledger** が Apply Transforms の横にチェックマーク (✓) を表示していることを確認。5 つすべてのスロットがチェックされている必要があります (✓✓✓✓✓)
-5. **VRChat** タブ → **Export** セクションに移動し、アバターを FBX としてエクスポート
+5. **CATS → Avatar Tools → Export to VRChat** セクションに移動し、アバターを FBX としてエクスポート
 
 **見えるはず:** 5 つすべての Ledger スロットに ✓ が表示されます。アバターは VRChat Creator Companion にインポートする準備ができています。
 
@@ -1148,7 +1158,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **アイコン / 色** — ボタンにカスタムアイコンと色を割り当てる (視覚的編成用)
 - **セクション** — 複数のコレクションを崩壊可能なヘッダーの下にグループ化
 
-**どこで見つけるか:** Review タブ → Collections セクション
+**どこで見つけるか:** BoneForge → Review → Collections
 
 ---
 
@@ -1166,7 +1176,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 **デフォルトブックマークボタン:** FK Arms、IK Body、Face Only、Full Rig
 
-**どこで見つけるか:** Review タブ → Bookmarks セクション
+**どこで見つけるか:** BoneForge → Review → Collections → Visibility Bookmarks
 
 ---
 
@@ -1203,7 +1213,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Export** — ポーズを `.bfpose` ファイルに保存
 - **Import** — `.bfpose` ファイルからポーズを読み込み
 
-**どこで見つけるか:** Review タブ → Pose Library セクション
+**どこで見つけるか:** BoneForge → Review → Pose Library
 
 ---
 
@@ -1223,7 +1233,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **親スペーススイッチ** — 四肢の IK ターゲットがどのスペースに親化されているかを変更 (World、Root など)
 - **頭/首フォロー** — 頭/首が体の回転にどの程度従うかを制御
 
-**どこで見つけるか:** Setup Rigging タブ → Rigify セクション
+**どこで見つけるか:** BoneForge → Setup Rigging → Rigify Tools
 
 ---
 
@@ -1241,7 +1251,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Activation angle** — シェイプキーが完全な強度 (1.0) に達する回転角度 (度)
 - **Falloff** — アクティベーション角度の前にどの程度の度数でシェイプキーがフェードインを開始するか (大きい = より滑らかな遷移)
 
-**どこで見つけるか:** Skin タブ → Correctives セクション
+**どこで見つけるか:** BoneForge → Skin → Correctives
 
 ---
 
@@ -1258,7 +1268,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Euler Filter** — ジンバルロックが原因で生じたアニメーション曲線の回転フリップアーティファクトを修正
 - **Tangent Tools** — 選択したキーフレームのキーフレームハンドルタイプ (Auto、Vector、Aligned、Free) を設定
 
-**どこで見つけるか:** Review タブ → Graph Tools セクション
+**どこで見つけるか:** BoneForge → Review → Graph Tools
 
 ---
 
@@ -1282,7 +1292,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Search Distance** — Blender ユニット内の最大距離。2 つの頂点を「ペア」と見なす。メッシュが完全に対称でない場合は増加
 - **Normalize After** — ミラー後すべてのウェイトが 1.0 に合計されることを確認
 
-**どこで見つけるか:** Skin タブ → Weight Mirror セクション
+**どこで見つけるか:** BoneForge → Skin → Weight Tools → Weight Mirror
 
 ---
 
@@ -1300,7 +1310,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Nearest Vertex** — 各ターゲット頂点は最も近いソース頂点からウェイトを取得
 - **Nearest Face** — 顔投影を使用して、曲面でより滑らかな結果
 
-**どこで見つけるか:** Skin タブ → Weight Transfer セクション
+**どこで見つけるか:** BoneForge → Skin → Weight Tools → Weight Transfer
 
 ---
 
@@ -1315,7 +1325,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Zero Weight** — 特定のセルを 0.0 にクリア
 - **Tag Deform Bones** — 選択したボーンをデフォームボーン (ウェイトペイントモードで表示される必要) として標記
 
-**どこで見つけるか:** Skin タブ → Weight Table セクション
+**どこで見つけるか:** BoneForge → Skin → Weight Tools → Weight Table
 
 ---
 
@@ -1330,7 +1340,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Iterations** — 適用する平滑化パスの数 (高い = より滑らか、ただし詳細を失う可能性)
 - **Influence** — 平滑化効果がどの程度強いか (0 = オフ、1 = 完全な強度)
 
-**どこで見つけるか:** Skin タブ → Delta Mush セクション
+**どこで見つけるか:** BoneForge → Skin → Delta Mush
 
 ---
 
@@ -1346,7 +1356,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Max Distance** — ラッピング効果が及ぶターゲットサーフェスからの距離
 - **Falloff** — ラッピング効果が端でどの程度フェードオフするか (Smooth または Linear)
 
-**どこで見つけるか:** Skin タブ → Proximity Wrap セクション
+**どこで見つけるか:** BoneForge → Skin → Proximity Wrap
 
 ---
 
@@ -1359,7 +1369,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Apply Shape** — メッシュのシェイプキーを保存されたエントリと一致するように設定
 - **Copy Shape From** — シェイプキーを別のオブジェクトから現在のメッシュにコピー
 
-**どこで見つけるか:** Skin タブ → Shape Library セクション
+**どこで見つけるか:** BoneForge → Shape Library
 
 ---
 
@@ -1382,7 +1392,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Switch Without Key** — キーフレーミングなしでスペースを切り替え
 - **Set Default Space** — ボーンが開始するスペースを設定
 
-**どこで見つけるか:** Review タブ → Space Switching セクション
+**どこで見つけるか:** BoneForge → Space Switch
 
 ---
 
@@ -1398,7 +1408,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Start/End Bone** — チェーンの最初と最後のボーン
 - **Curve Resolution** — コントロール曲線が持つセグメント数 (より多くのセグメント = より滑らかだが重い)
 
-**どこで見つけるか:** Review タブ → Spline IK セクション
+**どこで見つけるか:** BoneForge → Spline IK
 
 ---
 
@@ -1416,7 +1426,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Damping** — 動きがどの程度速く定着するか
 - **Gravity** — チェーンへの下方向の引き
 
-**どこで見つけるか:** Review タブ → Chain Dynamics セクション
+**どこで見つけるか:** BoneForge → Chain Dynamics
 
 ---
 
@@ -1432,7 +1442,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Segment Count** — リボンに沿った小区分数
 - **Twist Amount** — リボンが端から端までねじれる量
 
-**どこで見つけるか:** Review タブ → Ribbon セクション
+**どこで見つけるか:** BoneForge → Ribbon
 
 ---
 
@@ -1448,7 +1458,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Preview Viseme** — ビジェームのシェイプキー値を再生
 - **Delete Set** — ビジェームセットを削除
 
-**どこで見つけるか:** Review タブ → Viseme セクション
+**どこで見つけるか:** CATS → Avatar Tools → Viseme Library
 
 ---
 
@@ -1467,7 +1477,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Record Point** — 現在のボーン位置で、ドライバー曲線の点として現在のシェイプキー値を記録
 - **Set Driver Value** — 記録されたポイントのシェイプキー値を手動で入力
 
-**どこで見つけるか:** Review タブ → SDK Author セクション
+**どこで見つけるか:** BoneForge → Set Driven Key
 
 ---
 
@@ -1483,7 +1493,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Export Report** — 検証結果をテキストまたはマークダウンファイルとして保存
 - **Rule Set** — Standard (一般的なリギング規則) または VRChat (VRChat 固有の要件) を選択
 
-**どこで見つけるか:** Review タブ → Rig Validator セクション
+**どこで見つけるか:** BoneForge → Review → Rig Validator
 
 ---
 
@@ -1499,7 +1509,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Remove Note** — メモを削除
 - **Rig Readme** — メモを書式付きの読み取り専用ビューで表示
 
-**どこで見つけるか:** Review タブ → Rig Notes セクション
+**どこで見つけるか:** BoneForge → Overview → Rig Notes
 
 ---
 
@@ -1513,7 +1523,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 **何をするか:** メッシュにマーカーポイントを配置し、完全なスケルトンをウェイト付きで自動的に生成するステップバイステップのガイドプロセス。BoneForge でゼロからリグを作成するメインの方法。
 
-完全なウォークスルーについては、[ガイド 1: 最初のアバターを VRChat に導入する](#guide-1-get-your-first-avatar-into-vrchat) を参照してください。
+完全なウォークスルーについては、[ガイド 1: 最初のアバターを VRChat に導入する](#ガイド-1-最初のアバターを-vrchat-に導入する) を参照してください。
 
 **ステップ:** メッシュを選択 → リグタイプを設定 → 指の数を設定 → 体マーカーを配置 → 顔マーカーを配置 → 指マーカーを配置 → レビュー → 生成
 
@@ -1534,7 +1544,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 **8.3.1 の IK 動作:** **IK + FK** と **IK Only** モードでは、BoneForge は `hand_ik.L`、`hand_ik.R`、`foot_ik.L`、`foot_ik.R` という手足専用の IK ターゲットコントロールを作成します。これらのコントロールはメッシュを変形しません。IK 制約がこれらを使用するため、手や足の変形ボーンを自分自身のターゲットにせず、きれいに位置決めできます。
 
-**どこで見つけるか:** Rig Builder タブ → Wizard セクション
+**どこで見つけるか:** Rig Builder → Auto-Rig Wizard
 
 ---
 
@@ -1545,7 +1555,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 **キーコントロール:**
 - **Generate Quick Rig** — デフォルト人間スケルトン、ウェイト、BoneForge パネルを即座に作成
 
-**どこで見つけるか:** Rig Builder タブ → Quick Rig セクション
+**どこで見つけるか:** Rig Builder → Quick Rig - premade armatures
 
 ---
 
@@ -1566,7 +1576,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Torso/Arm/Leg proportions** — 相対的な長さ調整
 - **Muscularity** — 痩せから重く構築されたボディタイプ
 
-**どこで見つけるか:** Rig Builder タブ → Mannequin セクション
+**どこで見つけるか:** Rig Builder → Mannequin
 
 ---
 
@@ -1586,7 +1596,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Retarget Method** — Simple (直接回転転送) または IK-Aware (腕の長さの違いを考慮)
 - **Frame Range** — インポートするアニメーションの開始フレームと終了フレーム
 
-**どこで見つけるか:** Setup Rigging タブ → Retargeting セクション
+**どこで見つけるか:** BoneForge → Setup Rigging → Retarget
 
 ---
 
@@ -1594,7 +1604,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 **安定性: 安定 | 導入: 6.0**
 
-完全なウォークスルーについては、[ガイド 11: 2 つのリグをマージする](#guide-11-merge-two-rigs-together) を参照してください。
+完全なウォークスルーについては、[ガイド 11: 2 つのリグをマージする](#ガイド-11-2-つのリグをマージする) を参照してください。
 
 **3 つのステージ:**
 1. **Scope (ステージ 1)** — 2 つのアーマチュア間の違いを分析およびレビュー
@@ -1615,7 +1625,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 **命名標準:** Mixamo Prefixed、Mixamo Stripped、またはカスタム
 
-**どこで見つけるか:** Review タブ → Bone Merge セクション
+**どこで見つけるか:** BoneForge → Setup Rigging → Bone Merge
 
 ---
 
@@ -1630,7 +1640,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 スケルトンのボーンを VRChat の必要な humanoid スロットにマップし、エラーをチェックします。
 
-[ガイド 5: アバターを VRChat のボディシステムにマッピングする](#guide-5-map-your-avatar-to-vrchats-body-system) を参照してください。
+[ガイド 5: アバターを VRChat のボディシステムにマッピングする](#ガイド-5-アバターを-vrchat-のボディシステムにマッピングする) を参照してください。
 
 ---
 
@@ -1638,7 +1648,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 動的な髪とアクセサリー用に PhysBone コンポーネントを生成します。
 
-[ガイド 6: 髪の物理演算を追加する](#guide-6-add-hair-physics) を参照してください。
+[ガイド 6: 髪の物理演算を追加する](#ガイド-6-髪の物理演算を追加する) を参照してください。
 
 ---
 
@@ -1646,7 +1656,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 衣服メッシュをベースアバターのスケルトンにアタッチします。
 
-[ガイド 7: 体に合わせて動く衣服を取り付ける](#guide-7-attach-clothing-that-moves-with-your-body) を参照してください。
+[ガイド 7: 体に合わせて動く衣服を取り付ける](#ガイド-7-体に合わせて動く衣服を取り付ける) を参照してください。
 
 ---
 
@@ -1654,13 +1664,13 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 **何をするか:** スケルトンの命名形式を検出し、VRChat の標準にボーンの名前を変更します。
 
-[ガイド 4: アバターのボーン名を修正する](#guide-4-fix-your-avatars-bone-names) を参照してください。
+[ガイド 4: アバターのボーン名を修正する](#ガイド-4-アバターのボーン名を修正する) を参照してください。
 
 **利用可能なプリセット:** Mixamo、Ready Player Me、Unity Standard、Custom (独自に保存)
 
 **バッチツール:** Add Prefix、Remove Prefix、Add Suffix、Remove Suffix、Find & Replace (プレーンテキストと正規表現)
 
-**どこで見つけるか:** VRChat タブ → Naming セクション
+**どこで見つけるか:** CATS → VRChat Tools → VRChat Naming Extras
 
 ---
 
@@ -1668,9 +1678,9 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 **何をするか:** メッシュのシェイプキーを VRChat の 15 のリップシンク音素にマップします。
 
-[ガイド 8: リップシンクをセットアップする](#guide-8-set-up-lip-sync) を参照してください。
+[ガイド 8: リップシンクをセットアップする](#ガイド-8-リップシンクをセットアップする) を参照してください。
 
-アバターがまだビジェームを持っていない場合、ゼロから生成する場合は、[CATS ツールリファレンス: Viseme Generator](#viseme-generator-cats) を参照してください。
+アバターがまだビジェームを持っていない場合、ゼロから生成する場合は、[CATS ツールリファレンス: Viseme Generator](#ビジェームジェネレータ-cats) を参照してください。
 
 **VRChat の 15 の音素:** `aa`、`ch`、`dd`、`e`、`ff`、`ih`、`kk`、`mm`、`nn`、`oh`、`r`、`ss`、`th`、`uh`、`pp`
 
@@ -1680,7 +1690,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 **何をするか:** アバターの VRChat パフォーマンスランクを測定し、改善するためのツールを提供します。
 
-[ガイド 9: アバターのパフォーマンスを改善する](#guide-9-improve-your-avatars-performance) を参照してください。
+[ガイド 9: アバターのパフォーマンスを改善する](#ガイド-9-アバターのパフォーマンスを改善する) を参照してください。
 
 **パフォーマンスティア (最高から最悪へ):** Excellent → Good → Medium → Poor → Very Poor
 
@@ -1704,7 +1714,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Join Meshes** — すべてのメッシュをマテリアルスロットを保持しながら 1 つにまとめる
 - **Apply Transforms** — スケール/回転を凍結して 1.0/0° (一部のエクスポーターで必須) として読み込まれるようにする
 
-**どこで見つけるか:** VRChat タブ → Cleanup セクション
+**どこで見つけるか:** CATS → CATS → Fix Model / Mesh Tools
 
 ---
 
@@ -1722,7 +1732,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Embed Textures** — Unity のマテリアル取り込みを簡単にするため、画像テクスチャを FBX に埋め込みます
 - **Helper Meshes** — 非表示、レンダー無効、カスタムシェイプ用のヘルパーメッシュは有効時のみ含めます。通常のアバター export ではオフのままにします
 
-**どこで見つけるか:** VRChat タブ → Export セクション
+**どこで見つけるか:** CATS → Avatar Tools → Export to VRChat
 
 ---
 
@@ -1754,7 +1764,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Skip Lint on Export** — ターゲット検証をスキップします。表示されたリスクを理解している場合だけ使ってください
 - **Author / License** — VRM メタデータに保存されたクリエーター情報
 
-**どこで見つけるか:** VRM タブ → Export セクション
+**どこで見つけるか:** CATS → Import / Export → VRM / VRoid → Export
 
 ---
 
@@ -1766,7 +1776,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 必要な humanoid ボーンが存在するのに linter が不足と表示する場合は、**Fix Humanoid Map** をクリックします。BoneForge が humanoid スロットを自動検出し、マッピングを保存し、正しいボーンに `boneforge_humanoid_alias` を記録します。実際のボーン名を変更せずに、古いマッピングデータを修復します。
 
-**どこで見つけるか:** VRM タブ → Lint セクション
+**どこで見つけるか:** CATS → Import / Export → VRM / VRoid → Lint
 
 ---
 
@@ -1799,7 +1809,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **VMD File / VMD Scope** — 1 つまたはすべての MMD モデルに対して、現在のシーンモーションを export します
 - **VPD File / VPD Scope** — 1 つまたはすべての MMD モデルに対して、現在のポーズを export します
 
-**どこで見つけるか:** MMD タブ → Export セクション
+**どこで見つけるか:** CATS → Import / Export → MMD / PMX → Export
 
 ---
 
@@ -1826,7 +1836,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Bake Animation** — ターゲットが必要とする場合、アニメーションを FBX キーフレームに変換します
 - **Embed Textures** — Unity/Unreal のマテリアルインポートを簡単にするため、画像テクスチャを FBX に埋め込みます
 
-**どこで見つけるか:** サイドバーの I/O Hub タブの下 (サイドバーの下部に登録)
+**どこで見つけるか:** CATS → Import / Export → Game Engine Export
 
 ---
 
@@ -1834,7 +1844,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 **何をするか:** 現在インストールされている形式ブリッジアドオン (VRM、MMD) とそのバージョンをチェックします。欠落しているすべての場合はインストールボタンを表示します。
 
-**どこで見つけるか:** VRM タブまたは MMD タブ → 上部セクション
+**どこで見つけるか:** CATS → Import / Export → VRM / VRoid or MMD / PMX
 
 ---
 
@@ -1850,7 +1860,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 タスクアナライザーは一般的な問題 (humanoid ボーンが見つかない、未解決の命名、ビジェームが見つからないなど) を自動的に特定し、アクション可能なアイテムとしてリストします。
 
-**どこで見つけるか:** Review タブ → Overview セクション
+**どこで見つけるか:** BoneForge → Overview → Task Board
 
 ---
 
@@ -1864,7 +1874,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - ドライバーリスト (ドライバーエディタを開くにはクリック)
 - カスタムプロパティ値 (インラインで編集可能)
 
-**どこで見つけるか:** Review タブ → Bone Inspector セクション
+**どこで見つけるか:** BoneForge → Review → Bone Inspector
 
 ---
 
@@ -1880,7 +1890,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 
 **安定性: 安定 | 導入: 7.1.1**
 
-CATS ツールは N パネルサイドバーの独自の **CATS** タブに存在します。これはメイン BoneForge タブとは別です。すべての CATS ツールは [CATS プラグイン — 開始する前に: パイプラインの順序](#cats-plugin--before-you-begin-the-pipeline-order) で説明されているパイプラインシステム内で動作します。
+CATS ツールは N パネルサイドバーの独自の **CATS** タブに存在します。これはメイン BoneForge タブとは別です。すべての CATS ツールは [CATS プラグイン — 開始する前に: パイプラインの順序](#cats-プラグイン--開始する前に-パイプラインの順序) で説明されているパイプラインシステム内で動作します。
 
 ---
 
@@ -1903,7 +1913,7 @@ CATS ツールは N パネルサイドバーの独自の **CATS** タブに存�
 - **Fix Model** — 上記のすべての操作を 1 パスで選択したメッシュで実行
 - **Threshold** — 重複頂点検出のマージ距離 (デフォルト: 0.0001 Blender ユニット)。頂点がわずかにずれている場合は増加します。意図的に分離された近いが他の頂点をマージするのを避けたい場合は減少させます
 
-**どこで見つけるか:** CATS タブ → Fix Model セクション (パネルの上部)
+**どこで見つけるか:** CATS tab → Fix Model (top of panel)
 
 ---
 
@@ -1929,7 +1939,7 @@ CATS ツールは N パネルサイドバーの独自の **CATS** タブに存�
 
 **スコープに関する注:** Bone Name Translation はあなたの Blender インターフェースの言語ではなく、ソースモデルのボーン名の言語を処理します。Blender が英語版に設定されていても、VRChat の英語版で使用したい日本語 MMD モデルがある場合は、このツールを使用してください。
 
-**どこで見つけるか:** CATS タブ → Bone Name Translation セクション
+**どこで見つけるか:** CATS tab → Bone Name Translation
 
 ---
 
@@ -1945,7 +1955,7 @@ CATS ツールは N パネルサイドバーの独自の **CATS** タブに存�
 
 **使用する時:** 衣服をアタッチするか、アーマチュアをマージした後。余分なボーンは多くの場合、何のメッシュにも割り当てられていないまま実行されます。Join Meshes 後、エクスポート前にこれを実行してください。
 
-**どこで見つけるか:** CATS タブ → Bone Tools セクション → Zero Weight Bones
+**どこで見つけるか:** CATS tab → Bone Tools → Zero Weight Bones
 
 ---
 
@@ -1962,7 +1972,7 @@ CATS ツールは N パネルサイドバーの独自の **CATS** タブに存�
 
 **使用する時:** すべての衣服とアクセサリーがアタッチされ、ウェイトされた後。CATS Fix Model の前に Join Meshes を実行しないでください。クリーンアップの前にメッシュを結合すると、1 つのメッシュオブジェクトから別のメッシュオブジェクトに重複頂点の問題が広がり、削除が難しくなります。メッシュを Fix Model の前に結合したユーザーは、結果の単一メッシュが元のすべてのオブジェクトからファントム頂点を保持し、Viseme Generator が目に見えてメッシュを継ぎ目で引き裂くシェイプキーを生成することを報告しています。
 
-**どこで見つけるか:** CATS タブ → Mesh Tools セクション → Join Meshes
+**どこで見つけるか:** CATS tab → Mesh Tools → Join Meshes
 
 ---
 
@@ -1970,7 +1980,7 @@ CATS ツールは N パネルサイドバーの独自の **CATS** タブに存�
 
 **何をするか:** 複数のマテリアルを単一のテクスチャアトラスシートに焼き込みます。より少ないマテリアル = より良い VRChat パフォーマンスランク。
 
-これは Main VRChat タブで利用可能な同じアトラスプロセスで、コミットする前に結果をプレビューできる Accept/Revert ワークフロー付きで表示されます。
+これは Main CATS → Avatar Tools タブで利用可能な同じアトラスプロセスで、コミットする前に結果をプレビューできる Accept/Revert ワークフロー付きで表示されます。
 
 **キーコントロール:**
 - **Analyze** — 現在のマテリアル数と推定削減を表示
@@ -1979,7 +1989,7 @@ CATS ツールは N パネルサイドバーの独自の **CATS** タブに存�
 - **Accept** — アトラスをコミットし、元のマテリアルを置き換え
 - **Revert** — アトラスをアンドゥして元のマテリアルを復元
 
-**どこで見つけるか:** CATS タブ → Material Atlas セクション
+**どこで見つけるか:** CATS tab → Material Atlas
 
 ---
 
@@ -2000,7 +2010,7 @@ CATS ツールは N パネルサイドバーの独自の **CATS** タブに存�
 - **Eye Rotation Limits** — 上下および左右の動きの最大回転角度 (デフォルト: 30°)
 - **Test Eye Movement** — 目ボーンを範囲内でアニメーション化して制約が機能することを確認
 
-**どこで見つけるか:** CATS タブ → Eye Tracking Setup セクション
+**どこで見つけるか:** CATS tab → Eye Tracking Setup
 
 ---
 
@@ -2029,7 +2039,7 @@ CATS ツールは N パネルサイドバーの独自の **CATS** タブに存�
 - **Pose to Shape Key** — 現在の変形された状態を新しいシェイプキーとしてキャプチャ
 - **Name** — 新しいシェイプキーの名前フィールド
 
-**どこで見つけるか:** CATS タブ → Shape Key Tools セクション
+**どこで見つけるか:** CATS tab → Shape Key Tools
 
 ---
 
@@ -2042,7 +2052,7 @@ CATS ツールは N パネルサイドバーの独自の **CATS** タブに存�
 **キーコントロール:**
 - **Shape Key to Basis** — 選択したシェイプキーをメッシュにベイク、キーを削除
 
-**どこで見つけるか:** CATS タブ → Shape Key Tools セクション
+**どこで見つけるか:** CATS tab → Shape Key Tools
 
 
 ---
@@ -2064,7 +2074,7 @@ Apply Transforms は最終パイプラインステップです。すべての以
 **キーコントロール:**
 - **Apply All Transforms** — メッシュとアーマチュアの両方に一度に適用
 
-**どこで見つけるか:** CATS タブ → Transform Tools セクション
+**どこで見つけるか:** CATS tab → Transform Tools
 
 ---
 
@@ -2077,7 +2087,7 @@ Apply Transforms は最終パイプラインステップです。すべての以
 **キーコントロール:**
 - **Fix FBT** — FBT ルートボーン修正を適用
 
-**どこで見つけるか:** CATS タブ → Transform Tools セクション
+**どこで見つけるか:** CATS tab → Transform Tools
 
 ---
 
@@ -2088,7 +2098,7 @@ Apply Transforms は最終パイプラインステップです。すべての以
 **キーコントロール:**
 - **Remove FBT** — FBT ルートボーン調整を元に戻す
 
-**どこで見つけるか:** CATS タブ → Transform Tools セクション
+**どこで見つけるか:** CATS tab → Transform Tools
 
 ---
 
@@ -2117,7 +2127,7 @@ Apply Transforms は最終パイプラインステップです。すべての以
 - **Preview** — 生成されたビジェーム間をサイクルして、コミット前に結果をチェック
 - **Blend Strength** — 係数乗数をグローバルにスケール (1.0 = デフォルト。ビジェームが極端に見える場合は削減)
 
-**どこで見つけるか:** CATS タブ → Viseme Generator セクション
+**どこで見つけるか:** CATS tab → Viseme Generator
 
 ---
 
@@ -2136,7 +2146,7 @@ Apply Transforms は最終パイプラインステップです。すべての以
 
 **使用する時:** スケルトンにルートボーンがない場合、またはリグバリデータが「missing root bone」エラーを報告する場合。
 
-**どこで見つけるか:** CATS タブ → Bone Tools セクション
+**どこで見つけるか:** CATS tab → Bone Tools
 
 ---
 
@@ -2149,7 +2159,7 @@ Apply Transforms は最終パイプラインステップです。すべての以
 - **Preview** — 変更をコミットせずにマージされるボーンを表示
 - **Merge** — マージを適用
 
-**どこで見つけるか:** CATS タブ → Bone Tools セクション
+**どこで見つけるか:** CATS tab → Bone Tools
 
 ---
 
@@ -2161,7 +2171,7 @@ Apply Transforms は最終パイプラインステップです。すべての以
 - **Duplicate Selected** — `.copy` サフィックス付きの各選択したボーンのコピーを作成
 - **Mirror Duplicate** — 複製して中心線全体でミラー。左右のペアを作成
 
-**どこで見つけるか:** CATS タブ → Bone Tools セクション
+**どこで見つけるか:** CATS tab → Bone Tools
 
 ---
 
@@ -2179,9 +2189,9 @@ Apply Transforms は最終パイプラインステップです。すべての以
 - **Merge** — マージを実行
 - **Connect Bones** — 必要に応じてマージされたボーンをベースアーマチュアの最も近いボーンに再親化し、トップレベルボーンとしてそれらを保持する代わりに
 
-**命名競合解決を伴う複雑な多段階マージの場合は、** Review タブで BoneForge の完全な Bone Merge ツールを代わりに使用してください。
+**命名競合解決を伴う複雑な多段階マージの場合は、** BoneForge → Setup Riggingで BoneForge の完全な Bone Merge ツールを代わりに使用してください。
 
-**どこで見つけるか:** CATS タブ → Armature Tools セクション
+**どこで見つけるか:** CATS tab → Armature Tools
 
 ---
 
@@ -2198,7 +2208,7 @@ Apply Transforms は最終パイプラインステップです。すべての以
 **キーコントロール:**
 - **Separate by Materials** — マテリアル割り当てによってアクティブなメッシュを分割
 
-**どこで見つけるか:** CATS タブ → Mesh Tools セクション
+**どこで見つけるか:** CATS tab → Mesh Tools
 
 ---
 
@@ -2209,7 +2219,7 @@ Apply Transforms は最終パイプラインステップです。すべての以
 **キーコントロール:**
 - **Separate by Loose Parts** — ジオメトリ境界でアクティブなメッシュを分割
 
-**どこで見つけるか:** CATS タブ → Mesh Tools セクション
+**どこで見つけるか:** CATS tab → Mesh Tools
 
 ---
 
@@ -2220,7 +2230,7 @@ Apply Transforms は最終パイプラインステップです。すべての以
 **キーコントロール:**
 - **Separate by Shape Keys** — 2 つのオブジェクトを作成: シェイプキーデータ付き 1 つ、なし 1 つ
 
-**どこで見つけるか:** CATS タブ → Mesh Tools セクション
+**どこで見つけるか:** CATS tab → Mesh Tools
 
 ---
 
@@ -2242,7 +2252,7 @@ Apply Transforms は最終パイプラインステップです。すべての以
 - Pose to Shape: 少なくとも 1 つのカスタムシェイプキーが存在するか (またはフェーズがマーク完了しているか)?
 - Apply Transforms: すべての変換がクリーン値 (スケール 1,1,1 / 回転 0,0,0) であるか?
 
-**どこで見つけるか:** CATS タブ → Validator セクション (パネルの下部)
+**どこで見つけるか:** CATS tab → Validator (bottom of panel)
 
 ---
 
@@ -2252,19 +2262,19 @@ Apply Transforms は最終パイプラインステップです。すべての以
 
 | 問題 | どこを見るか |
 |---|---|
-| アップロード失敗 — ボーンが認識されていません | [ガイド 4](#guide-4-fix-your-avatars-bone-names) + [VRChat 命名](#naming-conventions) |
-| アバターが T ポーズ / 動きを追跡していない | [ガイド 5](#guide-5-map-your-avatar-to-vrchats-body-system) + [Humanoid マッパー](#humanoid-mapper-and-validator) |
-| メッシュが奇妙に変形している / スキンが伸びている | [ウェイト転送](#weight-transfer) + [ウェイトミラー](#weight-mirror) |
-| 体の片側が異なるウェイトを持っている | [ウェイトミラー](#weight-mirror) |
-| 髪が頭を貫通している | [ガイド 6、ステップ 6](#step-6--add-colliders-recommended) — コライダーを追加 |
-| 髪の物理演算が動いていない | [ガイド 6](#guide-6-add-hair-physics) — チェーン検出 + 物理プリセット |
-| 衣服が体を貫通している | [ガイド 7](#guide-7-attach-clothing-that-moves-with-your-body) + BVH 衝突検出をチェック |
-| リップシンクが機能していない | [ガイド 8](#guide-8-set-up-lip-sync) + [ビジェームマッパー](#viseme-mapper) |
-| アバターが Very Poor のパフォーマンス | [ガイド 9](#guide-9-improve-your-avatars-performance) + [パフォーマンス最適化](#performance-and-optimization) |
-| VRM インポート失敗 | [ガイド 2、ステップ 1](#step-1--install-the-vrm-bridge) — VRM アドオンをインストール |
-| MMD インポート失敗 | [ガイド 3、ステップ 1](#step-1--install-mmd-tools) — MMD Tools をインストール |
-| リグバリデータが赤いエラーを表示 | [リグバリデータ](#rig-validator) — 検証を実行し、エラーメッセージに従う |
-| ボーンが消えた / ボーンが見えない | [ボーンコレクションパネル](#bone-collection-panel) → すべて表示をクリック |
+| アップロード失敗 — ボーンが認識されていません | [ガイド 4](#ガイド-4-アバターのボーン名を修正する) + [VRChat 命名](#命名規則) |
+| アバターが T ポーズ / 動きを追跡していない | [ガイド 5](#ガイド-5-アバターを-vrchat-のボディシステムにマッピングする) + [Humanoid マッパー](#humanoid-マッパーとバリデータ) |
+| メッシュが奇妙に変形している / スキンが伸びている | [ウェイト転送](#ウェイト転送) + [ウェイトミラー](#ウェイトミラー) |
+| 体の片側が異なるウェイトを持っている | [ウェイトミラー](#ウェイトミラー) |
+| 髪が頭を貫通している | [ガイド 6、ステップ 6](#ステップ-6--コライダーを追加-推奨) — コライダーを追加 |
+| 髪の物理演算が動いていない | [ガイド 6](#ガイド-6-髪の物理演算を追加する) — チェーン検出 + 物理プリセット |
+| 衣服が体を貫通している | [ガイド 7](#ガイド-7-体に合わせて動く衣服を取り付ける) + BVH 衝突検出をチェック |
+| リップシンクが機能していない | [ガイド 8](#ガイド-8-リップシンクをセットアップする) + [ビジェームマッパー](#ビジェームマッパー) |
+| アバターが Very Poor のパフォーマンス | [ガイド 9](#ガイド-9-アバターのパフォーマンスを改善する) + [パフォーマンス最適化](#パフォーマンスと最適化) |
+| VRM インポート失敗 | [ガイド 2、ステップ 1](#ステップ-1--vrm-ブリッジをインストール) — VRM アドオンをインストール |
+| MMD インポート失敗 | [ガイド 3、ステップ 1](#ステップ-1--mmd-tools-をインストール) — MMD Tools をインストール |
+| リグバリデータが赤いエラーを表示 | [リグバリデータ](#リグバリデータ) — 検証を実行し、エラーメッセージに従う |
+| ボーンが消えた / ボーンが見えない | [ボーンコレクションパネル](#ボーンコレクションパネル) → すべて表示をクリック |
 | BoneForge パネルが見つからない | 3D ビューポートで **N** を押し、BoneForge タブを探す |
 | FBX エクスポートがボーンを見落としている | エクスポート前にアーマチュアが選択されていることを確認。「Include Armature」を有効にする |
 | シェイプキーがエクスポート後に消えた | エクスポート設定で「Include Shape Keys」を有効にする |
@@ -2272,16 +2282,16 @@ Apply Transforms は最終パイプラインステップです。すべての以
 | エクスポートした FBX に巨大なヘルパー形状やチューブが出る | コントロール/カスタムシェイプ用メッシュが必要な場合以外は **Helper Meshes** をオフにする |
 | Unity または Unreal で灰色のマテリアルになる | **Embed Textures** を有効にして export し、Unity のマテリアル import/extract または Unreal の FBX マテリアル import を使う |
 | ウェイトがすべて間違ったボーンにある | ウィザードで Auto-Weight を再実行するか、ウェイト転送を使用 |
-| 2 つのリグが 1 つである必要がある | [ガイド 11: 2 つのリグをマージする](#guide-11-merge-two-rigs-together) |
-| 是正形状がアクティブ化していない | [是正シェイプキー](#corrective-shape-keys) でボーン軸とアクティベーション角度をチェック |
-| 異なるリグでアニメーション外観が間違っている | [アニメーションリターゲティング](#animation-retargeting) — ボーンマッピングをチェック |
-| CATS ツールがグレーアウト / 利用不可 | Fix Model を最初に実行。[CATS パイプラインの順序](#cats-plugin--before-you-begin-the-pipeline-order) |
-| 話すときに口が引き裂けるか分割される | Fix Model がスキップされました。フェーズ 1 から再実行。[ガイド 13、フェーズ 1](#phase-1--fix-model) |
-| VRChat でアバター目が下を見て固定されている | Eye Tracking Setup が Fix Model の前に実行された。Fix Model から再実行。[CATS: Eye Tracking Setup](#eye-tracking-setup) |
-| シェイプキーはトリガー時にメッシュを爆発させる | Pose to Shape Key が Fix Model の前に実行された。Fix Model から再実行。[CATS: Shape Key Tools](#shape-key-tools) |
+| 2 つのリグが 1 つである必要がある | [ガイド 11: 2 つのリグをマージする](#ガイド-11-2-つのリグをマージする) |
+| 是正形状がアクティブ化していない | [是正シェイプキー](#是正シェイプキー) でボーン軸とアクティベーション角度をチェック |
+| 異なるリグでアニメーション外観が間違っている | [アニメーションリターゲティング](#アニメーションリターゲティング) — ボーンマッピングをチェック |
+| CATS ツールがグレーアウト / 利用不可 | Fix Model を最初に実行。[CATS パイプラインの順序](#cats-プラグイン--開始する前に-パイプラインの順序) |
+| 話すときに口が引き裂けるか分割される | Fix Model がスキップされました。フェーズ 1 から再実行。[ガイド 13、フェーズ 1](#フェーズ-1--モデルを修正) |
+| VRChat でアバター目が下を見て固定されている | Eye Tracking Setup が Fix Model の前に実行された。Fix Model から再実行。[CATS: Eye Tracking Setup](#アイトラッキングセットアップ) |
+| シェイプキーはトリガー時にメッシュを爆発させる | Pose to Shape Key が Fix Model の前に実行された。Fix Model から再実行。[CATS: Shape Key Tools](#シェイプキーツール) |
 | VRChat でアバターが間違ったサイズで生成される | Apply Transforms がパイプラインを完了する前に実行された。ソースから再インポート、Fix Model から再スタート |
-| ボーン名が日本語 / 中国語 / 韓国語 | [CATS: ボーン名翻訳](#bone-name-translation) |
-| アバターにリップシンクがなく、既存のシェイプキーがない | [CATS: ビジェームジェネレータ](#viseme-generator-cats) — 3 つのベース形状から 15 個のビジェームを生成 |
+| ボーン名が日本語 / 中国語 / 韓国語 | [CATS: ボーン名翻訳](#ボーン名翻訳) |
+| アバターにリップシンクがなく、既存のシェイプキーがない | [CATS: ビジェームジェネレータ](#ビジェームジェネレータ-cats) — 3 つのベース形状から 15 個のビジェームを生成 |
 | CATS Ledger チェックマークが消えた | パイプライン後にメッシュが変更されました。CATS バリデータを実行し、影響を受けたフェーズを再実行 |
 | Apply Transforms ボタンはまだグレーアウト | 4 つの前の Ledger フェーズすべてがチェックされていません。どのフェーズが不完全かについてはバリデータをチェック |
 
@@ -2369,5 +2379,5 @@ Apply Transforms は最終パイプラインステップです。すべての以
 
 ---
 
-*BoneForge ドキュメント | バージョン 8.6.9*
+*BoneForge ドキュメント | バージョン 9.0.2*
 *サポートについては、BoneForge GitHub ページまたはコミュニティ Discord を確認してください。*

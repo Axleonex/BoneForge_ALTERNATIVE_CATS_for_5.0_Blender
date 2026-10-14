@@ -1,34 +1,34 @@
 # BoneForge 문서
-### 버전 8.6.9 | VRChat 사용자용
+### 버전 9.0.2 | VRChat 사용자용
 
 ---
 
 ## 목차
 
-- [시작하기](#getting-started)
-  - [BoneForge란?](#what-is-boneforge)
-  - [BoneForge 설치하기](#installing-boneforge)
-  - [Blender에서 BoneForge 찾기](#finding-boneforge-in-blender)
-  - [어디서 시작해야 할까?](#where-should-i-start)
-- [빠른 가이드](#quick-guides)
-  1. [첫 번째 아바타를 VRChat으로 가져오기](#guide-1-get-your-first-avatar-into-vrchat)
-  2. [VRoid 아바타를 VRChat으로 가져오기](#guide-2-bring-a-vroid-avatar-into-vrchat)
-  3. [MMD 아바타를 VRChat으로 가져오기](#guide-3-bring-an-mmd-avatar-into-vrchat)
-  4. [아바타의 본 이름 수정하기](#guide-4-fix-your-avatars-bone-names)
-  5. [아바타를 VRChat의 신체 시스템으로 매핑하기](#guide-5-map-your-avatar-to-vrchats-body-system)
-  6. [헤어 물리 추가하기](#guide-6-add-hair-physics)
-  7. [신체와 함께 움직이는 의류 부착하기](#guide-7-attach-clothing-that-moves-with-your-body)
-  8. [입술 싱크 설정하기](#guide-8-set-up-lip-sync)
-  9. [아바타의 성능 개선하기](#guide-9-improve-your-avatars-performance)
-  10. [포즈 저장 및 재사용하기](#guide-10-save-and-reuse-poses)
-  11. [두 개의 리그 병합하기](#guide-11-merge-two-rigs-together)
-  12. [업로드 문제 해결하기](#guide-12-fix-upload-problems)
-  13. [CATS를 이용하여 아바타를 VRChat 준비 상태로 만들기](#guide-13-get-your-avatar-vrchat-ready-with-cats)
-- [CATS 플러그인 — 시작 전에: 파이프라인 순서](#cats-plugin--before-you-begin-the-pipeline-order)
-- [기능 참조](#feature-reference)
-- [CATS 도구 참조](#cats-tool-reference)
-- [빠른 수정 인덱스](#quick-fix-index)
-- [용어집](#glossary)
+- [시작하기](#시작하기)
+  - [BoneForge란?](#boneforge란)
+  - [BoneForge 설치하기](#boneforge-설치하기)
+  - [Blender에서 BoneForge 찾기](#blender에서-boneforge-찾기)
+  - [어디서 시작해야 할까?](#어디서-시작해야-할까)
+- [빠른 가이드](#빠른-가이드)
+  1. [첫 번째 아바타를 VRChat으로 가져오기](#가이드-1-첫-번째-아바타를-vrchat으로-가져오기)
+  2. [VRoid 아바타를 VRChat으로 가져오기](#가이드-2-vroid-아바타를-vrchat으로-가져오기)
+  3. [MMD 아바타를 VRChat으로 가져오기](#가이드-3-mmd-아바타를-vrchat으로-가져오기)
+  4. [아바타의 본 이름 수정하기](#가이드-4-아바타의-본-이름-수정하기)
+  5. [아바타를 VRChat의 신체 시스템으로 매핑하기](#가이드-5-아바타를-vrchat의-신체-시스템으로-매핑하기)
+  6. [헤어 물리 추가하기](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-6-add-hair-physics)
+  7. [신체와 함께 움직이는 의류 부착하기](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-7-attach-clothing-that-moves-with-your-body)
+  8. [입술 싱크 설정하기](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-8-set-up-lip-sync)
+  9. [아바타의 성능 개선하기](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-9-improve-your-avatars-performance)
+  10. [포즈 저장 및 재사용하기](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-10-save-and-reuse-poses)
+  11. [두 개의 리그 병합하기](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-11-merge-two-rigs-together)
+  12. [업로드 문제 해결하기](#가이드-12-업로드-문제-해결하기)
+  13. [CATS를 이용하여 아바타를 VRChat 준비 상태로 만들기](#가이드-13-cats를-이용하여-아바타를-vrchat-준비-상태로-만들기)
+- [CATS 플러그인 — 시작 전에: 파이프라인 순서](#cats-플러그인--시작-전에-파이프라인-순서)
+- [기능 참조](#기능-참조)
+- [CATS 도구 참조](#cats-도구-참조)
+- [빠른 수정 인덱스](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#quick-fix-index)
+- [용어집](#용어집)
 
 ---
 
@@ -84,47 +84,59 @@ BoneForge는 VRChat, VRoid/VRM, MMD용 3D 아바타를 준비하는 데 도움�
 
 ## Blender에서 BoneForge 찾기
 
-BoneForge가 설치되면 모든 것이 다음 위치에 있습니다:
+탭은 기능 그룹을 선택합니다. Setup Rigging, Skin, Review, Avatar Tools, Facial은 탭 안에서 펼치는 섹션이며 별도 탭이 아닙니다. 아래 경로는 영어 UI 이름입니다. 번역된 이름은 Language 설정에 따라 달라집니다.
 
-**사이드바 (가장 일반적):** 3D 뷰포트에서 **N**을 눌러 오른쪽에 패널을 엽니다. 작업별로 정리된 BoneForge의 도구를 포함한 탭을 볼 수 있습니다.
+| 탭 | 기본 위치 | 섹션 |
+| --- | --- | --- |
+| Rig Builder | 오른쪽 사이드바 (N) | Auto-Rig Wizard, Quick Rig - premade armatures, Mannequin |
+| BoneForge | 오른쪽 사이드바 (N) | Overview, Setup Rigging, Skin, Review |
+| CATS | 오른쪽 사이드바 (N) | CATS, Avatar Tools, VRChat Tools, Import / Export |
 
-**가장 자주 사용할 탭:**
-- **Rig Builder** — 처음부터 새로운 리그 구축하기
-- **Setup Rigging** — 재타겟팅 및 Rigify 도구
-- **Skin** — 무게 및 변형 도구
-- **VRChat** — VRChat 내보내기를 위한 모든 것
-- **Review / Animate** — 본 가시성, 포즈 라이브러리, 검증
-- **CATS** — 모델 정리, 비저(음성 동기화), 눈 추적, 완전한 VRChat 준비 파이프라인 *(7.1.1의 새로운 기능)*
+| 도구 | 열 경로 |
+| --- | --- |
+| Bone Merge | BoneForge → Setup Rigging → Bone Merge |
+| Delta Mush / Proximity Wrap | BoneForge → Skin → Delta Mush / Proximity Wrap |
+| Viseme Library / Lip Sync | CATS → Avatar Tools → Viseme Library → Lip Sync |
+| VRChat Viseme Mapping / Face Tracking | CATS → VRChat Tools → Facial |
+| Humanoid / Hair / VRChat export | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics / Export to VRChat |
+| VRM / MMD / I/O Hub | CATS → Import / Export → VRM / VRoid, MMD / PMX, Game Engine Export |
+| Performance / Clothing / Naming | CATS → VRChat Tools → Check Performance / Attach Clothing / VRChat Naming Extras |
 
-**CATS 탭은 기본 BoneForge 탭과 별도의 탭입니다.** 즉시 보이지 않으면 사이드바 탭 목록을 아래로 스크롤합니다 — BoneForge 탭 후에 나타납니다.
+리그와 비짐 라이브러리는 아마추어를 선택합니다. Delta Mush와 Proximity Wrap은 오브젝트 모드에서 메시를 선택해야 합니다. Lip Sync는 포즈 모드의 아마추어가 필요합니다. 삼각형으로 섹션을 펼칩니다. Options는 선택 설정입니다. 바로 실행되는 도구는 다음 작업 전에 마지막 작업 조정에서 설정을 바꿀 수 있습니다.
 
-**항상 먼저 모델 수정하기:** CATS 탭을 사용할 때, 다른 CATS 도구를 실행하기 전에 항상 **Fix Model**로 시작합니다. CATS 파이프라인은 원장을 사용하여 완료한 단계를 추적합니다. 각 도구는 원장을 확인하고 순서를 벗어나서 실행하려고 하면 경고합니다. [CATS 플러그인 — 시작 전에: 파이프라인 순서](#cats-plugin--before-you-begin-the-pipeline-order)에서 전체 설명을 참조하세요.
+설정: Edit → Preferences → Add-ons → BoneForge → Tabs에서 탭 표시를 조정합니다. Scene Properties는 기본으로 켜져 있으며 Properties → Scene의 Rig Builder와 CATS 패널을 별도로 제어합니다. Language는 표시 언어, Tools는 패키지 활성화입니다. Ctrl+Shift+R로 빠른 패널을 엽니다.
 
-**N-Panel 핫키:** 3D 뷰포트에서 **Ctrl+Shift+R**을 눌러 사이드바로 이동하지 않고 커서가 있는 위치에 BoneForge의 빠른 패널을 팝업할 수 있습니다.
+BoneForge는 오른쪽 N 사이드바를 사용합니다. 표준 Blender에는 Bforartists의 Left / Right 탭 배치가 없습니다. 메뉴: Add → Armature → BoneForge, Pose → BoneForge, Weights → BoneForge.
+
+얼굴 작업은 세 종류입니다. CATS 비짐 생성은 입 셰이프 키를 만들고, Viseme Library / Lip Sync는 포즈 저장과 애니메이션 키 생성을 하며, Facial은 기존 키를 VRChat에 매핑하거나 얼굴 추적을 설정합니다. UVToolkit에서 가져온 설정은 CATS → Material Atlas → Override Inherited Settings → UV Packing에 있습니다. 공유 아틀라스 기능이며 독립 UVToolkit 전체가 아닙니다.
+
+BoneForge 9.0.0 이상은 표준 Blender용입니다. BoneCraft는 별도의 Bforartists 애드온입니다. 둘 다 Auto-Rig Wizard, Quick Rig, Mannequin과 공유 CATS/Material Atlas 도구가 있습니다. BoneCraft에는 Mechanisms, Control Picker, 제작용 컨트롤 리그, 관절 감지, 프로필 기반 내보내기도 있습니다. 같은 배치로 바꿔도 이 도구가 BoneForge에 추가되지 않습니다.
 
 ---
+
+이 한국어판은 기존 요약판입니다. 빠져 있는 상세 가이드는 전체 영어판으로 연결됩니다. 현재 인터페이스 위치는 위의 탐색 표를 따르세요.
 
 ## 어디서 시작해야 할까?
 
 가장 적합한 설명을 선택하세요:
 
 > **"당신은 완전히 새로운 3D 모델 파일 (FBX, OBJ, 또는 Blender 파일)을 가지고 있으며 처음부터 VRChat용으로 리그를 설정하고 싶습니다."**
-> → [가이드 1: 첫 번째 아바타를 VRChat으로 가져오기](#guide-1-get-your-first-avatar-into-vrchat)로 이동하세요
+> → [가이드 1: 첫 번째 아바타를 VRChat으로 가져오기](#가이드-1-첫-번째-아바타를-vrchat으로-가져오기)로 이동하세요
 
 > **"당신은 VRoid Studio에서 아바타를 만들었고 VRM 파일을 내보냈습니다."**
-> → [가이드 2: VRoid 아바타를 VRChat으로 가져오기](#guide-2-bring-a-vroid-avatar-into-vrchat)로 이동하세요
+> → [가이드 2: VRoid 아바타를 VRChat으로 가져오기](#가이드-2-vroid-아바타를-vrchat으로-가져오기)로 이동하세요
 
 > **"당신은 MMD 모델 (PMX 파일)을 가지고 있으며 VRChat에서 사용하고 싶습니다."**
-> → [가이드 3: MMD 아바타를 VRChat으로 가져오기](#guide-3-bring-an-mmd-avatar-into-vrchat)로 이동하세요
+> → [가이드 3: MMD 아바타를 VRChat으로 가져오기](#가이드-3-mmd-아바타를-vrchat으로-가져오기)로 이동하세요
 
 > **"당신은 이미 리그된 아바타를 가지고 있지만 본 이름이 잘못되어서 업로드되지 않습니다."**
-> → [가이드 4: 아바타의 본 이름 수정하기](#guide-4-fix-your-avatars-bone-names)로 이동하세요
+> → [가이드 4: 아바타의 본 이름 수정하기](#가이드-4-아바타의-본-이름-수정하기)로 이동하세요
 
 > **"당신은 리그된 아바타를 가지고 있으며 이를 완전히 VRChat 준비 상태로 만들고 싶습니다 — 입술 싱크, 눈 추적, 깨끗한 메시, 모두 한 번에."**
-> → [가이드 13: CATS를 이용하여 아바타를 VRChat 준비 상태로 만들기](#guide-13-get-your-avatar-vrchat-ready-with-cats)로 이동하세요
+> → [가이드 13: CATS를 이용하여 아바타를 VRChat 준비 상태로 만들기](#가이드-13-cats를-이용하여-아바타를-vrchat-준비-상태로-만들기)로 이동하세요
 
 > **"당신은 특정 문제를 해결하고 싶습니다."**
-> → [빠른 수정 인덱스](#quick-fix-index)로 이동하세요
+> → [빠른 수정 인덱스](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#quick-fix-index)로 이동하세요
 
 ---
 
@@ -149,7 +161,7 @@ BoneForge가 설치되면 모든 것이 다음 위치에 있습니다:
 
 오른쪽 사이드바에서 (보이지 않으면 **N** 누름), **Rig Builder** 탭을 클릭합니다. Quick Rig, Wizard, Mannequin 세 가지 옵션이 보입니다.
 
-**Wizard**를 클릭하여 안내식 리깅 프로세스를 시작합니다.
+**Auto-Rig Wizard**를 클릭하여 안내식 리깅 프로세스를 시작합니다.
 
 **다음을 확인하면 됩니다:** "Start"라고 말하는 패널과 마법사를 시작하는 버튼이 보입니다.
 
@@ -229,7 +241,7 @@ IK가 활성화되어 있으면 생성된 리그에는 `hand_ik.L`, `hand_ik.R`,
 
 ### 단계 8 — VRChat을 위해 본 이름 수정
 
-생성 후, 본은 VRChat의 명명 규칙을 따라야 합니다. 사이드바의 **VRChat** 탭으로 이동하고 **Fix Bone Names > Auto-Detect and Rename**을 클릭합니다.
+생성 후, 본은 VRChat의 명명 규칙을 따라야 합니다. 사이드바의 **CATS → Avatar Tools** 탭으로 이동하고 **Fix Bone Names > Auto-Detect and Rename**을 클릭합니다.
 
 **다음을 확인하면 됩니다:** 목록의 모든 본이 녹색 체크 표시를 보입니다.
 
@@ -237,7 +249,7 @@ IK가 활성화되어 있으면 생성된 리그에는 `hand_ik.L`, `hand_ik.R`,
 
 ### 단계 9 — VRChat Humanoid로 매핑
 
-여전히 VRChat 탭에서, **Humanoid Mapper** 섹션을 찾습니다. **Auto-Map Humanoid**를 클릭합니다. 이것은 아바타의 각 본을 VRChat의 휴머노이드 시스템에 연결합니다 (VRChat이 아바타를 실제 세계의 움직임과 동기화하여 움직이게 하는 시스템).
+여전히 CATS → VRChat Tools → Facial 탭에서, **Humanoid Mapper** 섹션을 찾습니다. **Auto-Map Humanoid**를 클릭합니다. 이것은 아바타의 각 본을 VRChat의 휴머노이드 시스템에 연결합니다 (VRChat이 아바타를 실제 세계의 움직임과 동기화하여 움직이게 하는 시스템).
 
 **Validate Humanoid**를 실행하여 남은 문제가 있는지 확인합니다.
 
@@ -247,7 +259,7 @@ IK가 활성화되어 있으면 생성된 리그에는 `hand_ik.L`, `hand_ik.R`,
 
 ### 단계 10 — VRChat용으로 내보내기
 
-**VRChat** 탭 → **Export** 섹션으로 이동합니다. **Export to VRChat (FBX)**를 클릭합니다.
+**CATS → Avatar Tools → Export to VRChat** 섹션으로 이동합니다. **Export to VRChat (FBX)**를 클릭합니다.
 
 저장 위치를 선택하고 **Export**를 클릭합니다.
 
@@ -287,7 +299,7 @@ BoneForge는 VRM 파일을 열기 위해 헬퍼 애드온이 필요합니다. Bo
 
 ### 단계 3 — VRChat Humanoid로 자동 매핑
 
-BoneForge 사이드바의 **VRChat** 탭으로 이동합니다. **Auto-Map Humanoid**를 클릭합니다. VRoid 아바타는 표준 스켈레톤 형식을 따르므로, 일반적으로 수동 조정 없이 자동으로 완료됩니다.
+BoneForge 사이드바의 **CATS → Avatar Tools** 탭으로 이동합니다. **Auto-Map Humanoid**를 클릭합니다. VRoid 아바타는 표준 스켈레톤 형식을 따르므로, 일반적으로 수동 조정 없이 자동으로 완료됩니다.
 
 ---
 
@@ -299,7 +311,7 @@ BoneForge 사이드바의 **VRChat** 탭으로 이동합니다. **Auto-Map Human
 
 ### 단계 5 — 비저 (입술 싱크) 설정
 
-VRoid 아바타는 이미 혼합 모양을 가지고 있습니다 (표정 및 입술 싱크를 위한 얼굴 움직임) 기본 제공됩니다. **VRChat** 탭 → **Visemes**로 이동하여 **Auto-Map Visemes**를 클릭합니다. BoneForge는 VRoid의 모양 키를 VRChat의 15가지 입술 싱크 음소로 자동 매칭합니다.
+VRoid 아바타는 이미 혼합 모양을 가지고 있습니다 (표정 및 입술 싱크를 위한 얼굴 움직임) 기본 제공됩니다. **CATS → VRChat Tools → Facial** 탭 → **Visemes**로 이동하여 **Auto-Map Visemes**를 클릭합니다. BoneForge는 VRoid의 모양 키를 VRChat의 15가지 입술 싱크 음소로 자동 매칭합니다.
 
 ---
 
@@ -339,7 +351,7 @@ BoneForge 사이드바에서 **MMD** 섹션으로 스크롤하여 **Install MMD 
 
 ### 단계 3 — 본 이름 수정
 
-MMD는 VRChat이 이해할 수 없는 일본식 본 이름을 사용합니다. **VRChat > Naming** 섹션에서 **Detect Convention**을 클릭합니다. BoneForge가 MMD 명명 스타일을 인식합니다. 그런 다음 **Translate Bone Names**를 클릭하여 VRChat 호환 이름으로 변환합니다.
+MMD는 VRChat이 이해할 수 없는 일본식 본 이름을 사용합니다. **CATS → VRChat Tools → VRChat Naming Extras** 섹션에서 **Detect Convention**을 클릭합니다. BoneForge가 MMD 명명 스타일을 인식합니다. 그런 다음 **Translate Bone Names**를 클릭하여 VRChat 호환 이름으로 변환합니다.
 
 또는, **CATS tab → Bone Name Translation** 도구를 사용합니다. 이것은 단 한 번의 클릭으로 일본어, 중국어, 한국어, 포르투갈어, 스페인어, 프랑스어 본 이름에 대한 자동 언어 감지를 지원합니다.
 
@@ -352,7 +364,7 @@ MMD 모델은 종종 추가 기하학과 중복 꼭짓점을 가집니다. **VRC
 - **Join Meshes** — 신체 부분을 하나의 메시로 결합합니다 (VRChat에 권장됨)
 - **Remove Unused Vertex Groups** — 빈 본 할당을 제거합니다
 
-이 정리의 안내식, 파이프라인 순서 버전은 **CATS tab**을 사용하고 [가이드 13](#guide-13-get-your-avatar-vrchat-ready-with-cats)에 설명된 파이프라인 순서를 따르세요.
+이 정리의 안내식, 파이프라인 순서 버전은 **CATS tab**을 사용하고 [가이드 13](#가이드-13-cats를-이용하여-아바타를-vrchat-준비-상태로-만들기)에 설명된 파이프라인 순서를 따르세요.
 
 ---
 
@@ -383,7 +395,7 @@ VRChat Humanoid 섹션에서 **Auto-Map Humanoid**를 클릭합니다. MMD의 �
 
 ### 단계 1 — 현재 명명 스타일 감지
 
-**VRChat** 탭 → **Naming** 섹션으로 이동합니다. **Detect Convention**을 클릭합니다. BoneForge가 본 이름을 분석하고 감지된 스타일을 보여줍니다 (Mixamo, Ready Player Me, Unity, 또는 Custom).
+**CATS → VRChat Tools → VRChat Naming Extras** 섹션으로 이동합니다. **Detect Convention**을 클릭합니다. BoneForge가 본 이름을 분석하고 감지된 스타일을 보여줍니다 (Mixamo, Ready Player Me, Unity, 또는 Custom).
 
 일본어, 중국어, 한국어, 포르투갈어, 스페인어 또는 프랑스어로 된 본 이름의 모델은 **CATS tab → Bone Name Translation** 도구를 대신 사용하세요. 원본 언어를 자동 감지하고 한 단계에서 모든 것을 영어 VRChat 이름으로 변환합니다.
 
@@ -430,7 +442,7 @@ BoneForge가 알려진 명명 스타일을 감지했으면, **Translate Bone Nam
 
 ### 단계 1 — Humanoid Mapper 열기
 
-**VRChat** 탭 → **Humanoid** 섹션으로 이동합니다.
+**CATS → Avatar Tools → Set Up Humanoid Bones** 섹션으로 이동합니다.
 
 ---
 
@@ -476,55 +488,55 @@ BoneForge가 알려진 명명 스타일을 감지했으면, **Translate Bone Nam
 
 ### "업로드 실패 — 본이 인식되지 않음"
 
-본에 VRChat이 이해할 수 없는 이름이 있습니다. → [가이드 4: 아바타의 본 이름 수정하기](#guide-4-fix-your-avatars-bone-names)로 이동하세요
+본에 VRChat이 이해할 수 없는 이름이 있습니다. → [가이드 4: 아바타의 본 이름 수정하기](#가이드-4-아바타의-본-이름-수정하기)로 이동하세요
 
 ---
 
 ### "아바타가 T-포즈/VRChat에서 나를 따라 움직이지 않음"
 
-휴머노이드 매핑이 누락되었거나 잘못되었습니다. → [가이드 5: 아바타를 VRChat의 신체 시스템으로 매핑하기](#guide-5-map-your-avatar-to-vrchats-body-system)로 이동하세요
+휴머노이드 매핑이 누락되었거나 잘못되었습니다. → [가이드 5: 아바타를 VRChat의 신체 시스템으로 매핑하기](#가이드-5-아바타를-vrchat의-신체-시스템으로-매핑하기)로 이동하세요
 
 ---
 
 ### "메시가 이상하게 변형됨 / 피부가 잘못 늘어남"
 
-본 무게가 조정이 필요합니다. → [기능 참조](#feature-reference)에서 **Weight Transfer**와 **Weight Mirror**를 참조하세요.
+본 무게가 조정이 필요합니다. → [기능 참조](#기능-참조)에서 **Weight Transfer**와 **Weight Mirror**를 참조하세요.
 
 ---
 
 ### "머리가 머리를 통과함"
 
-머리 충돌체가 누락되었거나 너무 작습니다. → [가이드 6: 헤어 물리 추가하기](#guide-6-add-hair-physics), 단계 6으로 이동하세요.
+머리 충돌체가 누락되었거나 너무 작습니다. → [가이드 6: 헤어 물리 추가하기](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-6-add-hair-physics), 단계 6으로 이동하세요.
 
 ---
 
 ### "아바타의 성능이 매우 좋지 않고 다른 플레이어가 차단함"
 
-→ [가이드 9: 아바타의 성능 개선하기](#guide-9-improve-your-avatars-performance)로 이동하세요
+→ [가이드 9: 아바타의 성능 개선하기](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-9-improve-your-avatars-performance)로 이동하세요
 
 ---
 
 ### "입술 싱크가 작동하지 않음"
 
-비저가 올바르게 매핑되지 않았습니다. → [가이드 8: 입술 싱크 설정하기](#guide-8-set-up-lip-sync)로 이동하세요
+비저가 올바르게 매핑되지 않았습니다. → [가이드 8: 입술 싱크 설정하기](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-8-set-up-lip-sync)로 이동하세요
 
 ---
 
 ### "Rig validator가 빨간색 오류 표시"
 
-**Review** 탭 → **Rig Validator** 섹션으로 이동합니다. **Run Validation**을 클릭합니다. 각 빨간색 오류에 대해, 오류 메시지를 클릭합니다 — BoneForge가 문제 본을 선택합니다. 오류 설명을 읽고 제안을 따르거나, [빠른 수정 인덱스](#quick-fix-index)를 확인합니다.
+**BoneForge → Review** 탭 → **Rig Validator** 섹션으로 이동합니다. **Run Validation**을 클릭합니다. 각 빨간색 오류에 대해, 오류 메시지를 클릭합니다 — BoneForge가 문제 본을 선택합니다. 오류 설명을 읽고 제안을 따르거나, [빠른 수정 인덱스](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#quick-fix-index)를 확인합니다.
 
 ---
 
 ### "VRM 가져오기가 작동하지 않음"
 
-VRM 브리지 애드온이 설치되지 않았을 수 있습니다. → [가이드 2](#guide-2-bring-a-vroid-avatar-into-vrchat), 단계 1로 이동하세요.
+VRM 브리지 애드온이 설치되지 않았을 수 있습니다. → [가이드 2](#가이드-2-vroid-아바타를-vrchat으로-가져오기), 단계 1로 이동하세요.
 
 ---
 
 ### "MMD 가져오기가 작동하지 않음"
 
-MMD Tools 애드온이 설치되지 않았을 수 있습니다. → [가이드 3](#guide-3-bring-an-mmd-avatar-into-vrchat), 단계 1로 이동하세요.
+MMD Tools 애드온이 설치되지 않았을 수 있습니다. → [가이드 3](#가이드-3-mmd-아바타를-vrchat으로-가져오기), 단계 1로 이동하세요.
 
 ---
 
@@ -539,7 +551,7 @@ CATS 도구는 **파이프라인** 시스템을 사용합니다. 각 단계는 �
 
 **항상 Fix Model로 시작합니다. 매번. 예외 없이.**
 
-계속 진행하기 전에 아직 읽지 않았다면 [CATS 플러그인 — 시작 전에: 파이프라인 순서](#cats-plugin--before-you-begin-the-pipeline-order)를 읽으세요.
+계속 진행하기 전에 아직 읽지 않았다면 [CATS 플러그인 — 시작 전에: 파이프라인 순서](#cats-플러그인--시작-전에-파이프라인-순서)를 읽으세요.
 
 **시작하기 전에 — 다음을 확인하세요:**
 - [ ] 아바타가 Blender로 가져와졌고 3D 뷰포트에서 보입니다
@@ -576,7 +588,7 @@ Fix Model 단계는 CATS의 다른 모든 것의 필수 기초입니다. 모델�
 
 필수: Fix Model ✓
 
-Viseme Generator는 이미 가지고 있는 3개의 기본 모양에서 모든 15개의 VRChat 입술 싱크 입 모양을 생성합니다. 아바타가 이미 완전한 비저 모양 키를 가지고 있으면, 이 단계를 건너뛸 수 있습니다 — 그러나 VRChat 탭의 Viseme Mapper를 확인하여 키가 올바르게 명명되었는지 확인해야 합니다.
+Viseme Generator는 이미 가지고 있는 3개의 기본 모양에서 모든 15개의 VRChat 입술 싱크 입 모양을 생성합니다. 아바타가 이미 완전한 비저 모양 키를 가지고 있으면, 이 단계를 건너뛸 수 있습니다 — 그러나 CATS → VRChat Tools → Facial 탭의 Viseme Mapper를 확인하여 키가 올바르게 명명되었는지 확인해야 합니다.
 
 **Viseme Generator이 하는 것:**
 
@@ -669,7 +681,7 @@ Fix Model 단계 없이, 꼭짓점 순서는 제거된 중복 꼭짓점에서 �
 2. **CATS** 탭에서 **Transform Tools** 섹션을 찾습니다
 3. **Apply All Transforms**를 클릭합니다
 4. **원장**이 Apply Transforms 옆에 체크 표시 (✓)를 표시하는지 확인합니다 — 5개 모든 슬롯이 이제 확인되어야 합니다 (✓✓✓✓✓)
-5. **VRChat** 탭 → **Export** 섹션으로 이동하고 아바타를 FBX로 내보냅니다
+5. **CATS → Avatar Tools → Export to VRChat** 섹션으로 이동하고 아바타를 FBX로 내보냅니다
 
 **다음을 확인하면 됩니다:** 5개 모든 원장 슬롯이 ✓를 표시합니다. 아바타가 VRChat Creator Companion으로 가져올 준비가 되었습니다.
 
@@ -778,7 +790,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Icon / Color** — 맞춤 아이콘과 색상을 버튼에 할당하여 시각적 조직화
 - **Sections** — 여러 컬렉션을 축소 가능한 헤더 아래 그룹화
 
-**찾을 위치:** Review tab → Collections section
+**찾을 위치:** BoneForge → Review → Collections
 
 ---
 
@@ -796,7 +808,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 **기본 북마크 버튼:** FK Arms, IK Body, Face Only, Full Rig
 
-**찾을 위치:** Review tab → Bookmarks section
+**찾을 위치:** BoneForge → Review → Collections → Visibility Bookmarks
 
 ---
 
@@ -833,7 +845,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Export** — 포즈를 `.bfpose` 파일로 저장합니다
 - **Import** — `.bfpose` 파일에서 포즈를 로드합니다
 
-**찾을 위치:** Review tab → Pose Library section
+**찾을 위치:** BoneForge → Review → Pose Library
 
 ---
 
@@ -853,7 +865,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Parent space switches** — 사지의 IK 대상이 부모화되는 공간을 변경합니다 (World, Root 등)
 - **Head/Neck follow** — 머리/목이 신체 회전을 따르는 정도를 제어합니다
 
-**찾을 위치:** Setup Rigging tab → Rigify section
+**찾을 위치:** BoneForge → Setup Rigging → Rigify Tools
 
 ---
 
@@ -871,7 +883,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Activation angle** — 모양 키가 최대 강도 (1.0)에 도달하는 회전 각도 (도)
 - **Falloff** — 활성화 각도 전에 모양 키가 페이드인하기 시작하는 정도 (더 큼 = 더 부드러운 전환)
 
-**찾을 위치:** Skin tab → Correctives section
+**찾을 위치:** BoneForge → Skin → Correctives
 
 ---
 
@@ -888,7 +900,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Euler Filter** — 짐벌 잠금으로 인한 애니메이션 곡선의 회전 뒤집기 아티팩트를 수정합니다
 - **Tangent Tools** — 선택한 키프레임에서 키프레임 핸들 유형 (Auto, Vector, Aligned, Free) 설정
 
-**찾을 위치:** Review tab → Graph Tools section
+**찾을 위치:** BoneForge → Review → Graph Tools
 
 ---
 
@@ -912,7 +924,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Search Distance** — 두 꼭짓점을 "쌍"으로 간주하는 최대 거리 (Blender 단위). 메시가 완벽하게 대칭이 아닌 경우 증가시킵니다
 - **Normalize After** — 미러 후 모든 무게가 1.0으로 합산되도록 합니다
 
-**찾을 위치:** Skin tab → Weight Mirror section
+**찾을 위치:** BoneForge → Skin → Weight Tools → Weight Mirror
 
 ---
 
@@ -930,7 +942,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Nearest Vertex** — 각 대상 꼭짓점은 가장 가까운 소스 꼭짓점에서 무게를 가져옵니다
 - **Nearest Face** — 곡선 표면에서 더 부드러운 결과를 위해 얼굴 투영을 사용합니다
 
-**찾을 위치:** Skin tab → Weight Transfer section
+**찾을 위치:** BoneForge → Skin → Weight Tools → Weight Transfer
 
 ---
 
@@ -945,7 +957,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Zero Weight** — 특정 셀을 0.0으로 지웁니다
 - **Tag Deform Bones** — 선택한 본을 변형 본으로 표시합니다 (무게 칠하기 모드에서 나타나는 데 필요)
 
-**찾을 위치:** Skin tab → Weight Table section
+**찾을 위치:** BoneForge → Skin → Weight Tools → Weight Table
 
 ---
 
@@ -960,7 +972,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Iterations** — 적용할 평활화 통과 횟수 (더 높음 = 더 부드러움, 하지만 세부 사항 손실 가능)
 - **Influence** — 평활화 효과의 강도 (0 = 끔, 1 = 최대 강도)
 
-**찾을 위치:** Skin tab → Delta Mush section
+**찾을 위치:** BoneForge → Skin → Delta Mush
 
 ---
 
@@ -976,7 +988,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Max Distance** — 래핑 효과가 닿는 대상 표면에서의 거리
 - **Falloff** — 래핑 효과가 가장자리에서 페이드오프되는 방식 (Smooth 또는 Linear)
 
-**찾을 위치:** Skin tab → Proximity Wrap section
+**찾을 위치:** BoneForge → Skin → Proximity Wrap
 
 ---
 
@@ -989,7 +1001,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Apply Shape** — 메시의 모양 키를 저장된 항목과 일치하도록 설정합니다
 - **Copy Shape From** — 다른 객체에서 현재 메시로 모양 키를 복사합니다
 
-**찾을 위치:** Skin tab → Shape Library section
+**찾을 위치:** BoneForge → Shape Library
 
 ---
 
@@ -1012,7 +1024,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Switch Without Key** — 키프레임 없이 공간을 전환합니다
 - **Set Default Space** — 본이 시작하는 공간을 설정합니다
 
-**찾을 위치:** Review tab → Space Switching section
+**찾을 위치:** BoneForge → Space Switch
 
 ---
 
@@ -1028,7 +1040,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Start/End Bone** — 체인의 첫 번째 및 마지막 본
 - **Curve Resolution** — 제어 곡선이 가지는 세그먼트 수 (더 많은 세그먼트 = 더 부드럽지만 더 무거움)
 
-**찾을 위치:** Review tab → Spline IK section
+**찾을 위치:** BoneForge → Spline IK
 
 ---
 
@@ -1046,7 +1058,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Damping** — 움직임이 정착하는 속도
 - **Gravity** — 체인에 대한 아래쪽 당김
 
-**찾을 위치:** Review tab → Chain Dynamics section
+**찾을 위치:** BoneForge → Chain Dynamics
 
 ---
 
@@ -1062,7 +1074,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Segment Count** — 리본을 따라 하위 구분의 수
 - **Twist Amount** — 리본이 끝에서 끝으로 비틀리는 정도
 
-**찾을 위치:** Review tab → Ribbon section
+**찾을 위치:** BoneForge → Ribbon
 
 ---
 
@@ -1078,7 +1090,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Preview Viseme** — 비저의 모양 키 값을 재생합니다
 - **Delete Set** — 비저 세트를 제거합니다
 
-**찾을 위치:** Review tab → Viseme section
+**찾을 위치:** CATS → Avatar Tools → Viseme Library
 
 ---
 
@@ -1097,7 +1109,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Record Point** — 현재 본 위치에서 현재 모양 키 값을 드라이버 곡선의 점으로 기록합니다
 - **Set Driver Value** — 기록된 점에 대해 모양 키 값을 수동으로 입력합니다
 
-**찾을 위치:** Review tab → SDK Author section
+**찾을 위치:** BoneForge → Set Driven Key
 
 ---
 
@@ -1113,7 +1125,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Export Report** — 검증 결과를 텍스트 또는 Markdown 파일로 저장합니다
 - **Rule Set** — Standard (일반 리깅 규칙) 또는 VRChat (VRChat 특정 요구 사항) 선택
 
-**찾을 위치:** Review tab → Rig Validator section
+**찾을 위치:** BoneForge → Review → Rig Validator
 
 ---
 
@@ -1129,7 +1141,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Remove Note** — 노트를 삭제합니다
 - **Rig Readme** — 형식이 지정된 읽기 전용 보기에서 노트를 표시합니다
 
-**찾을 위치:** Review tab → Rig Notes section
+**찾을 위치:** BoneForge → Overview → Rig Notes
 
 ---
 
@@ -1143,7 +1155,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 **무엇을 하는지:** 메시에 마커 점을 배치하고 무게를 가진 완전한 스켈레톤을 자동으로 생성하는 단계별 안내식 프로세스입니다. BoneForge에서 처음부터 새로운 리그를 만드는 주요 방법입니다.
 
-[가이드 1: 첫 번째 아바타를 VRChat으로 가져오기](#guide-1-get-your-first-avatar-into-vrchat)를 완전한 설명을 위해 참조하세요.
+[가이드 1: 첫 번째 아바타를 VRChat으로 가져오기](#가이드-1-첫-번째-아바타를-vrchat으로-가져오기)를 완전한 설명을 위해 참조하세요.
 
 **단계:** 메시 선택 → 리그 유형 설정 → 손가락 수 설정 → 신체 마커 배치 → 얼굴 마커 배치 → 손가락 마커 배치 → 검토 → 생성
 
@@ -1164,7 +1176,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 **8.3.1 IK 동작:** **IK + FK** 및 **IK Only** 모드에서 BoneForge는 `hand_ik.L`, `hand_ik.R`, `foot_ik.L`, `foot_ik.R`이라는 손과 발 전용 IK 대상 컨트롤을 만듭니다. 이 컨트롤은 메시를 변형하지 않습니다. IK 제약 조건이 이 컨트롤을 사용하므로 손이나 발의 변형 본을 자기 자신의 대상으로 쓰지 않고도 손과 발을 깔끔하게 배치할 수 있습니다.
 
-**찾을 위치:** Rig Builder tab → Wizard section
+**찾을 위치:** Rig Builder → Auto-Rig Wizard
 
 ---
 
@@ -1175,7 +1187,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 **주요 제어:**
 - **Generate Quick Rig** — 기본 인간형 스켈레톤, 무게, BoneForge 패널을 즉시 만듭니다
 
-**찾을 위치:** Rig Builder tab → Quick Rig section
+**찾을 위치:** Rig Builder → Quick Rig - premade armatures
 
 ---
 
@@ -1196,7 +1208,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Torso/Arm/Leg proportions** — 상대적 길이 조정
 - **Muscularity** — 몸무게형에서 무거운 체형
 
-**찾을 위치:** Rig Builder tab → Mannequin section
+**찾을 위치:** Rig Builder → Mannequin
 
 ---
 
@@ -1216,7 +1228,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Retarget Method** — Simple (직접 회전 전송) 또는 IK-Aware (팔다리 길이 차이 고려)
 - **Frame Range** — 가져올 애니메이션의 시작 및 종료 프레임
 
-**찾을 위치:** Setup Rigging tab → Retargeting section
+**찾을 위치:** BoneForge → Setup Rigging → Retarget
 
 ---
 
@@ -1224,7 +1236,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 **안정성: 안정적 | 도입됨: 6.0**
 
-[가이드 11: 두 개의 리그 병합하기](#guide-11-merge-two-rigs-together)를 완전한 설명을 위해 참조하세요.
+[가이드 11: 두 개의 리그 병합하기](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-11-merge-two-rigs-together)를 완전한 설명을 위해 참조하세요.
 
 **3가지 단계:**
 1. **Scope (Stage 1)** — 두 갑옷 간의 차이를 분석하고 검토합니다
@@ -1245,7 +1257,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 **명명 표준:** Mixamo Prefixed, Mixamo Stripped, 또는 Custom
 
-**찾을 위치:** Review tab → Bone Merge section
+**찾을 위치:** BoneForge → Setup Rigging → Bone Merge
 
 ---
 
@@ -1259,7 +1271,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 아바타의 스켈레톤 본을 VRChat의 필수 휴머노이드 슬롯으로 매핑하고 오류를 확인합니다.
 
-[가이드 5: 아바타를 VRChat의 신체 시스템으로 매핑하기](#guide-5-map-your-avatar-to-vrchats-body-system)를 참조하세요.
+[가이드 5: 아바타를 VRChat의 신체 시스템으로 매핑하기](#가이드-5-아바타를-vrchat의-신체-시스템으로-매핑하기)를 참조하세요.
 
 ---
 
@@ -1267,7 +1279,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 동적 머리와 액세서리를 위해 PhysBone 구성 요소를 생성합니다.
 
-[가이드 6: 헤어 물리 추가하기](#guide-6-add-hair-physics)를 참조하세요.
+[가이드 6: 헤어 물리 추가하기](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-6-add-hair-physics)를 참조하세요.
 
 ---
 
@@ -1275,7 +1287,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 의류 메시를 기본 아바타의 스켈레톤에 부착합니다.
 
-[가이드 7: 신체와 함께 움직이는 의류 부착하기](#guide-7-attach-clothing-that-moves-with-your-body)를 참조하세요.
+[가이드 7: 신체와 함께 움직이는 의류 부착하기](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-7-attach-clothing-that-moves-with-your-body)를 참조하세요.
 
 ---
 
@@ -1283,13 +1295,13 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 **무엇을 하는지:** 스켈레톤의 명명 형식을 감지하고 본의 이름을 VRChat의 표준으로 바꿉니다.
 
-[가이드 4: 아바타의 본 이름 수정하기](#guide-4-fix-your-avatars-bone-names)를 참조하세요.
+[가이드 4: 아바타의 본 이름 수정하기](#가이드-4-아바타의-본-이름-수정하기)를 참조하세요.
 
 **사용 가능한 프리셋:** Mixamo, Ready Player Me, Unity Standard, Custom (자신의 것을 저장하기)
 
 **Batch 도구:** Add Prefix, Remove Prefix, Add Suffix, Remove Suffix, Find & Replace (평문 및 정규 표현식)
 
-**찾을 위치:** VRChat tab → Naming section
+**찾을 위치:** CATS → VRChat Tools → VRChat Naming Extras
 
 ---
 
@@ -1297,7 +1309,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 **무엇을 하는지:** 메시의 모양 키를 VRChat의 15가지 입술 싱크 음소로 매핑합니다.
 
-[가이드 8: 입술 싱크 설정하기](#guide-8-set-up-lip-sync)를 참조하세요.
+[가이드 8: 입술 싱크 설정하기](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-8-set-up-lip-sync)를 참조하세요.
 
 아바타가 아직 비저를 가지지 않았을 때 처음부터 생성하려면, [CATS Tool Reference: Viseme Generator](#viseme-generator-cats)를 참조하세요.
 
@@ -1309,7 +1321,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 **무엇을 하는지:** 아바타의 VRChat 성능 등급을 측정하고 개선 도구를 제공합니다.
 
-[가이드 9: 아바타의 성능 개선하기](#guide-9-improve-your-avatars-performance)를 참조하세요.
+[가이드 9: 아바타의 성능 개선하기](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-9-improve-your-avatars-performance)를 참조하세요.
 
 **성능 등급 (최고에서 최악으로):** Excellent → Good → Medium → Poor → Very Poor
 
@@ -1333,7 +1345,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Join Meshes** — 재료 슬롯을 유지하면서 모든 메시를 하나로 결합합니다
 - **Apply Transforms** — 크기/회전을 고정하여 1.0/0°로 읽히도록 합니다 (일부 내보내기에 필요함)
 
-**찾을 위치:** VRChat tab → Cleanup section
+**찾을 위치:** CATS → CATS → Fix Model / Mesh Tools
 
 ---
 
@@ -1351,7 +1363,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Embed Textures** — Unity 재료 가져오기를 쉽게 하도록 이미지 텍스처를 FBX에 포함합니다
 - **Helper Meshes** — 숨김, 렌더 비활성, 커스텀 셰이프 헬퍼 메시를 켠 경우에만 포함합니다. 일반 아바타 export에서는 꺼 둡니다
 
-**찾을 위치:** VRChat tab → Export section
+**찾을 위치:** CATS → Avatar Tools → Export to VRChat
 
 ---
 
@@ -1383,7 +1395,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Skip Lint on Export** — 대상 검증을 건너뜁니다. 보고된 위험을 이해할 때만 사용하세요
 - **Author / License** — VRM 메타데이터에 저장된 생성자 정보
 
-**찾을 위치:** VRM tab → Export section
+**찾을 위치:** CATS → Import / Export → VRM / VRoid → Export
 
 ---
 
@@ -1395,7 +1407,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 필수 humanoid 본이 실제로 있는데도 linter가 누락으로 표시하면 **Fix Humanoid Map**을 클릭하세요. BoneForge가 humanoid 슬롯을 자동 감지하고 매핑을 저장한 뒤 올바른 본에 `boneforge_humanoid_alias`를 기록합니다. 실제 본 이름을 바꾸지 않고 오래된 매핑 데이터를 고칩니다.
 
-**찾을 위치:** VRM tab → Lint section
+**찾을 위치:** CATS → Import / Export → VRM / VRoid → Lint
 
 ---
 
@@ -1428,7 +1440,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **VMD File / VMD Scope** — 하나 또는 모든 MMD 모델에 대해 현재 장면 모션을 export합니다
 - **VPD File / VPD Scope** — 하나 또는 모든 MMD 모델에 대해 현재 포즈를 export합니다
 
-**찾을 위치:** MMD tab → Export section
+**찾을 위치:** CATS → Import / Export → MMD / PMX → Export
 
 ---
 
@@ -1455,7 +1467,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Bake Animation** — 대상이 필요로 할 때 애니메이션을 FBX 키프레임으로 변환합니다
 - **Embed Textures** — Unity/Unreal 재료 가져오기를 쉽게 하도록 이미지 텍스처를 FBX 파일에 포함합니다
 
-**찾을 위치:** 사이드바의 I/O Hub 탭에서 (사이드바의 하단에 등록됨)
+**찾을 위치:** CATS → Import / Export → Game Engine Export
 
 ---
 
@@ -1463,7 +1475,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 **무엇을 하는지:** 어떤 형식 브리지 애드온 (VRM, MMD)이 현재 설치되어 있고 그 버전을 확인합니다. 누락된 설치 버튼을 표시합니다.
 
-**찾을 위치:** VRM tab 또는 MMD tab → 상단 섹션
+**찾을 위치:** CATS → Import / Export → VRM / VRoid or MMD / PMX
 
 ---
 
@@ -1479,7 +1491,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 작업 분석기는 일반적인 문제 (누락된 휴머노이드 본, 미해결 명명, 누락된 비저 등)를 자동으로 식별하고 실행 가능한 항목으로 나열합니다.
 
-**찾을 위치:** Review tab → Overview section
+**찾을 위치:** BoneForge → Overview → Task Board
 
 ---
 
@@ -1493,7 +1505,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - 드라이버 목록 (클릭하여 드라이버 편집기 열기)
 - 사용자정의 속성 값 (인라인 편집 가능)
 
-**찾을 위치:** Review tab → Bone Inspector section
+**찾을 위치:** BoneForge → Review → Bone Inspector
 
 ---
 
@@ -1509,7 +1521,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 
 **안정성: 안정적 | 도입됨: 7.1.1**
 
-CATS 도구는 N-panel 사이드바의 자신의 **CATS** 탭에 있습니다. 이들은 기본 BoneForge 탭과 별도입니다. 모든 CATS 도구는 [CATS 플러그인 — 시작 전에: 파이프라인 순서](#cats-plugin--before-you-begin-the-pipeline-order)에 설명된 파이프라인 시스템 내에서 작동합니다.
+CATS 도구는 N-panel 사이드바의 자신의 **CATS** 탭에 있습니다. 이들은 기본 BoneForge 탭과 별도입니다. 모든 CATS 도구는 [CATS 플러그인 — 시작 전에: 파이프라인 순서](#cats-플러그인--시작-전에-파이프라인-순서)에 설명된 파이프라인 시스템 내에서 작동합니다.
 
 ---
 
@@ -1532,7 +1544,7 @@ CATS 도구는 N-panel 사이드바의 자신의 **CATS** 탭에 있습니다. �
 - **Fix Model** — 한 통과에서 선택한 메시에 위의 모든 작업을 실행합니다
 - **Threshold** — 중복 꼭짓점 감지를 위한 병합 거리 (기본값: 0.0001 Blender 단위). 꼭짓점이 약간 정렬되지 않으면 증가; 의도적으로 분리된 가깝지만 의도적인 꼭짓점을 피하려면 감소
 
-**찾을 위치:** CATS tab → Fix Model section (패널의 상단)
+**찾을 위치:** CATS tab → Fix Model (패널의 상단)
 
 ---
 
@@ -1558,7 +1570,7 @@ CATS 도구는 N-panel 사이드바의 자신의 **CATS** 탭에 있습니다. �
 
 **범위에 대한 참고:** Bone Name Translation은 *소스 모델의 본 이름의* 언어를 처리합니다. Blender 인터페이스의 언어가 아닙니다. 영어 VRChat에서 사용하고 싶은 일본식 MMD 모델이 있으면, Blender가 어느 언어로 설정되어 있든 이 도구를 사용합니다.
 
-**찾을 위치:** CATS tab → Bone Name Translation section
+**찾을 위치:** CATS tab → Bone Name Translation
 
 ---
 
@@ -1574,7 +1586,7 @@ CATS 도구는 N-panel 사이드바의 자신의 **CATS** 탭에 있습니다. �
 
 **사용할 때:** 의류를 부착하거나 갑옷을 병합한 후, 추가 본이 종종 어떤 메시에도 할당되지 않고 수행됩니다. Join Meshes 후 내보내기 전에 실행합니다.
 
-**찾을 위치:** CATS tab → Bone Tools section → Zero Weight Bones
+**찾을 위치:** CATS tab → Bone Tools → Zero Weight Bones
 
 ---
 
@@ -1591,7 +1603,7 @@ CATS 도구는 N-panel 사이드바의 자신의 **CATS** 탭에 있습니다. �
 
 **사용할 때:** 모든 의류와 액세서리가 부착되고 무게 칠해진 후. CATS Fix Model 전에 Join Meshes를 실행하지 마세요 — 정리 전에 메시를 조인하면 한 메시 객체에서 중복 꼭짓점 문제를 다른 객체로 퍼뜨릴 수 있으며, 제거하기 어렵게 합니다. Join Meshes 전에 Fix Model을 실행한 사용자는 결과 단일 메시가 모든 원본 객체로부터 유령 꼭짓점을 유지하여 Viseme Generator가 메시를 그 솔기에서 눈에 띄게 찢어지는 모양 키를 생성한다고 보고합니다.
 
-**찾을 위치:** CATS tab → Mesh Tools section → Join Meshes
+**찾을 위치:** CATS tab → Mesh Tools → Join Meshes
 
 ---
 
@@ -1599,7 +1611,7 @@ CATS 도구는 N-panel 사이드바의 자신의 **CATS** 탭에 있습니다. �
 
 **무엇을 하는지:** 여러 재료를 단일 텍스처 애틀라스 시트로 구웁니다. 더 적은 재료 = 더 나은 VRChat 성능 등급.
 
-이것은 기본 VRChat 탭에서 사용 가능한 동일한 애틀라스 프로세스로, 커밋하기 전에 결과를 미리 볼 수 있는 Accept/Revert 워크플로우로 제시됩니다.
+이것은 기본 CATS → Avatar Tools 탭에서 사용 가능한 동일한 애틀라스 프로세스로, 커밋하기 전에 결과를 미리 볼 수 있는 Accept/Revert 워크플로우로 제시됩니다.
 
 **주요 제어:**
 - **Analyze** — 현재 재료 수 및 예상 절약을 표시합니다
@@ -1608,7 +1620,7 @@ CATS 도구는 N-panel 사이드바의 자신의 **CATS** 탭에 있습니다. �
 - **Accept** — 애틀라스를 커밋하고 원본 재료를 대체합니다
 - **Revert** — 애틀라스를 실행 취소하고 원본 재료를 복원합니다
 
-**찾을 위치:** CATS tab → Material Atlas section
+**찾을 위치:** CATS tab → Material Atlas
 
 ---
 
@@ -1629,7 +1641,7 @@ CATS 도구는 N-panel 사이드바의 자신의 **CATS** 탭에 있습니다. �
 - **Eye Rotation Limits** — 위아래 및 왼쪽오른쪽 움직임의 최대 회전 각도 (기본값: 30°)
 - **Test Eye Movement** — 제약이 작동하는지 확인하기 위해 눈 본을 그 범위를 통해 애니메이션합니다
 
-**찾을 위치:** CATS tab → Eye Tracking Setup section
+**찾을 위치:** CATS tab → Eye Tracking Setup
 
 ---
 
@@ -1658,7 +1670,7 @@ CATS 도구는 N-panel 사이드바의 자신의 **CATS** 탭에 있습니다. �
 - **Pose to Shape Key** — 현재 변형된 상태를 새로운 모양 키로 캡처합니다
 - **Name** — 새 모양 키의 이름 필드
 
-**찾을 위치:** CATS tab → Shape Key Tools section
+**찾을 위치:** CATS tab → Shape Key Tools
 
 ---
 
@@ -1671,7 +1683,7 @@ CATS 도구는 N-panel 사이드바의 자신의 **CATS** 탭에 있습니다. �
 **주요 제어:**
 - **Shape Key to Basis** — 선택한 모양 키를 휴식 메시로 구우면서 키를 제거합니다
 
-**찾을 위치:** CATS tab → Shape Key Tools section
+**찾을 위치:** CATS tab → Shape Key Tools
 
 
 ---
@@ -1693,7 +1705,7 @@ Apply Transforms는 최종 파이프라인 단계입니다. 모든 이전 단계
 **주요 제어:**
 - **Apply All Transforms** — 메시와 갑옷을 동시에 적용합니다
 
-**찾을 위치:** CATS tab → Transform Tools section
+**찾을 위치:** CATS tab → Transform Tools
 
 ---
 
@@ -1706,7 +1718,7 @@ Apply Transforms는 최종 파이프라인 단계입니다. 모든 이전 단계
 **주요 제어:**
 - **Fix FBT** — FBT 루트 본 수정을 적용합니다
 
-**찾을 위치:** CATS tab → Transform Tools section
+**찾을 위치:** CATS tab → Transform Tools
 
 ---
 
@@ -1717,7 +1729,7 @@ Apply Transforms는 최종 파이프라인 단계입니다. 모든 이전 단계
 **주요 제어:**
 - **Remove FBT** — FBT 루트 본 조정을 되돌립니다
 
-**찾을 위치:** CATS tab → Transform Tools section
+**찾을 위치:** CATS tab → Transform Tools
 
 ---
 
@@ -1746,7 +1758,7 @@ Apply Transforms는 최종 파이프라인 단계입니다. 모든 이전 단계
 - **Preview** — 생성된 비저를 통해 순환하여 커밋하기 전에 결과를 확인할 수 있습니다
 - **Blend Strength** — 계수 승수를 전역으로 위아래로 스케일합니다 (1.0 = 기본값; 비저가 너무 극단적으로 보이면 감소)
 
-**찾을 위치:** CATS tab → Viseme Generator section
+**찾을 위치:** CATS tab → Viseme Generator
 
 ---
 
@@ -1765,7 +1777,7 @@ Apply Transforms는 최종 파이프라인 단계입니다. 모든 이전 단계
 
 **사용할 때:** 스켈레톤에 루트 본이 없거나 Rig Validator가 "missing root bone" 오류를 보고할 때입니다.
 
-**찾을 위치:** CATS tab → Bone Tools section
+**찾을 위치:** CATS tab → Bone Tools
 
 ---
 
@@ -1778,7 +1790,7 @@ Apply Transforms는 최종 파이프라인 단계입니다. 모든 이전 단계
 - **Preview** — 커밋하지 않고 어떤 본이 병합될지 표시합니다
 - **Merge** — 병합을 적용합니다
 
-**찾을 위치:** CATS tab → Bone Tools section
+**찾을 위치:** CATS tab → Bone Tools
 
 ---
 
@@ -1790,7 +1802,7 @@ Apply Transforms는 최종 파이프라인 단계입니다. 모든 이전 단계
 - **Duplicate Selected** — `.copy` 접미사로 각 선택한 본의 사본을 만듭니다
 - **Mirror Duplicate** — 중심선 전체에서 복제 및 미러하여 왼쪽/오른쪽 쌍을 만듭니다
 
-**찾을 위치:** CATS tab → Bone Tools section
+**찾을 위치:** CATS tab → Bone Tools
 
 ---
 
@@ -1808,9 +1820,9 @@ Apply Transforms는 최종 파이프라인 단계입니다. 모든 이전 단계
 - **Merge** — 병합을 실행합니다
 - **Connect Bones** — 선택적으로 병합된 본을 최상위 본으로 유지하는 대신 기본 갑옷의 가장 가까운 본으로 다시 부모화합니다
 
-**명명 충돌 해결을 가진 복잡한 다단계 병합의 경우**, Review 탭의 BoneForge의 전체 Bone Merge 도구를 대신 사용합니다.
+**명명 충돌 해결을 가진 복잡한 다단계 병합의 경우**, BoneForge → Setup Rigging의 BoneForge의 전체 Bone Merge 도구를 대신 사용합니다.
 
-**찾을 위치:** CATS tab → Armature Tools section
+**찾을 위치:** CATS tab → Armature Tools
 
 ---
 
@@ -1827,7 +1839,7 @@ Apply Transforms는 최종 파이프라인 단계입니다. 모든 이전 단계
 **주요 제어:**
 - **Separate by Materials** — 활성 메시를 재료 할당으로 분할합니다
 
-**찾을 위치:** CATS tab → Mesh Tools section
+**찾을 위치:** CATS tab → Mesh Tools
 
 ---
 
@@ -1838,7 +1850,7 @@ Apply Transforms는 최종 파이프라인 단계입니다. 모든 이전 단계
 **주요 제어:**
 - **Separate by Loose Parts** — 활성 메시를 기하학 경계에서 분할합니다
 
-**찾을 위치:** CATS tab → Mesh Tools section
+**찾을 위치:** CATS tab → Mesh Tools
 
 ---
 
@@ -1849,7 +1861,7 @@ Apply Transforms는 최종 파이프라인 단계입니다. 모든 이전 단계
 **주요 제어:**
 - **Separate by Shape Keys** — 두 개의 객체를 만듭니다: 하나는 모양 키 데이터, 하나는 아닙니다
 
-**찾을 위치:** CATS tab → Mesh Tools section
+**찾을 위치:** CATS tab → Mesh Tools
 
 ---
 
@@ -1871,7 +1883,7 @@ Validator는 BoneForge의 기본 Rig Validator와 별도입니다 — 일반적�
 - Pose to Shape: 최소 하나의 맞춤 모양 키가 있거나 단계가 완료로 표시되었는가?
 - Apply Transforms: 모든 변형이 깨끗한 값에 있는가 (크기 1,1,1 / 회전 0,0,0)?
 
-**찾을 위치:** CATS tab → Validator section (패널의 하단)
+**찾을 위치:** CATS tab → Validator (패널의 하단)
 
 ---
 
@@ -1881,17 +1893,17 @@ Validator는 BoneForge의 기본 Rig Validator와 별도입니다 — 일반적�
 
 | Problem | Where to look |
 |---|---|
-| 업로드 실패 — 본이 인식되지 않음 | [Guide 4](#guide-4-fix-your-avatars-bone-names) + [VRChat Naming](#naming-conventions) |
-| 아바타가 T-포즈/움직임을 추적하지 않음 | [Guide 5](#guide-5-map-your-avatar-to-vrchats-body-system) + [Humanoid Mapper](#humanoid-mapper-and-validator) |
+| 업로드 실패 — 본이 인식되지 않음 | [Guide 4](#가이드-4-아바타의-본-이름-수정하기) + [VRChat Naming](#naming-conventions) |
+| 아바타가 T-포즈/움직임을 추적하지 않음 | [Guide 5](#가이드-5-아바타를-vrchat의-신체-시스템으로-매핑하기) + [Humanoid Mapper](#humanoid-mapper-and-validator) |
 | 메시가 이상하게 변형됨 / 피부가 늘어남 | [Weight Transfer](#weight-transfer) + [Weight Mirror](#weight-mirror) |
 | 신체의 한쪽이 다른 무게를 가짐 | [Weight Mirror](#weight-mirror) |
-| 머리가 머리를 통과함 | [Guide 6, Step 6](#step-6--add-colliders-recommended) — 충돌체 추가 |
-| 머리 물리학이 움직이지 않음 | [Guide 6](#guide-6-add-hair-physics) — 체인 감지 + 물리학 프리셋 확인 |
-| 의류가 신체를 통과함 | [Guide 7](#guide-7-attach-clothing-that-moves-with-your-body) + BVH 충돌 감지 확인 |
-| 입술 싱크가 작동하지 않음 | [Guide 8](#guide-8-set-up-lip-sync) + [Viseme Mapper](#viseme-mapper) |
-| 아바타의 성능이 매우 좋지 않음 | [Guide 9](#guide-9-improve-your-avatars-performance) + [Performance Optimization](#performance-and-optimization) |
-| VRM 가져오기 실패 | [Guide 2, Step 1](#step-1--install-the-vrm-bridge) — VRM 애드온 설치 |
-| MMD 가져오기 실패 | [Guide 3, Step 1](#step-1--install-mmd-tools) — MMD Tools 설치 |
+| 머리가 머리를 통과함 | [Guide 6, Step 6](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#step-6--add-colliders-recommended) — 충돌체 추가 |
+| 머리 물리학이 움직이지 않음 | [Guide 6](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-6-add-hair-physics) — 체인 감지 + 물리학 프리셋 확인 |
+| 의류가 신체를 통과함 | [Guide 7](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-7-attach-clothing-that-moves-with-your-body) + BVH 충돌 감지 확인 |
+| 입술 싱크가 작동하지 않음 | [Guide 8](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-8-set-up-lip-sync) + [Viseme Mapper](#viseme-mapper) |
+| 아바타의 성능이 매우 좋지 않음 | [Guide 9](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-9-improve-your-avatars-performance) + [Performance Optimization](#performance-and-optimization) |
+| VRM 가져오기 실패 | [Guide 2, Step 1](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#step-1--install-the-vrm-bridge) — VRM 애드온 설치 |
+| MMD 가져오기 실패 | [Guide 3, Step 1](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#step-1--install-mmd-tools) — MMD Tools 설치 |
 | Rig validator가 빨간색 오류 표시 | [Rig Validator](#rig-validator) — 검증 실행 및 오류 메시지 따라가기 |
 | 본이 사라짐 / 본을 볼 수 없음 | [Bone Collection Panel](#bone-collection-panel) → Show All 클릭 |
 | BoneForge 패널을 찾을 수 없음 | 3D 뷰포트에서 **N** 누르기, BoneForge 탭 찾기 |
@@ -1901,10 +1913,10 @@ Validator는 BoneForge의 기본 Rig Validator와 별도입니다 — 일반적�
 | export한 FBX에 큰 헬퍼 모양이나 튜브가 보임 | 컨트롤/커스텀 셰이프 메시가 필요한 경우가 아니면 **Helper Meshes**를 꺼 둠 |
 | Unity 또는 Unreal이 회색 재료로 가져옴 | **Embed Textures**를 켜고 export한 뒤 Unity의 재료 import/extract 옵션 또는 Unreal의 FBX 재료 import를 사용 |
 | 무게가 모두 잘못된 본에 있음 | Wizard에서 Auto-Weight를 다시 실행하거나 Weight Transfer 사용 |
-| 두 개의 리그를 하나로 만들어야 함 | [Guide 11: Merge Two Rigs Together](#guide-11-merge-two-rigs-together) |
-| 교정 모양이 활성화되지 않음 | [Corrective Shape Keys](#corrective-shape-keys)에서 본 축 및 활성화 각도 확인 |
+| 두 개의 리그를 하나로 만들어야 함 | [Guide 11: Merge Two Rigs Together](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#guide-11-merge-two-rigs-together) |
+| 교정 모양이 활성화되지 않음 | [Corrective Shape Keys](#pose-to-shape-key)에서 본 축 및 활성화 각도 확인 |
 | 애니메이션이 다른 리그에서 잘못 보임 | [Animation Retargeting](#animation-retargeting) — 본 매핑 확인 |
-| CATS 도구가 회색으로 표시됨 / 사용 불가 | Fix Model 먼저 실행 — [CATS Pipeline Order](#cats-plugin--before-you-begin-the-pipeline-order) |
+| CATS 도구가 회색으로 표시됨 / 사용 불가 | Fix Model 먼저 실행 — [CATS Pipeline Order](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/blob/main/docs/BoneForge_Documentation.md#cats-plugin--before-you-begin-the-pipeline-order) |
 | 말할 때 입이 찢어지거나 분할됨 | Fix Model이 건너뛰어짐 — Phase 1부터 다시 실행 — [Guide 13, Phase 1](#phase-1--fix-model) |
 | 아바타 눈이 VRChat에서 아래쪽으로 고정됨 | Eye Tracking Setup이 Fix Model 전에 실행됨 — Fix Model부터 다시 실행 — [CATS: Eye Tracking Setup](#eye-tracking-setup) |
 | 모양 키가 트리거될 때 메시가 폭발함 | Pose to Shape Key가 Fix Model 전에 실행됨 — Fix Model부터 다시 실행 — [CATS: Shape Key Tools](#shape-key-tools) |
@@ -1992,7 +2004,7 @@ Validator는 BoneForge의 기본 Rig Validator와 별도입니다 — 일반적�
 
 **Weight / Weight Painting** — 각 꼭짓점이 각 본에 의해 얼마나 강하게 영향을 받는지를 지정하는 값 (0.0 ~ 1.0)을 할당하는 프로세스입니다. 더 높은 무게 = 더 많은 영향. Weight painting은 이러한 값을 조정하기 위한 시각 도구입니다.
 
-**Wizard** — 마커 배치를 통해 걸어주고 스켈레톤을 자동으로 생성하는 BoneForge의 단계별 안내식 리깅 도구입니다.
+**Auto-Rig Wizard** — 마커 배치를 통해 걸어주고 스켈레톤을 자동으로 생성하는 BoneForge의 단계별 안내식 리깅 도구입니다.
 
 **Zero Weight Bone** — 메시 꼭짓점에 영향을 주지 않는 스켈레톤의 본입니다. 이러한 본은 아바타의 모양에 기여하지 않고도 성능 예산을 사용합니다. CATS Zero Weight Bone Cleanup 도구가 자동으로 제거합니다.
 
@@ -2019,7 +2031,7 @@ Validator는 BoneForge의 기본 Rig Validator와 별도입니다 — 일반적�
 - **Retarget Method** — Simple (직접 회전 전송) 또는 IK-Aware (팔다리 길이 차이 고려)
 - **Frame Range** — 가져올 애니메이션의 시작 및 종료 프레임
 
-**찾을 위치:** Setup Rigging tab → Retargeting section
+**찾을 위치:** BoneForge → Setup Rigging → Retarget
 
 ---
 
@@ -2489,5 +2501,5 @@ Mixamo와의 통합입니다.
 
 ---
 
-*BoneForge 문서 | 버전 8.6.9*
+*BoneForge 문서 | 버전 9.0.2*
 *지원이 필요하면 BoneForge GitHub 페이지 또는 커뮤니티 Discord를 확인하세요.*

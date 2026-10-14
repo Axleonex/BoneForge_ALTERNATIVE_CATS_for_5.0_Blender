@@ -1,5 +1,5 @@
 # BoneForge Documentation
-### Version 8.6.9 | For VRChat Users
+### Version 9.0.2 | For VRChat Users
 
 ---
 
@@ -64,28 +64,14 @@ BoneForge is a Blender add-on that helps you prepare 3D avatars for VRChat, VRoi
 
 ## Open Blender vs B4Artists Build Split
 
-BoneForge has two 8.5.0 builds with different package boundaries. Matching version numbers do not mean the same payload.
+BoneForge 9.0.0 and later target standard Blender. BoneCraft is the separate Bforartists add-on. Both have Auto-Rig Wizard, Quick Rig, Mannequin and the shared CATS/Material Atlas tools. BoneCraft also has Mechanisms, the Control Picker and its production control-rig, joint-detection and profile-export tools. Similar placement does not add those tools to BoneForge.
 
-| Area | Open Blender BoneForge 8.6.9 | BoneForge BFA 8.6.7 |
-| --- | --- | --- |
-| Host | Standard Blender | Bforartists only |
-| Add-on identity | `BoneForge` | `BoneForge BFA` |
-| Repository | `Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender` | `Axleonex/BoneForge_B4Artists` |
-| Release zip | `BoneForge-8.6.9.zip` | `BoneForge-BFA-8.6.7.zip` |
-| CATS avatar cleanup | Included | Included |
-| Material Combiner | Included | Included |
-| UVToolkit-derived Material Combiner controls | Included, including Advanced Variation and Rotation Step | Included, same CATS / Material Combiner / UVToolkit behavior |
-| Basic BoneForge and Mixamo-style avatar helpers | Included | Included |
-| BFA host lockout | Not included | Included |
-| Production control-rig construction | Not included | B4Artists-exclusive |
-| Smart landmark / joint detection suite | Not included as a BFA production suite | B4Artists-exclusive |
-| Animator control layer | Not included | B4Artists-exclusive |
-| Control Picker / rig UI | Not included | B4Artists-exclusive |
-| Advanced retargeting core and source maps | Not included as a BFA production suite | B4Artists-exclusive |
-| Profile-driven game export | Not included as a BFA production suite | B4Artists-exclusive |
-| BFA marker files | Must not contain `bfa_guard.py` or `BFA_EXCLUSIVE.md` | Must contain `bfa_guard.py` and `BFA_EXCLUSIVE.md` |
+| Product | Host | Repository | Release |
+| --- | --- | --- | --- |
+| BoneForge | Standard Blender | Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender | BoneForge-9.0.2.zip |
+| BoneCraft | Bforartists | Axleonex/B4Artists_Toolkit | BoneCraft-BFA-9.2.2.zip |
 
-The open Blender build is the non-exclusive standard-Blender package. It now receives the complete CATS, Material Combiner, and UVToolkit-derived workflow. The B4Artists build remains the exclusive package for the production rigging suite, host lockout, control rig builder, animator controls, control picker, advanced retarget/export systems, and Bforartists-specific packaging.
+Versions are independent. Install the package for your host. The older BoneForge BFA name describes historical releases.
 
 ---
 
@@ -112,23 +98,33 @@ The open Blender build is the non-exclusive standard-Blender package. It now rec
 
 ## Finding BoneForge in Blender
 
-When BoneForge is installed, here is where everything lives:
+Tab names select a workspace group. Setup Rigging, Skin, Review, Avatar Tools and Facial are expandable sections inside those tabs, not separate tabs. The paths below use the English UI labels; translated labels depend on the Language preference.
 
-**The Sidebar (most common):** Press **N** in the 3D viewport to open a panel on the right side. You will see tabs including BoneForge's tools organized by task.
+| Tab | Default location | Sections |
+| --- | --- | --- |
+| Rig Builder | Right sidebar (N) | Auto-Rig Wizard, Quick Rig - premade armatures, Mannequin |
+| BoneForge | Right sidebar (N) | Overview, Setup Rigging, Skin, Review |
+| CATS | Right sidebar (N) | CATS, Avatar Tools, VRChat Tools, Import / Export |
 
-**Tabs you will use most:**
-- **Rig Builder** — Build a new rig from scratch
-- **Setup Rigging** — Retargeting and Rigify tools
-- **Skin** — Weight and deformation tools
-- **VRChat** — Everything for VRChat export
-- **Review / Animate** — Bone visibility, pose library, validation
-- **CATS** — Model cleanup, visemes, eye tracking, and full VRChat prep pipeline *(new in 7.1.1)*
+| Tool | Open this path |
+| --- | --- |
+| Bone Merge | BoneForge → Setup Rigging → Bone Merge |
+| Delta Mush / Proximity Wrap | BoneForge → Skin → Delta Mush / Proximity Wrap |
+| Viseme Library / Lip Sync | CATS → Avatar Tools → Viseme Library → Lip Sync |
+| VRChat Viseme Mapping / Face Tracking | CATS → VRChat Tools → Facial |
+| Humanoid / Hair / VRChat export | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics / Export to VRChat |
+| VRM / MMD / I/O Hub | CATS → Import / Export → VRM / VRoid, MMD / PMX, Game Engine Export |
+| Performance / Clothing / Naming | CATS → VRChat Tools → Check Performance / Attach Clothing / VRChat Naming Extras |
 
-**The CATS tab is a separate tab** from the main BoneForge tabs. Scroll down the sidebar tab list if you do not see it immediately — it appears after the BoneForge tabs.
+Select an armature for rig and viseme-library controls; select a mesh in Object Mode for Delta Mush and Proximity Wrap. Lip Sync requires an armature in Pose Mode. Expand the section triangle to show its buttons. Options folds hold optional settings; tools that run immediately can be adjusted in Adjust Last Operation before running another operation.
 
-**Fix Model First, Every Time:** When using the CATS tab, always start with **Fix Model** before running any other CATS tool. The CATS pipeline uses a Ledger to track which steps you have completed. Each tool checks the Ledger and will warn you if you try to run it out of order. See [CATS Plugin — Before You Begin: The Pipeline Order](#cats-plugin--before-you-begin-the-pipeline-order) for the full explanation.
+Preferences: Edit → Preferences → Add-ons → BoneForge → Tabs controls tab visibility. Scene Properties controls the additional Rig Builder and CATS panels in Properties → Scene independently of the viewport tabs and starts on. Language changes the add-on labels; Tools enables individual packages. Ctrl+Shift+R opens the quick rig panel.
 
-**The N-Panel Hotkey:** You can press **Ctrl+Shift+R** in the 3D viewport to pop up BoneForge's quick panel wherever your cursor is, without navigating to the sidebar.
+BoneForge uses the right N sidebar; standard Blender has no Bforartists Left / Right tab placement. Native shortcuts: Add → Armature → BoneForge, Pose → BoneForge, and Weights → BoneForge.
+
+These are three different facial workflows: CATS viseme generation creates mouth shape keys, Viseme Library / Lip Sync stores poses and keys animation, and Facial maps existing shape keys for VRChat or configures face tracking. UVToolkit-derived controls are in CATS → Material Atlas → Override Inherited Settings → UV Packing; this is the shared atlas workflow, not the full standalone UVToolkit add-on.
+
+BoneForge 9.0.0 and later target standard Blender. BoneCraft is the separate Bforartists add-on. Both have Auto-Rig Wizard, Quick Rig, Mannequin and the shared CATS/Material Atlas tools. BoneCraft also has Mechanisms, the Control Picker and its production control-rig, joint-detection and profile-export tools. Similar placement does not add those tools to BoneForge.
 
 ---
 
@@ -175,9 +171,9 @@ Choose the description that best fits you:
 
 ### Step 1 — Open the Rig Builder
 
-In the right sidebar (press **N** if it is not visible), click the **Rig Builder** tab. You will see three options: Quick Rig, Wizard, and Mannequin.
+In the right sidebar (press **N** if it is not visible), click the **Rig Builder** tab. You will see three options: Auto-Rig Wizard, Quick Rig, and Mannequin.
 
-Click **Wizard** to start the guided rigging process.
+Click **Auto-Rig Wizard** to start the guided rigging process.
 
 **What you should be seeing:** A panel that says "Start" with a button to begin the wizard.
 
@@ -257,7 +253,7 @@ Click **Next** to reach the Review screen. BoneForge shows a summary of what it 
 
 ### Step 8 — Fix Bone Names for VRChat
 
-After generating, your bones need to follow VRChat's naming rules. Go to the **VRChat** tab in the sidebar and click **Fix Bone Names > Auto-Detect and Rename**.
+After generating, your bones need to follow VRChat's naming rules. Open **CATS → VRChat Tools → VRChat Naming Extras** and use the detection and rename controls.
 
 **What you should be seeing:** All bones in the list show green checkmarks.
 
@@ -265,7 +261,7 @@ After generating, your bones need to follow VRChat's naming rules. Go to the **V
 
 ### Step 9 — Map to VRChat Humanoid
 
-Still in the VRChat tab, find the **Humanoid Mapper** section. Click **Auto-Map Humanoid**. This connects each of your avatar's bones to VRChat's humanoid system (the system VRChat uses to make avatars move in sync with your real-world movements).
+In **CATS → Avatar Tools → Set Up Humanoid Bones**, Click **Auto-Map Humanoid**. This connects each of your avatar's bones to VRChat's humanoid system (the system VRChat uses to make avatars move in sync with your real-world movements).
 
 Run **Validate Humanoid** to check for any remaining issues.
 
@@ -275,7 +271,7 @@ Run **Validate Humanoid** to check for any remaining issues.
 
 ### Step 10 — Export for VRChat
 
-Go to the **VRChat** tab → **Export** section. Click **Export to VRChat (FBX)**.
+Go to the **CATS → Avatar Tools → Export to VRChat** section. Click **Export to VRChat (FBX)**.
 
 Choose a save location and click **Export**.
 
@@ -315,7 +311,7 @@ Go to **File > Import > VRM (.vrm)** and select your VRoid file.
 
 ### Step 3 — Auto-Map to VRChat Humanoid
 
-Go to the **VRChat** tab in the BoneForge sidebar. Click **Auto-Map Humanoid**. VRoid avatars follow a standard skeleton format, so this usually completes automatically without any manual adjustments.
+Open **CATS → Avatar Tools → Set Up Humanoid Bones**. Click **Auto-Map Humanoid**. VRoid avatars follow a standard skeleton format, so this usually completes automatically without any manual adjustments.
 
 ---
 
@@ -327,7 +323,7 @@ Click **Fix Bone Names > Auto-Detect and Rename**. VRoid uses its own naming sys
 
 ### Step 5 — Set Up Visemes (Lip Sync)
 
-VRoid avatars already have blend shapes (the face movements for expressions and lip sync) built in. Go to the **VRChat** tab → **Visemes** and click **Auto-Map Visemes**. BoneForge will match VRoid's shape keys to VRChat's 15 lip-sync phonemes automatically.
+VRoid avatars already have blend shapes (the face movements for expressions and lip sync) built in. Go to the **CATS → VRChat Tools → Facial** and click **Auto-Map Visemes**. BoneForge will match VRoid's shape keys to VRChat's 15 lip-sync phonemes automatically.
 
 ---
 
@@ -353,7 +349,7 @@ Click **Export to VRChat (FBX)** in the VRChat Export section.
 
 ### Step 1 — Install MMD Tools
 
-In the BoneForge sidebar, scroll to the **MMD** section and click **Install MMD Tools Automatically**. If that fails, click **Open MMD Website** to download MMD Tools manually.
+In the BoneForge sidebar, open **CATS → Import / Export → MMD / PMX** and click **Install MMD Tools Automatically**. If that fails, click **Open MMD Website** to download MMD Tools manually.
 
 ---
 
@@ -367,7 +363,7 @@ Go to **File > Import > MikuMikuDance Model (.pmx/.pmd)** and select your model.
 
 ### Step 3 — Fix Bone Names
 
-MMD uses Japanese bone names that VRChat cannot understand. In the **VRChat > Naming** section, click **Detect Convention**. BoneForge will recognize the MMD naming style. Then click **Translate Bone Names** to convert them to VRChat-compatible names.
+MMD uses Japanese bone names that VRChat cannot understand. In the **CATS → VRChat Tools → VRChat Naming Extras** section, click **Detect Convention**. BoneForge will recognize the MMD naming style. Then click **Translate Bone Names** to convert them to VRChat-compatible names.
 
 Alternatively, use the **CATS tab → Bone Name Translation** tool, which supports automatic language detection for Japanese, Chinese, Korean, Portuguese, Spanish, and French bone names in a single click.
 
@@ -411,7 +407,7 @@ Click **Export to VRChat (FBX)**.
 
 ### Step 1 — Detect Current Naming Style
 
-Go to the **VRChat** tab → **Naming** section. Click **Detect Convention**. BoneForge will analyze your bone names and show you what style it detected (Mixamo, Ready Player Me, Unity, or Custom).
+Go to the **CATS → VRChat Tools → VRChat Naming Extras** section. Click **Detect Convention**. BoneForge will analyze your bone names and show you what style it detected (Mixamo, Ready Player Me, Unity, or Custom).
 
 For models with bone names in Japanese, Chinese, Korean, Portuguese, Spanish, or French, use the **CATS tab → Bone Name Translation** tool instead. It auto-detects the source language and converts everything to English VRChat names in one step.
 
@@ -458,7 +454,7 @@ If you have a custom avatar with unique naming, click **Save Custom Preset** aft
 
 ### Step 1 — Open the Humanoid Mapper
 
-Go to the **VRChat** tab → **Humanoid** section.
+Go to the **CATS → Avatar Tools → Set Up Humanoid Bones** section.
 
 ---
 
@@ -513,7 +509,7 @@ For a more complete eye tracking setup including constraint creation and VRChat 
 
 ### Step 1 — Detect Hair Chains
 
-Go to the **VRChat** tab → **Hair Physics** section. Click **Detect Hair Chains**.
+Go to the **CATS → Avatar Tools → Add Hair Physics** section. Click **Detect Hair Chains**.
 
 BoneForge scans your skeleton for chains of bones that look like hair (multiple bones chained end-to-end, branching from a root). It lists all the chains it found.
 
@@ -585,7 +581,7 @@ Click **Play Physics Preview** to simulate the hair movement in Blender's viewpo
 
 ### Step 1 — Open Clothing Tools
 
-Go to the **VRChat** tab → **Clothing** section.
+Go to the **CATS → VRChat Tools → Attach Clothing** section.
 
 ---
 
@@ -648,7 +644,7 @@ Use the **Detect Collisions** button to scan for areas where the clothing mesh i
 
 ### Step 1 — Open the Viseme Mapper
 
-Go to the **VRChat** tab → **Visemes** section.
+Go to the **CATS → VRChat Tools → Facial** section.
 
 ---
 
@@ -684,7 +680,7 @@ Click any phoneme name to preview what that mouth shape looks like on your avata
 
 ### Step 5 — Set Up Face Tracking (Optional)
 
-If you want VRChat's face tracking to work with your avatar, enable **Face Tracking** in the Face Tracking section and adjust the expression smoothing slider.
+If you want VRChat's face tracking to work with your avatar, open **CATS → VRChat Tools → Facial** and enable **Face Tracking** and adjust the expression smoothing slider.
 
 **What This Unlocks:** Your avatar's mouth will now move when you talk in VRChat, making you look far more natural in conversations. Expression and emotion systems build on top of the shape keys you just mapped.
 
@@ -705,7 +701,7 @@ If you want VRChat's face tracking to work with your avatar, enable **Face Track
 
 ### Step 1 — Check Current Performance Rank
 
-Go to the **VRChat** tab → **Performance** section. Click **Calculate Rank**. BoneForge shows your current estimated rank and the specific numbers causing it (polygon count, material count, bone count, etc.).
+Go to the **CATS → VRChat Tools → Check Performance** section. Click **Calculate Rank**. BoneForge shows your current estimated rank and the specific numbers causing it (polygon count, material count, bone count, etc.).
 
 ---
 
@@ -767,7 +763,7 @@ Click **Calculate Rank** again to see your improved performance score.
 
 ### Step 1 — Open the Pose Library
 
-Go to the **Review** tab in the BoneForge sidebar and find the **Pose Library** section.
+Go to the **BoneForge → Review** section in the BoneForge sidebar and find the **Pose Library** section.
 
 ---
 
@@ -817,7 +813,7 @@ Click **Export Poses** to save your pose library to a `.bfpose` file — a small
 
 ### Step 1 — Open Bone Merge
 
-Go to the **Review** tab → **Bone Merge** section. Or find it in the sidebar's Bone Merge tab.
+Go to the **BoneForge** tab → **Setup Rigging** → **Bone Merge**.
 
 ---
 
@@ -907,7 +903,7 @@ Visemes are not mapped correctly. → Go to [Guide 8: Set Up Lip Sync](#guide-8-
 
 ### "Rig validator shows red errors"
 
-Go to the **Review** tab → **Rig Validator** section. Click **Run Validation**. For each red error, click the error message — BoneForge selects the problem bone for you. Read the error description and follow its suggestion, or check the [Quick-Fix Index](#quick-fix-index).
+Go to the **BoneForge → Review** section → **Rig Validator** section. Click **Run Validation**. For each red error, click the error message — BoneForge selects the problem bone for you. Read the error description and follow its suggestion, or check the [Quick-Fix Index](#quick-fix-index).
 
 ---
 
@@ -971,7 +967,7 @@ The Fix Model step is the mandatory foundation for everything else in CATS. Run 
 
 Requires: Fix Model ✓
 
-The Viseme Generator creates all 15 VRChat lip-sync mouth shapes from three base shapes you already have. If your avatar already has complete viseme shape keys, you can skip this phase — but you should still check the Viseme Mapper in the VRChat tab to confirm the keys are correctly named.
+The Viseme Generator creates all 15 VRChat lip-sync mouth shapes from three base shapes you already have. If your avatar already has complete viseme shape keys, you can skip this phase — but you should still check the Viseme Mapper in the CATS → VRChat Tools → Facial to confirm the keys are correctly named.
 
 **What the Viseme Generator does:**
 
@@ -1064,7 +1060,7 @@ Applying transforms on a mesh that still has unfixed geometry (missing Fix Model
 2. In the **CATS** tab, find the **Transform Tools** section
 3. Click **Apply All Transforms**
 4. Check that the **Ledger** now shows a checkmark (✓) next to Apply Transforms — all five slots should now be checked (✓✓✓✓✓)
-5. Go to the **VRChat** tab → **Export** section and export your avatar as FBX
+5. Go to the **CATS → Avatar Tools → Export to VRChat** section and export your avatar as FBX
 
 **What you should be seeing:** All five Ledger slots show ✓. Your avatar is ready to import into the VRChat Creator Companion.
 
@@ -1173,7 +1169,7 @@ These tools help you manage the visual side of working with armatures — which 
 - **Icon / Color** — Assign a custom icon and color to the button for visual organization
 - **Sections** — Group multiple collections under a collapsible header
 
-**Where to find it:** Review tab → Collections section
+**Where to find it:** BoneForge → Review → Collections
 
 ---
 
@@ -1191,7 +1187,7 @@ These tools help you manage the visual side of working with armatures — which 
 
 **Default bookmark buttons:** FK Arms, IK Body, Face Only, Full Rig
 
-**Where to find it:** Review tab → Bookmarks section
+**Where to find it:** BoneForge → Review → Collections → Visibility Bookmarks
 
 ---
 
@@ -1228,7 +1224,7 @@ These tools help you manage the visual side of working with armatures — which 
 - **Export** — Saves poses to a `.bfpose` file
 - **Import** — Loads poses from a `.bfpose` file
 
-**Where to find it:** Review tab → Pose Library section
+**Where to find it:** BoneForge → Review → Pose Library
 
 ---
 
@@ -1247,7 +1243,7 @@ These tools help you manage the visual side of working with armatures — which 
 - **Parent space switches** — Changes which space a limb's IK target is parented to (World, Root, etc.)
 - **Head/Neck follow** — Controls how much the head/neck follows the body rotation
 
-**Where to find it:** Setup Rigging tab → Rigify section
+**Where to find it:** BoneForge → Setup Rigging → Rigify Tools
 
 ---
 
@@ -1265,7 +1261,7 @@ These tools help you manage the visual side of working with armatures — which 
 - **Activation angle** — The rotation angle (in degrees) at which the shape key reaches full strength (1.0)
 - **Falloff** — How many degrees before the activation angle the shape key starts fading in (larger = smoother transition)
 
-**Where to find it:** Skin tab → Correctives section
+**Where to find it:** BoneForge → Skin → Correctives
 
 ---
 
@@ -1282,7 +1278,7 @@ These tools help you manage the visual side of working with armatures — which 
 - **Euler Filter** — Fixes rotation flipping artifacts in animation curves caused by gimbal lock
 - **Tangent Tools** — Set keyframe handle types (Auto, Vector, Aligned, Free) on selected keyframes
 
-**Where to find it:** Review tab → Graph Tools section
+**Where to find it:** BoneForge → Review → Graph Tools
 
 ---
 
@@ -1306,7 +1302,7 @@ These tools control how your mesh deforms when bones move. Think of weights as t
 - **Search Distance** — Maximum distance (in Blender units) to consider two vertices a "pair." Increase if your mesh is not perfectly symmetrical
 - **Normalize After** — Ensures all weights sum to 1.0 after mirroring
 
-**Where to find it:** Skin tab → Weight Mirror section
+**Where to find it:** BoneForge → Skin → Weight Tools → Weight Mirror
 
 ---
 
@@ -1324,7 +1320,7 @@ These tools control how your mesh deforms when bones move. Think of weights as t
 - **Nearest Vertex** — Each target vertex gets the weight from the closest source vertex
 - **Nearest Face** — Uses face projection for smoother results on curved surfaces
 
-**Where to find it:** Skin tab → Weight Transfer section
+**Where to find it:** BoneForge → Skin → Weight Tools → Weight Transfer
 
 ---
 
@@ -1339,7 +1335,7 @@ These tools control how your mesh deforms when bones move. Think of weights as t
 - **Zero Weight** — Clear a specific cell to 0.0
 - **Tag Deform Bones** — Marks selected bones as deform bones (needed for them to appear in weight paint mode)
 
-**Where to find it:** Skin tab → Weight Table section
+**Where to find it:** BoneForge → Skin → Weight Tools → Weight Table
 
 ---
 
@@ -1354,7 +1350,7 @@ These tools control how your mesh deforms when bones move. Think of weights as t
 - **Iterations** — How many smoothing passes to apply (higher = smoother, but may lose detail)
 - **Influence** — How strong the smoothing effect is (0 = off, 1 = full strength)
 
-**Where to find it:** Skin tab → Delta Mush section
+**Where to find it:** BoneForge → Skin → Delta Mush
 
 ---
 
@@ -1370,7 +1366,7 @@ These tools control how your mesh deforms when bones move. Think of weights as t
 - **Max Distance** — How far from the target surface the wrapping effect reaches
 - **Falloff** — How the wrapping effect fades off at the edges (Smooth or Linear)
 
-**Where to find it:** Skin tab → Proximity Wrap section
+**Where to find it:** BoneForge → Skin → Proximity Wrap
 
 ---
 
@@ -1383,7 +1379,7 @@ These tools control how your mesh deforms when bones move. Think of weights as t
 - **Apply Shape** — Sets your mesh's shape keys to match a saved entry
 - **Copy Shape From** — Copies a shape key from another object into your current mesh
 
-**Where to find it:** Skin tab → Shape Library section
+**Where to find it:** BoneForge → Shape Library
 
 ---
 
@@ -1406,7 +1402,7 @@ These tools control how your mesh deforms when bones move. Think of weights as t
 - **Switch Without Key** — Switches space without keyframing
 - **Set Default Space** — Sets which space the bone starts in
 
-**Where to find it:** Review tab → Space Switching section
+**Where to find it:** BoneForge → Space Switch
 
 ---
 
@@ -1422,7 +1418,7 @@ These tools control how your mesh deforms when bones move. Think of weights as t
 - **Start/End Bone** — First and last bones of the chain
 - **Curve Resolution** — How many segments the control curve has (more segments = smoother but heavier)
 
-**Where to find it:** Review tab → Spline IK section
+**Where to find it:** BoneForge → Spline IK
 
 ---
 
@@ -1440,7 +1436,7 @@ These tools control how your mesh deforms when bones move. Think of weights as t
 - **Damping** — How quickly the motion settles
 - **Gravity** — Downward pull on the chain
 
-**Where to find it:** Review tab → Chain Dynamics section
+**Where to find it:** BoneForge → Chain Dynamics
 
 ---
 
@@ -1456,7 +1452,7 @@ These tools control how your mesh deforms when bones move. Think of weights as t
 - **Segment Count** — Number of sub-divisions along the ribbon
 - **Twist Amount** — How much the ribbon can twist end-to-end
 
-**Where to find it:** Review tab → Ribbon section
+**Where to find it:** BoneForge → Ribbon
 
 ---
 
@@ -1472,7 +1468,7 @@ These tools control how your mesh deforms when bones move. Think of weights as t
 - **Preview Viseme** — Plays back a viseme's shape key values
 - **Delete Set** — Removes a viseme set
 
-**Where to find it:** Review tab → Viseme section
+**Where to find it:** CATS → Avatar Tools → Viseme Library
 
 ---
 
@@ -1491,7 +1487,7 @@ These tools control how your mesh deforms when bones move. Think of weights as t
 - **Record Point** — At the current bone position, records the current shape key value as a point on the driver curve
 - **Set Driver Value** — Manually types a shape key value for a recorded point
 
-**Where to find it:** Review tab → SDK Author section
+**Where to find it:** BoneForge → Set Driven Key
 
 ---
 
@@ -1507,7 +1503,7 @@ These tools control how your mesh deforms when bones move. Think of weights as t
 - **Export Report** — Saves the validation results as a text or Markdown file
 - **Rule Set** — Choose Standard (general rigging rules) or VRChat (VRChat-specific requirements)
 
-**Where to find it:** Review tab → Rig Validator section
+**Where to find it:** BoneForge → Review → Rig Validator
 
 ---
 
@@ -1523,7 +1519,7 @@ These tools control how your mesh deforms when bones move. Think of weights as t
 - **Remove Note** — Deletes a note
 - **Rig Readme** — Displays notes in a formatted, read-only view
 
-**Where to find it:** Review tab → Rig Notes section
+**Where to find it:** BoneForge → Overview → Rig Notes
 
 ---
 
@@ -1558,7 +1554,7 @@ See [Guide 1: Get Your First Avatar Into VRChat](#guide-1-get-your-first-avatar-
 
 **8.3.1 IK behavior:** In **IK + FK** and **IK Only** modes, BoneForge creates dedicated hand and foot IK target controls named `hand_ik.L`, `hand_ik.R`, `foot_ik.L`, and `foot_ik.R`. These controls do not deform the mesh. They are used by IK constraints so the hands and feet can be positioned cleanly without making the deforming hand or foot bones serve as their own targets.
 
-**Where to find it:** Rig Builder tab → Wizard section
+**Where to find it:** Rig Builder → Auto-Rig Wizard
 
 ---
 
@@ -1569,7 +1565,7 @@ See [Guide 1: Get Your First Avatar Into VRChat](#guide-1-get-your-first-avatar-
 **Key controls:**
 - **Generate Quick Rig** — Creates a default human skeleton, weights, and BoneForge panels immediately
 
-**Where to find it:** Rig Builder tab → Quick Rig section
+**Where to find it:** Rig Builder → Quick Rig - premade armatures
 
 ---
 
@@ -1590,7 +1586,7 @@ See [Guide 1: Get Your First Avatar Into VRChat](#guide-1-get-your-first-avatar-
 - **Torso/Arm/Leg proportions** — Relative length adjustments
 - **Muscularity** — Body type from lean to heavily built
 
-**Where to find it:** Rig Builder tab → Mannequin section
+**Where to find it:** Rig Builder → Mannequin
 
 ---
 
@@ -1610,7 +1606,7 @@ See [Guide 1: Get Your First Avatar Into VRChat](#guide-1-get-your-first-avatar-
 - **Retarget Method** — Simple (direct rotation transfer) or IK-Aware (accounts for limb length differences)
 - **Frame Range** — Start and end frame of the animation to import
 
-**Where to find it:** Setup Rigging tab → Retargeting section
+**Where to find it:** BoneForge → Setup Rigging → Retarget
 
 ---
 
@@ -1639,7 +1635,7 @@ See [Guide 11: Merge Two Rigs Together](#guide-11-merge-two-rigs-together) for a
 
 **Naming standards:** Mixamo Prefixed, Mixamo Stripped, or Custom
 
-**Where to find it:** Review tab → Bone Merge section
+**Where to find it:** BoneForge → Setup Rigging → Bone Merge
 
 ---
 
@@ -1683,7 +1679,7 @@ See [Guide 4: Fix Your Avatar's Bone Names](#guide-4-fix-your-avatars-bone-names
 
 **Batch tools:** Add Prefix, Remove Prefix, Add Suffix, Remove Suffix, Find & Replace (plain text and regular expression)
 
-**Where to find it:** VRChat tab → Naming section
+**Where to find it:** CATS → VRChat Tools → VRChat Naming Extras
 
 ---
 
@@ -1727,7 +1723,7 @@ See [Guide 9: Improve Your Avatar's Performance](#guide-9-improve-your-avatars-p
 - **Join Meshes** — Combines all meshes into one while keeping material slots
 - **Apply Transforms** — Freezes scale/rotation so they read as 1.0/0° (required by some exporters)
 
-**Where to find it:** VRChat tab → Cleanup section
+**Where to find it:** CATS → CATS → Fix Model / Mesh Tools
 
 ---
 
@@ -1745,7 +1741,7 @@ See [Guide 9: Improve Your Avatar's Performance](#guide-9-improve-your-avatars-p
 - **Embed Textures** — Packs image textures into the FBX for easier Unity material import
 - **Helper Meshes** — Includes hidden/render-disabled/custom-shape helper meshes only when enabled; leave this off for normal avatar exports
 
-**Where to find it:** VRChat tab → Export section
+**Where to find it:** CATS → Avatar Tools → Export to VRChat
 
 ---
 
@@ -1777,7 +1773,7 @@ See [Guide 9: Improve Your Avatar's Performance](#guide-9-improve-your-avatars-p
 - **Skip Lint on Export** — Bypasses target validation; use only when you understand the reported risk
 - **Author / License** — Creator information stored in the VRM metadata
 
-**Where to find it:** VRM tab → Export section
+**Where to find it:** CATS → Import / Export → VRM / VRoid → Export
 
 ---
 
@@ -1789,7 +1785,7 @@ Click **Lint Now** to run the check without exporting or changing your model. Er
 
 If the linter says required humanoid bones are missing even though the bones exist, click **Fix Humanoid Map**. BoneForge auto-detects the humanoid slots, saves the mapping, and stamps `boneforge_humanoid_alias` on the correct bones. This fixes stale mapping data without renaming the actual bones.
 
-**Where to find it:** VRM tab → Lint section
+**Where to find it:** CATS → Import / Export → VRM / VRoid → Lint
 
 ---
 
@@ -1822,7 +1818,7 @@ If the linter says required humanoid bones are missing even though the bones exi
 - **VMD File / VMD Scope** — Export active-scene motion for one or all MMD models
 - **VPD File / VPD Scope** — Export the current pose for one or all MMD models
 
-**Where to find it:** MMD tab → Export section
+**Where to find it:** CATS → Import / Export → MMD / PMX → Export
 
 ---
 
@@ -1849,7 +1845,7 @@ If the linter says required humanoid bones are missing even though the bones exi
 - **Bake Animation** — Converts animation to FBX keyframes when the target needs it
 - **Embed Textures** — Packs image textures into FBX files for easier Unity/Unreal material import
 
-**Where to find it:** In the sidebar under the I/O Hub tab (registered at the bottom of the sidebar)
+**Where to find it:** CATS → Import / Export → Game Engine Export
 
 ---
 
@@ -1857,7 +1853,7 @@ If the linter says required humanoid bones are missing even though the bones exi
 
 **What it does:** Checks which format-bridge add-ons (VRM, MMD) are currently installed and their versions. Shows installation buttons for any that are missing.
 
-**Where to find it:** VRM tab or MMD tab → top section
+**Where to find it:** CATS → Import / Export → VRM / VRoid or MMD / PMX
 
 ---
 
@@ -1873,7 +1869,7 @@ If the linter says required humanoid bones are missing even though the bones exi
 
 The task analyzer automatically identifies common issues (missing humanoid bones, unresolved naming, missing visemes, etc.) and lists them as actionable items.
 
-**Where to find it:** Review tab → Overview section
+**Where to find it:** BoneForge → Overview → Task Board
 
 ---
 
@@ -1887,7 +1883,7 @@ The task analyzer automatically identifies common issues (missing humanoid bones
 - Driver list (click to open the driver editor)
 - Custom property values (editable inline)
 
-**Where to find it:** Review tab → Bone Inspector section
+**Where to find it:** BoneForge → Review → Bone Inspector
 
 ---
 
@@ -1926,7 +1922,7 @@ The CATS tools live in their own **CATS** tab in the N-panel sidebar. They are s
 - **Fix Model** — Runs all operations above on the selected mesh in one pass
 - **Threshold** — Merge distance for duplicate vertex detection (default: 0.0001 Blender units). Increase if vertices are slightly misaligned; decrease if you want to avoid merging vertices that are close but intentionally separate
 
-**Where to find it:** CATS tab → Fix Model section (top of panel)
+**Where to find it:** CATS tab → Fix Model (top of panel)
 
 ---
 
@@ -1952,7 +1948,7 @@ The translation uses a built-in dictionary of known bone name patterns for each 
 
 **Note on scope:** Bone Name Translation handles the language of the *source model's bone names*, not the language of your Blender interface. If you have a Japanese MMD model you want to use in the English version of VRChat, use this tool regardless of which language Blender is set to.
 
-**Where to find it:** CATS tab → Bone Name Translation section
+**Where to find it:** CATS tab → Bone Name Translation
 
 ---
 
@@ -1968,7 +1964,7 @@ The translation uses a built-in dictionary of known bone name patterns for each 
 
 **When to use:** After attaching clothing or merging armatures, extra bones often get carried over without being assigned to any mesh. Run this after Join Meshes and before exporting.
 
-**Where to find it:** CATS tab → Bone Tools section → Zero Weight Bones
+**Where to find it:** CATS tab → Bone Tools → Zero Weight Bones
 
 ---
 
@@ -1985,7 +1981,7 @@ The translation uses a built-in dictionary of known bone name patterns for each 
 
 **When to use:** After all clothing and accessories are attached and weighted. Do not run Join Meshes before CATS Fix Model — joining meshes before cleanup can spread duplicate vertex problems from one mesh object to another, making them harder to remove. Users who joined meshes before Fix Model report the resulting single mesh retaining phantom vertices from all original objects, causing the Viseme Generator to produce shape keys that visibly tear the mesh apart at the seams.
 
-**Where to find it:** CATS tab → Mesh Tools section → Join Meshes
+**Where to find it:** CATS tab → Mesh Tools → Join Meshes
 
 ---
 
@@ -1993,7 +1989,7 @@ The translation uses a built-in dictionary of known bone name patterns for each 
 
 **What it does:** Bakes multiple materials into a single texture atlas sheet. Fewer materials = better VRChat performance rating.
 
-This is the same atlas process available in the main VRChat tab, presented with an Accept/Revert workflow that lets you preview the result before committing.
+This is the same atlas process available in the main CATS → Avatar Tools, presented with an Accept/Revert workflow that lets you preview the result before committing.
 
 **Key controls:**
 - **Analyze** — Shows your current material count and estimated savings
@@ -2002,7 +1998,7 @@ This is the same atlas process available in the main VRChat tab, presented with 
 - **Accept** — Commits the atlas and replaces your original materials
 - **Revert** — Undoes the atlas and restores your original materials
 
-**Where to find it:** CATS tab → Material Atlas section
+**Where to find it:** CATS tab → Material Atlas
 
 ---
 
@@ -2023,7 +2019,7 @@ This tool requires Fix Model to be completed first. Without it, the eye bone det
 - **Eye Rotation Limits** — Maximum rotation angle for up/down and left/right movement (default: 30°)
 - **Test Eye Movement** — Animates the eye bones through their range to verify constraints work
 
-**Where to find it:** CATS tab → Eye Tracking Setup section
+**Where to find it:** CATS tab → Eye Tracking Setup
 
 ---
 
@@ -2052,7 +2048,7 @@ Both tools in this section require Fix Model to be completed first. Capturing a 
 - **Pose to Shape Key** — Captures current deformed state as a new shape key
 - **Name** — Name field for the new shape key
 
-**Where to find it:** CATS tab → Shape Key Tools section
+**Where to find it:** CATS tab → Shape Key Tools
 
 ---
 
@@ -2065,7 +2061,7 @@ Both tools in this section require Fix Model to be completed first. Capturing a 
 **Key controls:**
 - **Shape Key to Basis** — Bakes the selected shape key into the rest mesh and removes the key
 
-**Where to find it:** CATS tab → Shape Key Tools section
+**Where to find it:** CATS tab → Shape Key Tools
 
 ---
 
@@ -2086,7 +2082,7 @@ Apply Transforms is the final pipeline step. Running it before all earlier phase
 **Key controls:**
 - **Apply All Transforms** — Applies to both mesh and armature at once
 
-**Where to find it:** CATS tab → Transform Tools section
+**Where to find it:** CATS tab → Transform Tools
 
 ---
 
@@ -2099,7 +2095,7 @@ Apply Transforms is the final pipeline step. Running it before all earlier phase
 **Key controls:**
 - **Fix FBT** — Applies the FBT root bone correction
 
-**Where to find it:** CATS tab → Transform Tools section
+**Where to find it:** CATS tab → Transform Tools
 
 ---
 
@@ -2110,7 +2106,7 @@ Apply Transforms is the final pipeline step. Running it before all earlier phase
 **Key controls:**
 - **Remove FBT** — Reverts the FBT root bone adjustment
 
-**Where to find it:** CATS tab → Transform Tools section
+**Where to find it:** CATS tab → Transform Tools
 
 ---
 
@@ -2139,7 +2135,7 @@ This tool requires Fix Model to be completed first. Generating visemes on a mesh
 - **Preview** — Cycles through the generated visemes so you can check the results before committing
 - **Blend Strength** — Scales the coefficient multipliers up or down globally (1.0 = default; reduce if visemes look too extreme)
 
-**Where to find it:** CATS tab → Viseme Generator section
+**Where to find it:** CATS tab → Viseme Generator
 
 ---
 
@@ -2158,7 +2154,7 @@ This tool requires Fix Model to be completed first. Generating visemes on a mesh
 
 **When to use:** When your skeleton has no root bone, or when the Rig Validator reports "missing root bone" errors.
 
-**Where to find it:** CATS tab → Bone Tools section
+**Where to find it:** CATS tab → Bone Tools
 
 ---
 
@@ -2171,7 +2167,7 @@ This tool requires Fix Model to be completed first. Generating visemes on a mesh
 - **Preview** — Shows which bones would be merged without committing
 - **Merge** — Applies the merge
 
-**Where to find it:** CATS tab → Bone Tools section
+**Where to find it:** CATS tab → Bone Tools
 
 ---
 
@@ -2183,7 +2179,7 @@ This tool requires Fix Model to be completed first. Generating visemes on a mesh
 - **Duplicate Selected** — Creates a copy of each selected bone with a `.copy` suffix
 - **Mirror Duplicate** — Duplicates and mirrors across the centerline, creating left/right pairs
 
-**Where to find it:** CATS tab → Bone Tools section
+**Where to find it:** CATS tab → Bone Tools
 
 ---
 
@@ -2201,9 +2197,9 @@ This tool requires Fix Model to be completed first. Generating visemes on a mesh
 - **Merge** — Executes the merge
 - **Connect Bones** — Optionally re-parents the merged bones to the base armature's nearest bone instead of keeping them as top-level bones
 
-**For complex multi-stage merges with naming conflict resolution**, use BoneForge's full Bone Merge tool in the Review tab instead.
+**For complex multi-stage merges with naming conflict resolution**, use BoneForge's full Bone Merge tool in BoneForge → Setup Rigging instead.
 
-**Where to find it:** CATS tab → Armature Tools section
+**Where to find it:** CATS tab → Armature Tools
 
 ---
 
@@ -2220,7 +2216,7 @@ This tool requires Fix Model to be completed first. Generating visemes on a mesh
 **Key controls:**
 - **Separate by Materials** — Splits the active mesh by material assignment
 
-**Where to find it:** CATS tab → Mesh Tools section
+**Where to find it:** CATS tab → Mesh Tools
 
 ---
 
@@ -2231,7 +2227,7 @@ This tool requires Fix Model to be completed first. Generating visemes on a mesh
 **Key controls:**
 - **Separate by Loose Parts** — Splits the active mesh at geometry boundaries
 
-**Where to find it:** CATS tab → Mesh Tools section
+**Where to find it:** CATS tab → Mesh Tools
 
 ---
 
@@ -2242,7 +2238,7 @@ This tool requires Fix Model to be completed first. Generating visemes on a mesh
 **Key controls:**
 - **Separate by Shape Keys** — Creates two objects: one with shape key data, one without
 
-**Where to find it:** CATS tab → Mesh Tools section
+**Where to find it:** CATS tab → Mesh Tools
 
 ---
 
@@ -2264,7 +2260,7 @@ The Validator is separate from BoneForge's main Rig Validator — it focuses spe
 - Pose to Shape: Is at least one custom shape key present (or was the phase marked complete)?
 - Apply Transforms: Are all transforms at clean values (scale 1,1,1 / rotation 0,0,0)?
 
-**Where to find it:** CATS tab → Validator section (bottom of panel)
+**Where to find it:** CATS tab → Validator (bottom of panel)
 
 ---
 
@@ -2385,11 +2381,11 @@ Use this section when something has gone wrong and you need to find the answer f
 
 **Weight / Weight Painting** — The process of assigning values (0.0 to 1.0) to each vertex specifying how strongly it is influenced by each bone. Higher weight = more influence. Weight painting is the visual tool for adjusting these values.
 
-**Wizard** — BoneForge's step-by-step guided rigging tool that walks you through placing markers and automatically generating a skeleton.
+**Auto-Rig Wizard** — BoneForge's step-by-step guided rigging tool that walks you through placing markers and automatically generating a skeleton.
 
 **Zero Weight Bone** — A bone in a skeleton that has no influence over any mesh vertices. These bones take up performance budget without contributing to the avatar's appearance. The CATS Zero Weight Bone Cleanup tool removes them automatically.
 
 ---
 
-*BoneForge Documentation | Version 8.6.9*
+*BoneForge Documentation | Version 9.0.2*
 *For support, check the BoneForge GitHub page or community Discord.*

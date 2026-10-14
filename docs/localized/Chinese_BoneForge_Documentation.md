@@ -1,34 +1,34 @@
 # BoneForge 文档
-### 版本 8.6.9 | VRChat 用户指南
+### 版本 9.0.2 | VRChat 用户指南
 
 ---
 
 ## 目录
 
-- [入门](#getting-started)
-  - [BoneForge 是什么？](#what-is-boneforge)
-  - [安装 BoneForge](#installing-boneforge)
-  - [在 Blender 中找到 BoneForge](#finding-boneforge-in-blender)
-  - [我应该从哪里开始？](#where-should-i-start)
-- [快速指南](#quick-guides)
-  1. [将您的第一个化身导入 VRChat](#guide-1-get-your-first-avatar-into-vrchat)
-  2. [将 VRoid 化身导入 VRChat](#guide-2-bring-a-vroid-avatar-into-vrchat)
-  3. [将 MMD 化身导入 VRChat](#guide-3-bring-an-mmd-avatar-into-vrchat)
-  4. [修复化身的骨骼名称](#guide-4-fix-your-avatars-bone-names)
-  5. [将化身映射到 VRChat 的身体系统](#guide-5-map-your-avatar-to-vrchats-body-system)
-  6. [添加头发物理效果](#guide-6-add-hair-physics)
-  7. [附加随身体移动的服装](#guide-7-attach-clothing-that-moves-with-your-body)
-  8. [设置唇形同步](#guide-8-set-up-lip-sync)
-  9. [改进化身的性能](#guide-9-improve-your-avatars-performance)
-  10. [保存和重用姿态](#guide-10-save-and-reuse-poses)
-  11. [合并两个装配](#guide-11-merge-two-rigs-together)
-  12. [修复上传问题](#guide-12-fix-upload-problems)
-  13. [使用 CATS 准备 VRChat 化身](#guide-13-get-your-avatar-vrchat-ready-with-cats)
-- [CATS 插件 — 开始前：流程顺序](#cats-plugin--before-you-begin-the-pipeline-order)
-- [功能参考](#feature-reference)
-- [CATS 工具参考](#cats-tool-reference)
-- [快速修复索引](#quick-fix-index)
-- [术语表](#glossary)
+- [入门](#入门)
+  - [BoneForge 是什么？](#boneforge-是什么)
+  - [安装 BoneForge](#安装-boneforge)
+  - [在 Blender 中找到 BoneForge](#在-blender-中找到-boneforge)
+  - [我应该从哪里开始？](#我应该从哪里开始)
+- [快速指南](#快速指南)
+  1. [将您的第一个化身导入 VRChat](#指南-1将您的第一个化身导入-vrchat)
+  2. [将 VRoid 化身导入 VRChat](#指南-2将-vroid-化身导入-vrchat)
+  3. [将 MMD 化身导入 VRChat](#指南-3将-mmd-化身导入-vrchat)
+  4. [修复化身的骨骼名称](#指南-4修复化身的骨骼名称)
+  5. [将化身映射到 VRChat 的身体系统](#指南-5将化身映射到-vrchat-的身体系统)
+  6. [添加头发物理效果](#指南-6添加头发物理效果)
+  7. [附加随身体移动的服装](#指南-7附加随身体移动的服装)
+  8. [设置唇形同步](#指南-8设置唇形同步)
+  9. [改进化身的性能](#指南-9改进化身的性能)
+  10. [保存和重用姿态](#指南-10保存和重用姿态)
+  11. [合并两个装配](#指南-11合并两个装配)
+  12. [修复上传问题](#指南-12修复上传问题)
+  13. [使用 CATS 准备 VRChat 化身](#指南-13使用-cats-准备-vrchat-化身)
+- [CATS 插件 — 开始前：流程顺序](#cats-插件--开始前流程顺序)
+- [功能参考](#功能参考)
+- [CATS 工具参考](#cats-工具参考)
+- [快速修复索引](#快速修复索引)
+- [术语表](#术语表)
 
 ---
 
@@ -84,23 +84,33 @@ BoneForge 是一个 Blender 插件，帮助您为 VRChat、VRoid/VRM 和 MMD 准
 
 ## 在 Blender 中找到 BoneForge
 
-安装 BoneForge 后，所有内容都位于以下位置：
+选项卡用于选择功能组。Setup Rigging、Skin、Review、Avatar Tools 和 Facial 是选项卡内可展开的分区，不是独立选项卡。下列路径保留英文界面标签；翻译名称取决于 Language 设置。
 
-**侧边栏（最常见）：** 在 3D 视口中按 **N** 打开右侧的面板。您将看到包含按任务组织的 BoneForge 工具的选项卡。
+| 选项卡 | 默认位置 | 分区 |
+| --- | --- | --- |
+| Rig Builder | 右侧边栏（N） | Auto-Rig Wizard, Quick Rig - premade armatures, Mannequin |
+| BoneForge | 右侧边栏（N） | Overview, Setup Rigging, Skin, Review |
+| CATS | 右侧边栏（N） | CATS, Avatar Tools, VRChat Tools, Import / Export |
 
-**最常用的选项卡：**
-- **Rig Builder** — 从头开始构建新的装配
-- **Setup Rigging** — 重新定位和 Rigify 工具
-- **Skin** — 权重和变形工具
-- **VRChat** — VRChat 导出的所有内容
-- **Review / Animate** — 骨骼可见性、姿态库、验证
-- **CATS** — 模型清理、视频语素、眼睛追踪和完整的 VRChat 准备流程 *（7.1.1 版本中的新增功能）*
+| 工具 | 打开路径 |
+| --- | --- |
+| Bone Merge | BoneForge → Setup Rigging → Bone Merge |
+| Delta Mush / Proximity Wrap | BoneForge → Skin → Delta Mush / Proximity Wrap |
+| Viseme Library / Lip Sync | CATS → Avatar Tools → Viseme Library → Lip Sync |
+| VRChat Viseme Mapping / Face Tracking | CATS → VRChat Tools → Facial |
+| Humanoid / Hair / VRChat export | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics / Export to VRChat |
+| VRM / MMD / I/O Hub | CATS → Import / Export → VRM / VRoid, MMD / PMX, Game Engine Export |
+| Performance / Clothing / Naming | CATS → VRChat Tools → Check Performance / Attach Clothing / VRChat Naming Extras |
 
-**CATS 选项卡是一个独立的选项卡**，与主 BoneForge 选项卡分开。如果您没有立即看到它，请向下滚动侧边栏选项卡列表 — 它出现在 BoneForge 选项卡之后。
+绑定和口型库需要选择骨架；Delta Mush 和 Proximity Wrap 需要在对象模式选择网格。Lip Sync 需要姿势模式的骨架。点击三角形展开分区；Options 保存可选设置。立即执行的工具可在运行下一个操作前通过“调整上一步操作”修改。
 
-**优先修复模型，每次都是：** 使用 CATS 选项卡时，在运行任何其他 CATS 工具之前，始终从 **Fix Model** 开始。CATS 流程使用一个账本来跟踪您已完成的步骤。每个工具都会检查账本，如果您尝试按顺序运行，它会警告您。有关完整说明，请参阅 [CATS 插件 — 开始前：流程顺序](#cats-plugin--before-you-begin-the-pipeline-order)。
+偏好设置：Edit → Preferences → Add-ons → BoneForge → Tabs 控制选项卡显示。Scene Properties 默认开启，独立控制 Properties → Scene 中的 Rig Builder 和 CATS 面板。Language 更改界面语言；Tools 启用各工具包。Ctrl+Shift+R 打开快捷绑定面板。
 
-**N-Panel 快捷键：** 您可以在 3D 视口中按 **Ctrl+Shift+R** 在光标所在的任何位置弹出 BoneForge 的快速面板，无需导航到侧边栏。
+BoneForge 使用右侧 N 边栏；标准 Blender 没有 Bforartists 的 Left / Right 选项卡位置。菜单入口：Add → Armature → BoneForge、Pose → BoneForge、Weights → BoneForge。
+
+三种面部流程各有用途：CATS 口型生成创建嘴部形态键；Viseme Library / Lip Sync 保存姿态并生成动画关键帧；Facial 将现有形态键映射到 VRChat 或配置面部追踪。源自 UVToolkit 的控件位于 CATS → Material Atlas → Override Inherited Settings → UV Packing；这是共享的图集流程，并非完整的独立 UVToolkit 插件。
+
+BoneForge 9.0.0 及以后用于标准 Blender；BoneCraft 是独立的 Bforartists 插件。两者都有 Auto-Rig Wizard、Quick Rig、Mannequin 和共享的 CATS/Material Atlas 工具。BoneCraft 另有 Mechanisms、Control Picker、生产级控制绑定、关节检测和配置文件导出工具。相似布局不会将这些工具加入 BoneForge。
 
 ---
 
@@ -109,22 +119,22 @@ BoneForge 是一个 Blender 插件，帮助您为 VRChat、VRoid/VRM 和 MMD 准
 选择最符合您的描述的选项：
 
 > **"您有一个全新的 3D 模型文件（FBX、OBJ 或 Blender 文件），并想从零开始为 VRChat 装配它。"**
-> → 转到 [指南 1：将您的第一个化身导入 VRChat](#guide-1-get-your-first-avatar-into-vrchat)
+> → 转到 [指南 1：将您的第一个化身导入 VRChat](#指南-1将您的第一个化身导入-vrchat)
 
 > **"您在 VRoid Studio 中制作了化身，并导出了一个 VRM 文件。"**
-> → 转到 [指南 2：将 VRoid 化身导入 VRChat](#guide-2-bring-a-vroid-avatar-into-vrchat)
+> → 转到 [指南 2：将 VRoid 化身导入 VRChat](#指南-2将-vroid-化身导入-vrchat)
 
 > **"您有一个 MMD 模型（PMX 文件），并想在 VRChat 中使用它。"**
-> → 转到 [指南 3：将 MMD 化身导入 VRChat](#guide-3-bring-an-mmd-avatar-into-vrchat)
+> → 转到 [指南 3：将 MMD 化身导入 VRChat](#指南-3将-mmd-化身导入-vrchat)
 
 > **"您已经有一个装配好的化身，但由于骨骼名称错误而无法上传。"**
-> → 转到 [指南 4：修复化身的骨骼名称](#guide-4-fix-your-avatars-bone-names)
+> → 转到 [指南 4：修复化身的骨骼名称](#指南-4修复化身的骨骼名称)
 
 > **"您有一个装配好的化身，想让它完全准备好 VRChat — 唇形同步、眼睛追踪、清洁网格，一次性全部完成。"**
-> → 转到 [指南 13：使用 CATS 准备 VRChat 化身](#guide-13-get-your-avatar-vrchat-ready-with-cats)
+> → 转到 [指南 13：使用 CATS 准备 VRChat 化身](#指南-13使用-cats-准备-vrchat-化身)
 
 > **"您想解决一个特定问题。"**
-> → 转到 [快速修复索引](#quick-fix-index)
+> → 转到 [快速修复索引](#快速修复索引)
 
 ---
 
@@ -147,9 +157,9 @@ BoneForge 是一个 Blender 插件，帮助您为 VRChat、VRoid/VRM 和 MMD 准
 
 ### 步骤 1 — 打开 Rig Builder
 
-在右侧边栏（如果不可见，请按 **N**），点击 **Rig Builder** 选项卡。您将看到三个选项：Quick Rig、Wizard 和 Mannequin。
+在右侧边栏（如果不可见，请按 **N**），点击 **Rig Builder** 选项卡。您将看到三个选项：Auto-Rig Wizard → Quick Rig → Mannequin。
 
-点击 **Wizard** 开始引导装配流程。
+点击 **Auto-Rig Wizard** 开始引导装配流程。
 
 **您应该看到的：** 一个显示"Start"的面板，带有一个按钮来开始向导。
 
@@ -229,7 +239,7 @@ BoneForge 是一个 Blender 插件，帮助您为 VRChat、VRoid/VRM 和 MMD 准
 
 ### 步骤 8 — 修复 VRChat 的骨骼名称
 
-生成后，您的骨骼需要遵循 VRChat 的命名规则。转到侧边栏中的 **VRChat** 选项卡，然后点击 **Fix Bone Names > Auto-Detect and Rename**。
+生成后，您的骨骼需要遵循 VRChat 的命名规则。转到侧边栏中的 **CATS → Avatar Tools** 选项卡，然后点击 **Fix Bone Names > Auto-Detect and Rename**。
 
 **您应该看到的：** 列表中的所有骨骼都显示绿色复选标记。
 
@@ -237,7 +247,7 @@ BoneForge 是一个 Blender 插件，帮助您为 VRChat、VRoid/VRM 和 MMD 准
 
 ### 步骤 9 — 映射到 VRChat 人形角色
 
-仍然在 VRChat 选项卡中，找到 **Humanoid Mapper** 部分。点击 **Auto-Map Humanoid**。这将化身的每个骨骼连接到 VRChat 的人形角色系统（VRChat 使用该系统使化身与您的现实世界运动同步）。
+仍然在 CATS → VRChat Tools → Facial 选项卡中，找到 **Humanoid Mapper** 部分。点击 **Auto-Map Humanoid**。这将化身的每个骨骼连接到 VRChat 的人形角色系统（VRChat 使用该系统使化身与您的现实世界运动同步）。
 
 运行 **Validate Humanoid** 以检查任何剩余问题。
 
@@ -247,7 +257,7 @@ BoneForge 是一个 Blender 插件，帮助您为 VRChat、VRoid/VRM 和 MMD 准
 
 ### 步骤 10 — 导出供 VRChat 使用
 
-转到 **VRChat** 选项卡 → **Export** 部分。点击 **Export to VRChat (FBX)**。
+转到 **CATS → Avatar Tools → Export to VRChat** 部分。点击 **Export to VRChat (FBX)**。
 
 选择保存位置并点击 **Export**。
 
@@ -287,7 +297,7 @@ BoneForge 需要一个辅助插件来打开 VRM 文件。在 BoneForge 侧边栏
 
 ### 步骤 3 — 自动映射到 VRChat 人形角色
 
-转到 BoneForge 侧边栏中的 **VRChat** 选项卡。点击 **Auto-Map Humanoid**。VRoid 化身遵循标准骨骼格式，所以这通常无需任何手动调整即可自动完成。
+转到 BoneForge 侧边栏中的 **CATS → Avatar Tools** 选项卡。点击 **Auto-Map Humanoid**。VRoid 化身遵循标准骨骼格式，所以这通常无需任何手动调整即可自动完成。
 
 ---
 
@@ -299,7 +309,7 @@ BoneForge 需要一个辅助插件来打开 VRM 文件。在 BoneForge 侧边栏
 
 ### 步骤 5 — 设置视频语素（唇形同步）
 
-VRoid 化身已经内置了形状键（脸部表情和唇形同步的脸部运动）。转到 **VRChat** 选项卡 → **Visemes** 并点击 **Auto-Map Visemes**。BoneForge 将自动将 VRoid 的形状键与 VRChat 的 15 个唇形同步音素相匹配。
+VRoid 化身已经内置了形状键（脸部表情和唇形同步的脸部运动）。转到 **CATS → VRChat Tools → Facial** 选项卡 → **Visemes** 并点击 **Auto-Map Visemes**。BoneForge 将自动将 VRoid 的形状键与 VRChat 的 15 个唇形同步音素相匹配。
 
 ---
 
@@ -339,7 +349,7 @@ VRoid 化身已经内置了形状键（脸部表情和唇形同步的脸部运�
 
 ### 步骤 3 — 修复骨骼名称
 
-MMD 使用 VRChat 无法理解的日语骨骼名称。在 **VRChat > Naming** 部分中，点击 **Detect Convention**。BoneForge 将识别 MMD 命名风格。然后点击 **Translate Bone Names** 将其转换为 VRChat 兼容的名称。
+MMD 使用 VRChat 无法理解的日语骨骼名称。在 **CATS → VRChat Tools → VRChat Naming Extras** 部分中，点击 **Detect Convention**。BoneForge 将识别 MMD 命名风格。然后点击 **Translate Bone Names** 将其转换为 VRChat 兼容的名称。
 
 或者，使用 **CATS tab → Bone Name Translation** 工具，它支持日语、中文、韩语、葡萄牙语、西班牙语和法语骨骼名称的自动语言检测，一次点击即可完成。
 
@@ -352,7 +362,7 @@ MMD 模型通常有额外的几何体和重复的顶点。转到 **VRChat > Clea
 - **Join Meshes** — 将身体部位合并为一个网格（建议用于 VRChat）
 - **Remove Unused Vertex Groups** — 移除空骨骼分配
 
-对于这个清理的引导、流程有序版本，使用 **CATS tab** 并遵循 [指南 13](#guide-13-get-your-avatar-vrchat-ready-with-cats) 中描述的流程顺序。
+对于这个清理的引导、流程有序版本，使用 **CATS tab** 并遵循 [指南 13](#指南-13使用-cats-准备-vrchat-化身) 中描述的流程顺序。
 
 ---
 
@@ -383,7 +393,7 @@ MMD 模型通常有额外的几何体和重复的顶点。转到 **VRChat > Clea
 
 ### 步骤 1 — 检测当前命名风格
 
-转到 **VRChat** 选项卡 → **Naming** 部分。点击 **Detect Convention**。BoneForge 将分析您的骨骼名称并显示它检测到的风格（Mixamo、Ready Player Me、Unity 或 Custom）。
+转到 **CATS → VRChat Tools → VRChat Naming Extras** 部分。点击 **Detect Convention**。BoneForge 将分析您的骨骼名称并显示它检测到的风格（Mixamo、Ready Player Me、Unity 或 Custom）。
 
 对于骨骼名称为日语、中文、韩语、葡萄牙语、西班牙语或法语的模型，请改用 **CATS tab → Bone Name Translation** 工具。它自动检测源语言并一步将所有内容转换为英文 VRChat 名称。
 
@@ -430,7 +440,7 @@ MMD 模型通常有额外的几何体和重复的顶点。转到 **VRChat > Clea
 
 ### 步骤 1 — 打开 Humanoid Mapper
 
-转到 **VRChat** 选项卡 → **Humanoid** 部分。
+转到 **CATS → Avatar Tools → Set Up Humanoid Bones** 部分。
 
 ---
 
@@ -464,7 +474,7 @@ MMD 模型通常有额外的几何体和重复的顶点。转到 **VRChat > Clea
 
 如果化身有眼骨，转到 **Eye Setup** 部分。点击 **Fix Eye Bones** 确保两个眼骨都正确命名和定位。点击 **Auto-Map Blink Shapes** 连接眨眼动画。
 
-对于包括约束创建和 VRChat LeftEye/RightEye 骨骼命名的更完整眼睛追踪设置，使用 [指南 13，第 3 阶段](#phase-3--eye-tracking) 中描述的 **CATS tab → Eye Tracking Setup** 工具。
+对于包括约束创建和 VRChat LeftEye/RightEye 骨骼命名的更完整眼睛追踪设置，使用 [指南 13，第 3 阶段](#第-3-阶段--眼睛追踪) 中描述的 **CATS tab → Eye Tracking Setup** 工具。
 
 **这解锁了什么：** 人形角色映射完成后，化身将在 VRChat 中正确移动 — IK（反向运动学，使游戏内的手跟随真实控制器的系统）将起作用，化身将正确追踪您的真实世界运动。
 
@@ -485,7 +495,7 @@ MMD 模型通常有额外的几何体和重复的顶点。转到 **VRChat > Clea
 
 ### 步骤 1 — 检测头发链
 
-转到 **VRChat** 选项卡 → **Hair Physics** 部分。点击 **Detect Hair Chains**。
+转到 **CATS → Avatar Tools → Add Hair Physics** 部分。点击 **Detect Hair Chains**。
 
 BoneForge 扫描骨骼以查找看起来像头发的骨骼链（多根骨骼端对端链接，从根部分支）。它列出了找到的所有链。
 
@@ -557,7 +567,7 @@ BoneForge 扫描骨骼以查找看起来像头发的骨骼链（多根骨骼端�
 
 ### 步骤 1 — 打开服装工具
 
-转到 **VRChat** 选项卡 → **Clothing** 部分。
+转到 **CATS → VRChat Tools → Attach Clothing** 部分。
 
 ---
 
@@ -620,7 +630,7 @@ BoneForge 扫描骨骼以查找看起来像头发的骨骼链（多根骨骼端�
 
 ### 步骤 1 — 打开 Viseme Mapper
 
-转到 **VRChat** 选项卡 → **Visemes** 部分。
+转到 **CATS → VRChat Tools → Facial** 选项卡 → **Visemes** 部分。
 
 ---
 
@@ -644,7 +654,7 @@ BoneForge 扫描骨骼以查找看起来像头发的骨骼链（多根骨骼端�
 | `mm` | 嘴唇合在一起（M、B、P） | mouth_m, MM, lips_together |
 | `ss` | "sss" / "zzz" | mouth_s, SS |
 
-**替代方案 — CATS Viseme 生成器：** 如果化身没有现有的 viseme 形状键，使用 **CATS tab → Viseme Generator** 仅从三个基础形状（A、O、CH）从头创建所有 15 个 VRChat 视频语素。有关分步说明，请参阅 [指南 13，第 2 阶段](#phase-2--viseme-generation)。
+**替代方案 — CATS Viseme 生成器：** 如果化身没有现有的 viseme 形状键，使用 **CATS tab → Viseme Generator** 仅从三个基础形状（A、O、CH）从头创建所有 15 个 VRChat 视频语素。有关分步说明，请参阅 [指南 13，第 2 阶段](#第-2-阶段--viseme-生成)。
 
 ---
 
@@ -677,7 +687,7 @@ BoneForge 扫描骨骼以查找看起来像头发的骨骼链（多根骨骼端�
 
 ### 步骤 1 — 检查当前性能等级
 
-转到 **VRChat** 选项卡 → **Performance** 部分。点击 **Calculate Rank**。BoneForge 显示当前估计等级和导致它的具体数字（多边形数、材料数、骨骼数等）。
+转到 **CATS → VRChat Tools → Check Performance** 部分。点击 **Calculate Rank**。BoneForge 显示当前估计等级和导致它的具体数字（多边形数、材料数、骨骼数等）。
 
 ---
 
@@ -714,7 +724,7 @@ BoneForge 扫描骨骼以查找看起来像头发的骨骼链（多根骨骼端�
 4. 点击 **Bake Atlas** — BoneForge 将材料组合成一个纹理表
 5. 点击 **Accept** 应用，或如果不满意点击 **Revert**
 
-CATS 选项卡的 **Material Atlas Combiner** 在精简界面中提供相同的 Accept/Revert 工作流 — 请参阅 [CATS 工具参考：Material Atlas Combiner](#material-atlas-combiner)。
+CATS 选项卡的 **Material Atlas Combiner** 在精简界面中提供相同的 Accept/Revert 工作流 — 请参阅 [CATS 工具参考：Material Atlas Combiner](#材料图集组合器)。
 
 ---
 
@@ -739,7 +749,7 @@ CATS 选项卡的 **Material Atlas Combiner** 在精简界面中提供相同的 
 
 ### 步骤 1 — 打开姿态库
 
-转到 BoneForge 侧边栏中的 **Review** 选项卡并找到 **Pose Library** 部分。
+转到 BoneForge 侧边栏中的 **BoneForge → Review** 选项卡并找到 **Pose Library** 部分。
 
 ---
 
@@ -789,7 +799,7 @@ CATS 选项卡的 **Material Atlas Combiner** 在精简界面中提供相同的 
 
 ### 步骤 1 — 打开骨骼合并
 
-转到 **Review** 选项卡 → **Bone Merge** 部分。或在侧边栏的"Bone Merge"选项卡中找到它。
+转到 **BoneForge → Setup Rigging → Bone Merge**.
 
 ---
 
@@ -843,55 +853,55 @@ CATS 选项卡的 **Material Atlas Combiner** 在精简界面中提供相同的 
 
 ### "上传失败 — 骨骼无法识别"
 
-骨骼的名称 VRChat 无法理解。→ 转到 [指南 4：修复化身的骨骼名称](#guide-4-fix-your-avatars-bone-names)
+骨骼的名称 VRChat 无法理解。→ 转到 [指南 4：修复化身的骨骼名称](#指南-4修复化身的骨骼名称)
 
 ---
 
 ### "化身处于 T 形位置 / 在 VRChat 中不随我移动"
 
-人形角色映射缺失或不正确。→ 转到 [指南 5：将化身映射到 VRChat 的身体系统](#guide-5-map-your-avatar-to-vrchats-body-system)
+人形角色映射缺失或不正确。→ 转到 [指南 5：将化身映射到 VRChat 的身体系统](#指南-5将化身映射到-vrchat-的身体系统)
 
 ---
 
 ### "网格变形奇怪 / 皮肤伸展错误"
 
-骨骼权重需要调整。→ 请参阅 [功能参考](#feature-reference) 中的 **Weight Transfer** 和 **Weight Mirror**。
+骨骼权重需要调整。→ 请参阅 [功能参考](#功能参考) 中的 **Weight Transfer** 和 **Weight Mirror**。
 
 ---
 
 ### "头发穿过头部"
 
-头发碰撞体缺失或太小。→ 转到 [指南 6：添加头发物理效果](#guide-6-add-hair-physics)，步骤 6。
+头发碰撞体缺失或太小。→ 转到 [指南 6：添加头发物理效果](#指南-6添加头发物理效果)，步骤 6。
 
 ---
 
 ### "化身性能为 Very Poor，被其他玩家阻止"
 
-→ 转到 [指南 9：改进化身的性能](#guide-9-improve-your-avatars-performance)
+→ 转到 [指南 9：改进化身的性能](#指南-9改进化身的性能)
 
 ---
 
 ### "唇形同步不工作"
 
-Visemes 映射不正确。→ 转到 [指南 8：设置唇形同步](#guide-8-set-up-lip-sync)
+Visemes 映射不正确。→ 转到 [指南 8：设置唇形同步](#指南-8设置唇形同步)
 
 ---
 
 ### "装配验证器显示红色错误"
 
-转到 **Review** 选项卡 → **Rig Validator** 部分。点击 **Run Validation**。对于每个红色错误，点击错误消息 — BoneForge 为您选择问题骨骼。读取错误描述并遵循其建议，或检查 [快速修复索引](#quick-fix-index)。
+转到 **BoneForge → Review** 选项卡 → **Rig Validator** 部分。点击 **Run Validation**。对于每个红色错误，点击错误消息 — BoneForge 为您选择问题骨骼。读取错误描述并遵循其建议，或检查 [快速修复索引](#快速修复索引)。
 
 ---
 
 ### "VRM 导入不工作"
 
-VRM bridge 插件可能未安装。→ 转到 [指南 2](#guide-2-bring-a-vroid-avatar-into-vrchat)，步骤 1。
+VRM bridge 插件可能未安装。→ 转到 [指南 2](#指南-2将-vroid-化身导入-vrchat)，步骤 1。
 
 ---
 
 ### "MMD 导入不工作"
 
-MMD Tools 插件可能未安装。→ 转到 [指南 3](#guide-3-bring-an-mmd-avatar-into-vrchat)，步骤 1。
+MMD Tools 插件可能未安装。→ 转到 [指南 3](#指南-3将-mmd-化身导入-vrchat)，步骤 1。
 
 ---
 
@@ -906,7 +916,7 @@ CATS 工具使用 **Pipeline** 系统。每个阶段必须按正确的顺序完�
 
 **始终从 Fix Model 开始。每次都是。没有例外。**
 
-如果还没有，在继续前阅读 [CATS 插件 — 开始前：流程顺序](#cats-plugin--before-you-begin-the-pipeline-order)。
+如果还没有，在继续前阅读 [CATS 插件 — 开始前：流程顺序](#cats-插件--开始前流程顺序)。
 
 **开始前 — 检查这些：**
 - [ ] 化身已导入 Blender 并在 3D 视口中可见
@@ -943,7 +953,7 @@ Fix Model 步骤是 CATS 中所有其他内容的强制基础。首先运行它�
 
 需要：Fix Model ✓
 
-Viseme 生成器从您已有的三个基础形状创建所有 15 个 VRChat 唇形同步嘴形。如果化身已经有完整的 viseme 形状键，可以跳过这个阶段 — 但应该检查 VRChat 选项卡中的 Viseme Mapper 确认键被正确命名。
+Viseme 生成器从您已有的三个基础形状创建所有 15 个 VRChat 唇形同步嘴形。如果化身已经有完整的 viseme 形状键，可以跳过这个阶段 — 但应该检查 CATS → VRChat Tools → Facial 选项卡中的 Viseme Mapper 确认键被正确命名。
 
 **Viseme 生成器所做的事情：**
 
@@ -1036,7 +1046,7 @@ VRChat 需要 15 个特定嘴形（称为 visemes）来在说话时驱动化身�
 2. 在 **CATS** 选项卡中，找到 **Transform Tools** 部分
 3. 点击 **Apply All Transforms**
 4. 检查 **Ledger** 现在在"Apply Transforms"旁显示复选标记（✓）— 所有五个槽现在应检查（✓✓✓✓✓）
-5. 转到 **VRChat** 选项卡 → **Export** 部分并将化身导出为 FBX
+5. 转到 **CATS → Avatar Tools → Export to VRChat** 部分并将化身导出为 FBX
 
 **您应该看到的：** 所有五个账本槽显示 ✓。化身准备好导入到 VRChat Creator Companion。
 
@@ -1145,7 +1155,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **图标 / 颜色** — 为按钮分配自定义图标和颜色以进行视觉组织
 - **部分** — 在可折叠标题下分组多个集合
 
-**在哪里找到它：** Review tab → Collections section
+**在哪里找到它：** BoneForge → Review → Collections
 
 ---
 
@@ -1163,7 +1173,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 **默认书签按钮：** FK Arms、IK Body、Face Only、Full Rig
 
-**在哪里找到它：** Review tab → Bookmarks section
+**在哪里找到它：** BoneForge → Review → Collections → Visibility Bookmarks
 
 ---
 
@@ -1200,7 +1210,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **导出** — 将姿态保存到 `.bfpose` 文件
 - **导入** — 从 `.bfpose` 文件加载姿态
 
-**在哪里找到它：** Review tab → Pose Library section
+**在哪里找到它：** BoneForge → Review → Pose Library
 
 ---
 
@@ -1220,7 +1230,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **父级空间切换** — 改变肢体 IK 目标的父级空间（World、Root 等）
 - **头/颈部跟随** — 控制头/颈部跟随身体旋转的程度
 
-**在哪里找到它：** Setup Rigging tab → Rigify section
+**在哪里找到它：** BoneForge → Setup Rigging → Rigify Tools
 
 ---
 
@@ -1238,7 +1248,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **激活角度** — 形状键达到完全强度 (1.0) 的旋转角度（度数）
 - **衰减** — 激活角度前多少度形状键开始淡入（越大 = 越平滑的过渡）
 
-**在哪里找到它：** Skin tab → Correctives section
+**在哪里找到它：** BoneForge → Skin → Correctives
 
 ---
 
@@ -1255,7 +1265,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **Euler Filter** — 修复动画曲线中由万向锁引起的旋转翻转伪影
 - **Tangent Tools** — 在选定的关键帧上设置关键帧句柄类型（Auto、Vector、Aligned、Free）
 
-**在哪里找到它：** Review tab → Graph Tools section
+**在哪里找到它：** BoneForge → Review → Graph Tools
 
 ---
 
@@ -1279,7 +1289,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **搜索距离** — 将两个顶点视为"对"的最大距离（以 Blender 单位）。如果网格不完全对称，增加
 - **之后归一化** — 确保所有权重在镜像后总和为 1.0
 
-**在哪里找到它：** Skin tab → Weight Mirror section
+**在哪里找到它：** BoneForge → Skin → Weight Tools → Weight Mirror
 
 ---
 
@@ -1297,7 +1307,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **最近顶点** — 每个目标顶点从最近的源顶点获得权重
 - **最近面** — 使用面投影在曲面上获得更平滑的结果
 
-**在哪里找到它：** Skin tab → Weight Transfer section
+**在哪里找到它：** BoneForge → Skin → Weight Tools → Weight Transfer
 
 ---
 
@@ -1312,7 +1322,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **零权重** — 清除特定单元格至 0.0
 - **标记变形骨骼** — 将选定的骨骼标记为变形骨骼（权重绘制模式中需要它们出现）
 
-**在哪里找到它：** Skin tab → Weight Table section
+**在哪里找到它：** BoneForge → Skin → Weight Tools → Weight Table
 
 ---
 
@@ -1327,7 +1337,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **迭代** — 应用多少次平滑通过（越高 = 越平滑，但可能失去细节）
 - **影响** — 平滑效果有多强（0 = 关闭，1 = 完全强度）
 
-**在哪里找到它：** Skin tab → Delta Mush section
+**在哪里找到它：** BoneForge → Skin → Delta Mush
 
 ---
 
@@ -1343,7 +1353,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **最大距离** — 包装效果达到的目标表面有多远
 - **衰减** — 包装效果在边缘淡出的方式（Smooth 或 Linear）
 
-**在哪里找到它：** Skin tab → Proximity Wrap section
+**在哪里找到它：** BoneForge → Skin → Proximity Wrap
 
 ---
 
@@ -1356,7 +1366,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **应用形状** — 设置网格的形状键以匹配保存的条目
 - **从复制形状** — 将形状键从另一个对象复制到当前网格
 
-**在哪里找到它：** Skin tab → Shape Library section
+**在哪里找到它：** BoneForge → Shape Library
 
 ---
 
@@ -1379,7 +1389,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **无键切换空间** — 无需关键帧切换空间
 - **设置默认空间** — 设置骨骼开始的空间
 
-**在哪里找到它：** Review tab → Space Switching section
+**在哪里找到它：** BoneForge → Space Switch
 
 ---
 
@@ -1395,7 +1405,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **开始/结束骨骼** — 链的第一个和最后一个骨骼
 - **曲线分辨率** — 控制曲线有多少段（更多段 = 更平滑但更重）
 
-**在哪里找到它：** Review tab → Spline IK section
+**在哪里找到它：** BoneForge → Spline IK
 
 ---
 
@@ -1413,7 +1423,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **阻尼** — 运动平定的速度
 - **重力** — 对链的向下拉动
 
-**在哪里找到它：** Review tab → Chain Dynamics section
+**在哪里找到它：** BoneForge → Chain Dynamics
 
 ---
 
@@ -1429,7 +1439,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **段数** — 沿带状的子分割数
 - **扭转量** — 带状可以端到端扭转多少
 
-**在哪里找到它：** Review tab → Ribbon section
+**在哪里找到它：** BoneForge → Ribbon
 
 ---
 
@@ -1445,7 +1455,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **预览 Viseme** — 播放 viseme 的形状键值
 - **删除集** — 移除 viseme 集
 
-**在哪里找到它：** Review tab → Viseme section
+**在哪里找到它：** CATS → Avatar Tools → Viseme Library
 
 ---
 
@@ -1464,7 +1474,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **记录点** — 在当前骨骼位置，将当前形状键值记录为驱动曲线上的点
 - **设置驱动值** — 手动输入记录点的形状键值
 
-**在哪里找到它：** Review tab → SDK Author section
+**在哪里找到它：** BoneForge → Set Driven Key
 
 ---
 
@@ -1480,7 +1490,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **导出报告** — 将验证结果保存为文本或 Markdown 文件
 - **规则集** — 选择标准（通用装配规则）或 VRChat（VRChat 特定要求）
 
-**在哪里找到它：** Review tab → Rig Validator section
+**在哪里找到它：** BoneForge → Review → Rig Validator
 
 ---
 
@@ -1496,7 +1506,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **移除笔记** — 删除笔记
 - **装配自述文件** — 以格式化、只读视图显示笔记
 
-**在哪里找到它：** Review tab → Rig Notes section
+**在哪里找到它：** BoneForge → Overview → Rig Notes
 
 ---
 
@@ -1510,7 +1520,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 **它做什么：** 一个分步引导过程，在网格上放置标记点并自动生成完整的骨骼与权重。在 BoneForge 中从头创建新装配的主要方式。
 
-查看 [指南 1：将您的第一个化身导入 VRChat](#guide-1-get-your-first-avatar-into-vrchat) 了解完整说明。
+查看 [指南 1：将您的第一个化身导入 VRChat](#指南-1将您的第一个化身导入-vrchat) 了解完整说明。
 
 **步骤：** 选择网格 → 设置装配类型 → 设置手指数量 → 放置身体标记 → 放置脸部标记 → 放置手指标记 → 审查 → 生成
 
@@ -1531,7 +1541,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 **8.3.1 IK 行为：** 在 **IK + FK** 和 **IK Only** 模式中，BoneForge 会创建专用的手脚 IK 目标控制器：`hand_ik.L`、`hand_ik.R`、`foot_ik.L` 和 `foot_ik.R`。这些控制器不会使网格变形。IK 约束会使用它们，因此手和脚可以被干净地定位，而不需要让手或脚的变形骨骼充当自己的目标。
 
-**在哪里找到它：** Rig Builder tab → Wizard section
+**在哪里找到它：** Rig Builder → Auto-Rig Wizard
 
 ---
 
@@ -1542,7 +1552,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 **关键控制：**
 - **生成快速装配** — 立即创建默认人类骨骼、权重和 BoneForge 面板
 
-**在哪里找到它：** Rig Builder tab → Quick Rig section
+**在哪里找到它：** Rig Builder → Quick Rig - premade armatures
 
 ---
 
@@ -1563,7 +1573,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **躯干/手臂/腿部比例** — 相对长度调整
 - **肌肉感** — 身体类型从瘦到强壮
 
-**在哪里找到它：** Rig Builder tab → Mannequin section
+**在哪里找到它：** Rig Builder → Mannequin
 
 ---
 
@@ -1583,7 +1593,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **重新定位方法** — 简单（直接旋转转移）或 IK 感知（考虑肢体长度差异）
 - **帧范围** — 动画的开始和结束帧
 
-**在哪里找到它：** Setup Rigging tab → Retargeting section
+**在哪里找到它：** BoneForge → Setup Rigging → Retarget
 
 ---
 
@@ -1591,7 +1601,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 **稳定性：稳定 | 引入：6.0**
 
-查看 [指南 11：合并两个装配](#guide-11-merge-two-rigs-together) 了解完整说明。
+查看 [指南 11：合并两个装配](#指南-11合并两个装配) 了解完整说明。
 
 **三个阶段：**
 1. **范围（第 1 阶段）** — 分析并审查两个装配之间的差异
@@ -1612,7 +1622,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 **命名标准：** Mixamo Prefixed、Mixamo Stripped 或 Custom
 
-**在哪里找到它：** Review tab → Bone Merge section
+**在哪里找到它：** BoneForge → Setup Rigging → Bone Merge
 
 ---
 
@@ -1626,7 +1636,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 将骨骼映射到 VRChat 的所需人形角色槽并检查错误。
 
-查看 [指南 5：将化身映射到 VRChat 的身体系统](#guide-5-map-your-avatar-to-vrchats-body-system)。
+查看 [指南 5：将化身映射到 VRChat 的身体系统](#指南-5将化身映射到-vrchat-的身体系统)。
 
 ---
 
@@ -1634,7 +1644,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 生成用于动态头发和配件的 PhysBone 组件。
 
-查看 [指南 6：添加头发物理效果](#guide-6-add-hair-physics)。
+查看 [指南 6：添加头发物理效果](#指南-6添加头发物理效果)。
 
 ---
 
@@ -1642,7 +1652,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 将服装网格附加到化身的基础骨骼。
 
-查看 [指南 7：附加随身体移动的服装](#guide-7-attach-clothing-that-moves-with-your-body)。
+查看 [指南 7：附加随身体移动的服装](#指南-7附加随身体移动的服装)。
 
 ---
 
@@ -1650,13 +1660,13 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 **它做什么：** 检测骨骼的命名格式并将骨骼重新命名为 VRChat 的标准。
 
-查看 [指南 4：修复化身的骨骼名称](#guide-4-fix-your-avatars-bone-names)。
+查看 [指南 4：修复化身的骨骼名称](#指南-4修复化身的骨骼名称)。
 
 **可用的预设：** Mixamo、Ready Player Me、Unity Standard、Custom（保存自己的）
 
 **批处理工具：** 添加前缀、删除前缀、添加后缀、删除后缀、查找和替换（纯文本和正则表达式）
 
-**在哪里找到它：** VRChat tab → Naming section
+**在哪里找到它：** CATS → VRChat Tools → VRChat Naming Extras
 
 ---
 
@@ -1664,9 +1674,9 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 **它做什么：** 将网格的形状键映射到 VRChat 的 15 个唇形同步音素。
 
-查看 [指南 8：设置唇形同步](#guide-8-set-up-lip-sync)。
+查看 [指南 8：设置唇形同步](#指南-8设置唇形同步)。
 
-对于在化身还没有 visemes 时从头生成，查看 [CATS 工具参考：Viseme 生成器](#viseme-generator-cats)。
+对于在化身还没有 visemes 时从头生成，查看 [CATS 工具参考：Viseme 生成器](#viseme-生成器cats)。
 
 **VRChat 的 15 个音素：** `aa`、`ch`、`dd`、`e`、`ff`、`ih`、`kk`、`mm`、`nn`、`oh`、`r`、`ss`、`th`、`uh`、`pp`
 
@@ -1676,7 +1686,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 **它做什么：** 测量化身的 VRChat 性能等级并提供改进工具。
 
-查看 [指南 9：改进化身的性能](#guide-9-improve-your-avatars-performance)。
+查看 [指南 9：改进化身的性能](#指南-9改进化身的性能)。
 
 **性能等级（最好到最差）：** Excellent → Good → Medium → Poor → Very Poor
 
@@ -1700,7 +1710,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **Join Meshes** — 将所有网格合并为一个，同时保持材料槽
 - **Apply Transforms** — 冻结缩放/旋转使其读取为 1.0/0°（某些导出器需要）
 
-**在哪里找到它：** VRChat tab → Cleanup section
+**在哪里找到它：** CATS → CATS → Fix Model / Mesh Tools
 
 ---
 
@@ -1718,7 +1728,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **Embed Textures** — 将图像纹理打包进 FBX，方便 Unity 材质导入
 - **Helper Meshes** — 只有启用时才包含隐藏、禁用渲染或作为控制形状的辅助网格；普通头像导出应保持关闭
 
-**在哪里找到它：** VRChat tab → Export section
+**在哪里找到它：** CATS → Avatar Tools → Export to VRChat
 
 ---
 
@@ -1750,7 +1760,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **Skip Lint on Export** — 跳过目标验证；只有理解报告风险时才使用
 - **Author / License** — VRM 元数据中存储的创建者信息
 
-**在哪里找到它：** VRM tab → Export section
+**在哪里找到它：** CATS → Import / Export → VRM / VRoid → Export
 
 ---
 
@@ -1762,7 +1772,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 如果 linter 报告必需的人形骨骼缺失，但这些骨骼实际存在，请点击 **Fix Humanoid Map**。BoneForge 会自动检测人形 slot，保存映射，并在正确骨骼上写入 `boneforge_humanoid_alias`。这会修复过期映射数据，而不会重命名真实骨骼。
 
-**在哪里找到它：** VRM tab → Lint section
+**在哪里找到它：** CATS → Import / Export → VRM / VRoid → Lint
 
 ---
 
@@ -1795,7 +1805,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **VMD File / VMD Scope** — 为一个或所有 MMD 模型导出当前场景动作
 - **VPD File / VPD Scope** — 为一个或所有 MMD 模型导出当前姿态
 
-**在哪里找到它：** MMD tab → Export section
+**在哪里找到它：** CATS → Import / Export → MMD / PMX → Export
 
 ---
 
@@ -1822,7 +1832,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **Bake Animation** — 当目标需要时，将动画转换为 FBX keyframes
 - **Embed Textures** — 将图像纹理打包进 FBX 文件，方便 Unity/Unreal 材质导入
 
-**在哪里找到它：** 侧边栏下的 I/O Hub 选项卡（在侧边栏底部注册）
+**在哪里找到它：** CATS → Import / Export → Game Engine Export
 
 ---
 
@@ -1830,7 +1840,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 **它做什么：** 检查当前安装的格式桥接插件（VRM、MMD）及其版本。为缺失的显示安装按钮。
 
-**在哪里找到它：** VRM tab 或 MMD tab → 顶部部分
+**在哪里找到它：** CATS → Import / Export → VRM / VRoid or MMD / PMX
 
 ---
 
@@ -1846,7 +1856,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 任务分析器自动识别常见问题（缺失人形角色骨骼、未解决的命名、缺失 visemes 等）并将其列为可操作项。
 
-**在哪里找到它：** Review tab → Overview section
+**在哪里找到它：** BoneForge → Overview → Task Board
 
 ---
 
@@ -1860,7 +1870,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - 驱动列表（点击打开驱动编辑器）
 - 自定义属性值（内联可编辑）
 
-**在哪里找到它：** Review tab → Bone Inspector section
+**在哪里找到它：** BoneForge → Review → Bone Inspector
 
 ---
 
@@ -1876,7 +1886,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 
 **稳定性：稳定 | 引入：7.1.1**
 
-CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们与主 BoneForge 选项卡分开。所有 CATS 工具在 [CATS 插件 — 开始前：流程顺序](#cats-plugin--before-you-begin-the-pipeline-order) 中描述的流程系统内运行。
+CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们与主 BoneForge 选项卡分开。所有 CATS 工具在 [CATS 插件 — 开始前：流程顺序](#cats-插件--开始前流程顺序) 中描述的流程系统内运行。
 
 ---
 
@@ -1899,7 +1909,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 - **修复模型** — 一次通过对所选网格运行上述所有操作
 - **阈值** — 重复顶点检测的合并距离（默认：0.0001 Blender 单位）。如果顶点略微错位则增加；如果想避免合并接近但有意分离的顶点则减少
 
-**在哪里找到它：** CATS tab → Fix Model section（面板顶部）
+**在哪里找到它：** CATS tab → Fix Model (top of panel)
 
 ---
 
@@ -1925,7 +1935,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 
 **范围注意：** 骨骼名称翻译处理*源模型骨骼名称的语言*，而非 Blender 界面的语言。如果有想在 VRChat 英文版本中使用的日语 MMD 模型，无论 Blender 设置为哪种语言，都使用此工具。
 
-**在哪里找到它：** CATS tab → Bone Name Translation section
+**在哪里找到它：** CATS tab → Bone Name Translation
 
 ---
 
@@ -1941,7 +1951,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 
 **何时使用：** 附加服装或合并装配后，额外的骨骼经常无需分配到任何网格即被携带。在"Join Meshes"后和导出前运行。
 
-**在哪里找到它：** CATS tab → Bone Tools section → Zero Weight Bones
+**在哪里找到它：** CATS tab → Bone Tools → Zero Weight Bones
 
 ---
 
@@ -1958,7 +1968,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 
 **何时使用：** 附加和加权所有服装和配件后。不要在 CATS Fix Model 之前运行"Join Meshes" — 在清理前合并网格可将重复顶点问题从一个网格对象传播到另一个，使其更难移除。在 Fix Model 前合并网格的用户报告生成的单个网格从所有原始对象保留幽灵顶点，导致 Viseme 生成器生成在接缝处明显撕裂网格的形状键。
 
-**在哪里找到它：** CATS tab → Mesh Tools section → Join Meshes
+**在哪里找到它：** CATS tab → Mesh Tools → Join Meshes
 
 ---
 
@@ -1966,7 +1976,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 
 **它做什么：** 将多个材料烘焙到单个纹理图集表。更少材料 = 更好的 VRChat 性能等级。
 
-这与主 VRChat 选项卡中可用的相同图集过程，呈现为允许在提交前预览结果的 Accept/Revert 工作流。
+这与主 CATS → Avatar Tools 选项卡中可用的相同图集过程，呈现为允许在提交前预览结果的 Accept/Revert 工作流。
 
 **关键控制：**
 - **分析** — 显示当前材料数和估计节省
@@ -1975,7 +1985,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 - **接受** — 提交图集并替换原始材料
 - **恢复** — 撤销图集并恢复原始材料
 
-**在哪里找到它：** CATS tab → Material Atlas section
+**在哪里找到它：** CATS tab → Material Atlas
 
 ---
 
@@ -1996,7 +2006,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 - **眼睛旋转限制** — 上/下和左/右运动的最大旋转角度（默认：30°）
 - **测试眼睛运动** — 通过范围动画眼骨以验证约束工作
 
-**在哪里找到它：** CATS tab → Eye Tracking Setup section
+**在哪里找到它：** CATS tab → Eye Tracking Setup
 
 ---
 
@@ -2025,7 +2035,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 - **姿态到形状键** — 将当前变形状态捕获为新形状键
 - **名称** — 新形状键的名称字段
 
-**在哪里找到它：** CATS tab → Shape Key Tools section
+**在哪里找到它：** CATS tab → Shape Key Tools
 
 ---
 
@@ -2038,7 +2048,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 **关键控制：**
 - **形状键到基础** — 将选定的形状键烘焙到休息网格并移除键
 
-**在哪里找到它：** CATS tab → Shape Key Tools section
+**在哪里找到它：** CATS tab → Shape Key Tools
 
 ---
 
@@ -2059,7 +2069,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 **关键控制：**
 - **应用所有变换** — 一次应用到网格和装配
 
-**在哪里找到它：** CATS tab → Transform Tools section
+**在哪里找到它：** CATS tab → Transform Tools
 
 ---
 
@@ -2072,7 +2082,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 **关键控制：**
 - **修复 FBT** — 应用 FBT 根骨骼修正
 
-**在哪里找到它：** CATS tab → Transform Tools section
+**在哪里找到它：** CATS tab → Transform Tools
 
 ---
 
@@ -2083,7 +2093,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 **关键控制：**
 - **移除 FBT** — 恢复 FBT 根骨骼调整
 
-**在哪里找到它：** CATS tab → Transform Tools section
+**在哪里找到它：** CATS tab → Transform Tools
 
 ---
 
@@ -2112,7 +2122,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 - **预览** — 循环通过生成的 visemes，以便在提交前检查结果
 - **混合强度** — 全局缩放系数乘数（1.0 = 默认值；如果 visemes 看起来太极端则减少）
 
-**在哪里找到它：** CATS tab → Viseme Generator section
+**在哪里找到它：** CATS tab → Viseme Generator
 
 ---
 
@@ -2131,7 +2141,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 
 **何时使用：** 当骨骼没有根骨骼时，或当装配验证器报告"缺失根骨骼"错误时。
 
-**在哪里找到它：** CATS tab → Bone Tools section
+**在哪里找到它：** CATS tab → Bone Tools
 
 ---
 
@@ -2144,7 +2154,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 - **预览** — 显示将合并哪些骨骼而无需提交
 - **合并** — 应用合并
 
-**在哪里找到它：** CATS tab → Bone Tools section
+**在哪里找到它：** CATS tab → Bone Tools
 
 ---
 
@@ -2156,7 +2166,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 - **重复选定** — 用 `.copy` 后缀创建每个选定骨骼的副本
 - **镜像重复** — 重复并跨中心线镜像，创建左/右对
 
-**在哪里找到它：** CATS tab → Bone Tools section
+**在哪里找到它：** CATS tab → Bone Tools
 
 ---
 
@@ -2176,7 +2186,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 
 **对于具有命名冲突解决的复杂多阶段合并**，使用 Review 选项卡中 BoneForge 的完整骨骼合并工具。
 
-**在哪里找到它：** CATS tab → Armature Tools section
+**在哪里找到它：** CATS tab → Armature Tools
 
 ---
 
@@ -2193,7 +2203,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 **关键控制：**
 - **按材料分离** — 按材料分配分割活动网格
 
-**在哪里找到它：** CATS tab → Mesh Tools section
+**在哪里找到它：** CATS tab → Mesh Tools
 
 ---
 
@@ -2204,7 +2214,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 **关键控制：**
 - **按松散部分分离** — 在几何体边界处分割活动网格
 
-**在哪里找到它：** CATS tab → Mesh Tools section
+**在哪里找到它：** CATS tab → Mesh Tools
 
 ---
 
@@ -2215,7 +2225,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 **关键控制：**
 - **按形状键分离** — 创建两个对象：一个有形状键数据，一个没有
 
-**在哪里找到它：** CATS tab → Mesh Tools section
+**在哪里找到它：** CATS tab → Mesh Tools
 
 ---
 
@@ -2237,7 +2247,7 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 - Pose to Shape：至少存在一个自定义形状键（或阶段被标记为完成）？
 - Apply Transforms：所有变换都在干净值吗（缩放 1,1,1 / 旋转 0,0,0）？
 
-**在哪里找到它：** CATS tab → Validator section（面板底部）
+**在哪里找到它：** CATS tab → Validator (bottom of panel)
 
 ---
 
@@ -2247,19 +2257,19 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 
 | 问题 | 查看处 |
 |---|---|
-| 上传失败 — 骨骼无法识别 | [指南 4](#guide-4-fix-your-avatars-bone-names) + [VRChat 命名](#naming-conventions) |
-| 化身处于 T 形位置 / 不追踪运动 | [指南 5](#guide-5-map-your-avatar-to-vrchats-body-system) + [Humanoid Mapper](#humanoid-mapper-and-validator) |
-| 网格变形奇怪 / 皮肤伸展错误 | [权重转移](#weight-transfer) + [权重镜像](#weight-mirror) |
-| 身体一侧的权重不同 | [权重镜像](#weight-mirror) |
-| 头发穿过头部 | [指南 6，步骤 6](#step-6--add-colliders-recommended) — 添加碰撞体 |
-| 头发物理效果不移动 | [指南 6](#guide-6-add-hair-physics) — 检查链检测 + 物理预设 |
-| 服装穿过身体 | [指南 7](#guide-7-attach-clothing-that-moves-with-your-body) + 检查 BVH 碰撞检测 |
-| 唇形同步不工作 | [指南 8](#guide-8-set-up-lip-sync) + [Viseme Mapper](#viseme-mapper) |
-| 化身性能为 Very Poor | [指南 9](#guide-9-improve-your-avatars-performance) + [性能优化](#performance-and-optimization) |
-| VRM 导入失败 | [指南 2，步骤 1](#step-1--install-the-vrm-bridge) — 安装 VRM 插件 |
-| MMD 导入失败 | [指南 3，步骤 1](#step-1--install-mmd-tools) — 安装 MMD Tools |
-| 装配验证器显示红色错误 | [装配验证器](#rig-validator) — 运行验证并遵循错误消息 |
-| 骨骼消失 / 看不到任何骨骼 | [骨骼集合面板](#bone-collection-panel) → 点击"Show All" |
+| 上传失败 — 骨骼无法识别 | [指南 4](#指南-4修复化身的骨骼名称) + [VRChat 命名](#命名约定) |
+| 化身处于 T 形位置 / 不追踪运动 | [指南 5](#指南-5将化身映射到-vrchat-的身体系统) + [Humanoid Mapper](#humanoid-mapper-和验证器) |
+| 网格变形奇怪 / 皮肤伸展错误 | [权重转移](#权重转移) + [权重镜像](#权重镜像) |
+| 身体一侧的权重不同 | [权重镜像](#权重镜像) |
+| 头发穿过头部 | [指南 6，步骤 6](#步骤-6--添加碰撞体推荐) — 添加碰撞体 |
+| 头发物理效果不移动 | [指南 6](#指南-6添加头发物理效果) — 检查链检测 + 物理预设 |
+| 服装穿过身体 | [指南 7](#指南-7附加随身体移动的服装) + 检查 BVH 碰撞检测 |
+| 唇形同步不工作 | [指南 8](#指南-8设置唇形同步) + [Viseme Mapper](#viseme-mapper) |
+| 化身性能为 Very Poor | [指南 9](#指南-9改进化身的性能) + [性能优化](#性能和优化) |
+| VRM 导入失败 | [指南 2，步骤 1](#步骤-1--安装-vrm-bridge) — 安装 VRM 插件 |
+| MMD 导入失败 | [指南 3，步骤 1](#步骤-1--安装-mmd-tools) — 安装 MMD Tools |
+| 装配验证器显示红色错误 | [装配验证器](#装配验证器) — 运行验证并遵循错误消息 |
+| 骨骼消失 / 看不到任何骨骼 | [骨骼集合面板](#骨骼集合面板) → 点击"Show All" |
 | 找不到 BoneForge 面板 | 在 3D 视口中按 **N**，查找 BoneForge 选项卡 |
 | 导出 FBX 缺失骨骼 | 检查导出前是否选定了装配；启用"Include Armature" |
 | 形状键在导出后消失 | 在导出设置中启用"Include Shape Keys" |
@@ -2267,16 +2277,16 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 | 导出的 FBX 出现巨大辅助形状或管状物 | 保持 **Helper Meshes** 关闭，除非确实需要控制/自定义形状网格 |
 | Unity 或 Unreal 导入灰色材质 | 启用 **Embed Textures** 导出，然后使用 Unity 的材质导入/提取选项或 Unreal 的 FBX 材质导入 |
 | 权重都在错误的骨骼上 | 重新运行向导中的自动权重，或使用权重转移 |
-| 两个装配需要成为一个 | [指南 11：合并两个装配](#guide-11-merge-two-rigs-together) |
-| 修正形状未激活 | 检查[修正形状键](#corrective-shape-keys)中的骨骼轴和激活角度 |
-| 动画在不同装配上看起来错误 | [动画重新定位](#animation-retargeting) — 检查骨骼映射 |
-| CATS 工具灰显 / 不可用 | 首先运行 Fix Model — [CATS 流程顺序](#cats-plugin--before-you-begin-the-pipeline-order) |
-| 说话时嘴撕裂或分割 | Fix Model 被跳过 — 从第 1 阶段重新运行 — [指南 13，第 1 阶段](#phase-1--fix-model) |
-| 化身眼睛在 VRChat 中固定向下看 | 眼睛追踪设置在 Fix Model 前运行 — 从 Fix Model 重新运行 — [CATS：眼睛追踪设置](#eye-tracking-setup) |
-| 形状键在触发时使网格爆炸 | 姿态到形状键在 Fix Model 前运行 — 从 Fix Model 重新运行 — [CATS：形状键工具](#shape-key-tools) |
+| 两个装配需要成为一个 | [指南 11：合并两个装配](#指南-11合并两个装配) |
+| 修正形状未激活 | 检查[修正形状键](#修正形状键)中的骨骼轴和激活角度 |
+| 动画在不同装配上看起来错误 | [动画重新定位](#动画重新定位) — 检查骨骼映射 |
+| CATS 工具灰显 / 不可用 | 首先运行 Fix Model — [CATS 流程顺序](#cats-插件--开始前流程顺序) |
+| 说话时嘴撕裂或分割 | Fix Model 被跳过 — 从第 1 阶段重新运行 — [指南 13，第 1 阶段](#第-1-阶段--修复模型) |
+| 化身眼睛在 VRChat 中固定向下看 | 眼睛追踪设置在 Fix Model 前运行 — 从 Fix Model 重新运行 — [CATS：眼睛追踪设置](#眼睛追踪设置) |
+| 形状键在触发时使网格爆炸 | 姿态到形状键在 Fix Model 前运行 — 从 Fix Model 重新运行 — [CATS：形状键工具](#形状键工具) |
 | 化身在 VRChat 中以错误大小生成 | 应用变换在完成流程前运行 — 从源重新导入，从 Fix Model 重新开始 |
-| 骨骼名称为日语 / 中文 / 韩语 | [CATS：骨骼名称翻译](#bone-name-translation) |
-| 化身没有唇形同步且没有现有形状键 | [CATS：Viseme 生成器](#viseme-generator-cats) — 从 3 个基础形状生成 15 个 visemes |
+| 骨骼名称为日语 / 中文 / 韩语 | [CATS：骨骼名称翻译](#骨骼名称翻译) |
+| 化身没有唇形同步且没有现有形状键 | [CATS：Viseme 生成器](#viseme-生成器cats) — 从 3 个基础形状生成 15 个 visemes |
 | CATS 账本复选标记消失 | 流程后网格被修改 — 运行 CATS 验证器，然后重新运行受影响的阶段 |
 | 应用变换按钮仍灰显 | 并非所有 4 个之前的账本阶段都被检查 — 检查验证器以查看哪个阶段不完整 |
 
@@ -2364,5 +2374,5 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 
 ---
 
-*BoneForge 文档 | 版本 8.6.9*
+*BoneForge 文档 | 版本 9.0.2*
 *如需支持，检查 BoneForge GitHub 页面或社区 Discord。*

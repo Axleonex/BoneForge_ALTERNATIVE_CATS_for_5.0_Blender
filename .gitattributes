@@ -1,0 +1,2 @@
+# Keep exported manuals binary; Windows line-ending conversion corrupts PDFs.
+*.pdf binary

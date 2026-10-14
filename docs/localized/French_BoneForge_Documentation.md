@@ -1,33 +1,33 @@
 # Documentation BoneForge
-### Version 8.6.9 | Pour les utilisateurs VRChat
+### Version 9.0.2 | Pour les utilisateurs VRChat
 
 ---
 
 ## Table des matières
 
 - [Démarrage](#démarrage)
-  - [Qu'est-ce que BoneForge ?](#quest-ce-que-boneforge)
+  - [Qu'est-ce que BoneForge ?](#quest-ce-que-boneforge-)
   - [Installation de BoneForge](#installation-de-boneforge)
   - [Trouver BoneForge dans Blender](#trouver-boneforge-dans-blender)
-  - [Par où commencer ?](#par-où-commencer)
+  - [Par où commencer ?](#par-où-commencer-)
 - [Guides rapides](#guides-rapides)
-  1. [Placer votre premier avatar dans VRChat](#guide-1-placer-votre-premier-avatar-dans-vrchat)
-  2. [Importer un avatar VRoid dans VRChat](#guide-2-importer-un-avatar-vroid-dans-vrchat)
-  3. [Importer un avatar MMD dans VRChat](#guide-3-importer-un-avatar-mmd-dans-vrchat)
-  4. [Corriger les noms des os de votre avatar](#guide-4-corriger-les-noms-des-os-de-votre-avatar)
-  5. [Cartographier votre avatar au système de corps de VRChat](#guide-5-cartographier-votre-avatar-au-système-de-corps-de-vrchat)
-  6. [Ajouter la physique des cheveux](#guide-6-ajouter-la-physique-des-cheveux)
-  7. [Attacher des vêtements qui se déplacent avec votre corps](#guide-7-attacher-des-vêtements-qui-se-déplacent-avec-votre-corps)
-  8. [Configurer la synchronisation labiale](#guide-8-configurer-la-synchronisation-labiale)
-  9. [Améliorer les performances de votre avatar](#guide-9-améliorer-les-performances-de-votre-avatar)
-  10. [Enregistrer et réutiliser les poses](#guide-10-enregistrer-et-réutiliser-les-poses)
-  11. [Fusionner deux rigs ensemble](#guide-11-fusionner-deux-rigs-ensemble)
-  12. [Corriger les problèmes de téléchargement](#guide-12-corriger-les-problèmes-de-téléchargement)
-  13. [Préparer votre avatar pour VRChat avec CATS](#guide-13-préparer-votre-avatar-pour-vrchat-avec-cats)
-- [Plugin CATS — Avant de commencer : L'ordre du pipeline](#plugin-cats--avant-de-commencer-lordre-du-pipeline)
+  1. [Placer votre premier avatar dans VRChat](#guide-1--placer-votre-premier-avatar-dans-vrchat)
+  2. [Importer un avatar VRoid dans VRChat](#guide-2--importer-un-avatar-vroid-dans-vrchat)
+  3. [Importer un avatar MMD dans VRChat](#guide-3--importer-un-avatar-mmd-dans-vrchat)
+  4. [Corriger les noms des os de votre avatar](#guide-4--corriger-les-noms-des-os-de-votre-avatar)
+  5. [Cartographier votre avatar au système de corps de VRChat](#guide-5--cartographier-votre-avatar-au-système-de-corps-de-vrchat)
+  6. [Ajouter la physique des cheveux](#guide-6--ajouter-la-physique-des-cheveux)
+  7. [Attacher des vêtements qui se déplacent avec votre corps](#guide-7--attacher-des-vêtements-qui-se-déplacent-avec-votre-corps)
+  8. [Configurer la synchronisation labiale](#guide-8--configurer-la-synchronisation-labiale)
+  9. [Améliorer les performances de votre avatar](#guide-9--améliorer-les-performances-de-votre-avatar)
+  10. [Enregistrer et réutiliser les poses](#guide-10--enregistrer-et-réutiliser-les-poses)
+  11. [Fusionner deux rigs ensemble](#guide-11--fusionner-deux-rigs-ensemble)
+  12. [Corriger les problèmes de téléchargement](#guide-12--corriger-les-problèmes-de-téléchargement)
+  13. [Préparer votre avatar pour VRChat avec CATS](#guide-13--préparer-votre-avatar-pour-vrchat-avec-cats)
+- [Plugin CATS — Avant de commencer : L'ordre du pipeline](#plugin-cats--avant-de-commencer--lordre-du-pipeline)
 - [Référence des fonctionnalités](#référence-des-fonctionnalités)
-- [Référence des outils CATS](#référence-des-outils-cats)
-- [Index de dépannage rapide](#index-de-dépannage-rapide)
+- [Référence des outils CATS](#référence-doutil-cats)
+- [Index de dépannage rapide](#index-de-correction-rapide)
 - [Glossaire](#glossaire)
 
 ---
@@ -84,23 +84,33 @@ La version 8.5.0 met aussi à jour l'export et la validation. Les exports VRChat
 
 ## Trouver BoneForge dans Blender
 
-Lorsque BoneForge est installé, voici où tout se trouve :
+Les onglets sélectionnent un groupe. Setup Rigging, Skin, Review, Avatar Tools et Facial sont des sections à déplier dans ces onglets, pas des onglets distincts. Les chemins ci-dessous conservent les labels anglais ; leur traduction dépend du réglage Language.
 
-**La barre latérale (la plus courante) :** Appuyez sur **N** dans la fenêtre d'affichage 3D pour ouvrir un panneau sur le côté droit. Vous verrez des onglets incluant les outils de BoneForge organisés par tâche.
+| Onglet | Position par défaut | Sections |
+| --- | --- | --- |
+| Rig Builder | Barre latérale droite (N) | Auto-Rig Wizard, Quick Rig - premade armatures, Mannequin |
+| BoneForge | Barre latérale droite (N) | Overview, Setup Rigging, Skin, Review |
+| CATS | Barre latérale droite (N) | CATS, Avatar Tools, VRChat Tools, Import / Export |
 
-**Onglets que vous utiliserez le plus :**
-- **Rig Builder** — Construire un nouveau rig à partir de zéro
-- **Setup Rigging** — Outils de retargeting et Rigify
-- **Skin** — Outils de poids et de déformation
-- **VRChat** — Tout pour l'export VRChat
-- **Review / Animate** — Visibilité des os, bibliothèque de poses, validation
-- **CATS** — Nettoyage des modèles, visemes, suivi des yeux et pipeline complet de préparation VRChat *(nouveau en 7.1.1)*
+| Outil | Chemin à ouvrir |
+| --- | --- |
+| Bone Merge | BoneForge → Setup Rigging → Bone Merge |
+| Delta Mush / Proximity Wrap | BoneForge → Skin → Delta Mush / Proximity Wrap |
+| Viseme Library / Lip Sync | CATS → Avatar Tools → Viseme Library → Lip Sync |
+| VRChat Viseme Mapping / Face Tracking | CATS → VRChat Tools → Facial |
+| Humanoid / Hair / VRChat export | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics / Export to VRChat |
+| VRM / MMD / I/O Hub | CATS → Import / Export → VRM / VRoid, MMD / PMX, Game Engine Export |
+| Performance / Clothing / Naming | CATS → VRChat Tools → Check Performance / Attach Clothing / VRChat Naming Extras |
 
-**L'onglet CATS est un onglet séparé** des onglets principaux de BoneForge. Faites défiler la liste des onglets de la barre latérale si vous ne le voyez pas immédiatement — il apparaît après les onglets de BoneForge.
+Sélectionnez une armature pour le rig et la bibliothèque de visèmes ; un maillage en Mode Objet pour Delta Mush et Proximity Wrap. Lip Sync exige une armature en Mode Pose. Dépliez les sections avec leur triangle. Options contient les réglages facultatifs ; réglez les outils exécutés immédiatement dans Ajuster la dernière opération avant toute autre opération.
 
-**Corriger le modèle en premier, à chaque fois :** Lors de l'utilisation de l'onglet CATS, commencez toujours par **Fix Model** avant d'exécuter tout autre outil CATS. Le pipeline CATS utilise un Ledger pour suivre les étapes que vous avez complétées. Chaque outil vérifie le Ledger et vous avertira si vous essayez de l'exécuter en désordre. Voir [Plugin CATS — Avant de commencer : L'ordre du pipeline](#plugin-cats--avant-de-commencer-lordre-du-pipeline) pour l'explication complète.
+Préférences : Edit → Preferences → Add-ons → BoneForge → Tabs contrôle les onglets. Scene Properties est activé par défaut et contrôle séparément les panneaux Rig Builder et CATS dans Properties → Scene. Language change les labels ; Tools active les paquets. Ctrl+Shift+R ouvre le panneau rapide.
 
-**Le raccourci clavier du panneau N :** Vous pouvez appuyer sur **Ctrl+Maj+R** dans la fenêtre d'affichage 3D pour ouvrir le panneau rapide de BoneForge n'importe où se trouve votre curseur, sans naviguer vers la barre latérale.
+BoneForge utilise la barre latérale droite N ; Blender standard ne propose pas le placement Left / Right des onglets Bforartists. Menus : Add → Armature → BoneForge, Pose → BoneForge, Weights → BoneForge.
+
+Trois fonctions faciales distinctes : la génération CATS crée les clés de forme de la bouche ; Viseme Library / Lip Sync conserve les poses et crée les clés d’animation ; Facial associe les clés existantes à VRChat ou configure le suivi du visage. Les contrôles dérivés de UVToolkit sont dans CATS → Material Atlas → Override Inherited Settings → UV Packing ; il s’agit du flux d’atlas partagé, pas de l’add-on UVToolkit complet.
+
+BoneForge 9.0.0 et les versions suivantes ciblent Blender standard. BoneCraft est un add-on distinct pour Bforartists. Les deux proposent Auto-Rig Wizard, Quick Rig, Mannequin et les outils partagés CATS/Material Atlas. BoneCraft ajoute Mechanisms, Control Picker, les rigs de contrôle de production, la détection des articulations et les exports par profil. La disposition similaire ne les ajoute pas à BoneForge.
 
 ---
 
@@ -109,22 +119,22 @@ Lorsque BoneForge est installé, voici où tout se trouve :
 Choisissez la description qui vous correspond le mieux :
 
 > **« Vous êtes une personne qui a un tout nouveau fichier de modèle 3D (FBX, OBJ ou fichier Blender) et qui souhaite le rigging pour VRChat à partir de zéro. »**
-> → Allez à [Guide 1 : Placer votre premier avatar dans VRChat](#guide-1-placer-votre-premier-avatar-dans-vrchat)
+> → Allez à [Guide 1 : Placer votre premier avatar dans VRChat](#guide-1--placer-votre-premier-avatar-dans-vrchat)
 
 > **« Vous êtes une personne qui a créé votre avatar dans VRoid Studio et exporté un fichier VRM. »**
-> → Allez à [Guide 2 : Importer un avatar VRoid dans VRChat](#guide-2-importer-un-avatar-vroid-dans-vrchat)
+> → Allez à [Guide 2 : Importer un avatar VRoid dans VRChat](#guide-2--importer-un-avatar-vroid-dans-vrchat)
 
 > **« Vous êtes une personne qui a un modèle MMD (fichier PMX) et qui souhaite l'utiliser dans VRChat. »**
-> → Allez à [Guide 3 : Importer un avatar MMD dans VRChat](#guide-3-importer-un-avatar-mmd-dans-vrchat)
+> → Allez à [Guide 3 : Importer un avatar MMD dans VRChat](#guide-3--importer-un-avatar-mmd-dans-vrchat)
 
 > **« Vous êtes une personne qui a déjà un avatar riggé mais il ne peut pas être téléchargé car les os ont les mauvais noms. »**
-> → Allez à [Guide 4 : Corriger les noms des os de votre avatar](#guide-4-corriger-les-noms-des-os-de-votre-avatar)
+> → Allez à [Guide 4 : Corriger les noms des os de votre avatar](#guide-4--corriger-les-noms-des-os-de-votre-avatar)
 
 > **« Vous êtes une personne qui a un avatar riggé et qui souhaite le préparer entièrement pour VRChat — synchronisation labiale, suivi des yeux, maillage propre, tout à la fois. »**
-> → Allez à [Guide 13 : Préparer votre avatar pour VRChat avec CATS](#guide-13-préparer-votre-avatar-pour-vrchat-avec-cats)
+> → Allez à [Guide 13 : Préparer votre avatar pour VRChat avec CATS](#guide-13--préparer-votre-avatar-pour-vrchat-avec-cats)
 
 > **« Vous êtes une personne qui souhaite corriger un problème spécifique. »**
-> → Allez à l'[Index de dépannage rapide](#index-de-dépannage-rapide)
+> → Allez à l'[Index de dépannage rapide](#index-de-correction-rapide)
 
 ---
 
@@ -147,9 +157,9 @@ Choisissez la description qui vous correspond le mieux :
 
 ### Étape 1 — Ouvrir le Rig Builder
 
-Dans la barre latérale droite (appuyez sur **N** si elle n'est pas visible), cliquez sur l'onglet **Rig Builder**. Vous verrez trois options : Quick Rig, Wizard et Mannequin.
+Dans la barre latérale droite (appuyez sur **N** si elle n'est pas visible), cliquez sur l'onglet **Rig Builder**. Vous verrez trois options : Auto-Rig Wizard → Quick Rig → Mannequin.
 
-Cliquez sur **Wizard** pour démarrer le processus de rigging guidé.
+Cliquez sur **Auto-Rig Wizard** pour démarrer le processus de rigging guidé.
 
 **Ce que vous devriez voir :** Un panneau qui dit « Start » avec un bouton pour démarrer le wizard.
 
@@ -229,7 +239,7 @@ Cliquez sur **Next** pour accéder à l'écran Review. BoneForge affiche un rés
 
 ### Étape 8 — Corriger les noms des os pour VRChat
 
-Après la génération, vos os doivent suivre les règles de nommage de VRChat. Allez à l'onglet **VRChat** dans la barre latérale et cliquez sur **Fix Bone Names > Auto-Detect and Rename**.
+Après la génération, vos os doivent suivre les règles de nommage de VRChat. Allez à l'onglet **CATS → Avatar Tools** dans la barre latérale et cliquez sur **Fix Bone Names > Auto-Detect and Rename**.
 
 **Ce que vous devriez voir :** Tous les os de la liste affichent des coches vertes.
 
@@ -237,7 +247,7 @@ Après la génération, vos os doivent suivre les règles de nommage de VRChat. 
 
 ### Étape 9 — Cartographier au Humanoid VRChat
 
-Toujours dans l'onglet VRChat, trouvez la section **Humanoid Mapper**. Cliquez sur **Auto-Map Humanoid**. Cela connecte chacun des os de votre avatar au système humanoid de VRChat (le système que VRChat utilise pour faire bouger les avatars en synchronisation avec vos mouvements réels).
+Toujours dans l'onglet CATS → VRChat Tools → Facial, trouvez la section **Humanoid Mapper**. Cliquez sur **Auto-Map Humanoid**. Cela connecte chacun des os de votre avatar au système humanoid de VRChat (le système que VRChat utilise pour faire bouger les avatars en synchronisation avec vos mouvements réels).
 
 Exécutez **Validate Humanoid** pour vérifier les problèmes restants.
 
@@ -247,7 +257,7 @@ Exécutez **Validate Humanoid** pour vérifier les problèmes restants.
 
 ### Étape 10 — Exporter pour VRChat
 
-Allez à l'onglet **VRChat** → Section **Export**. Cliquez sur **Export to VRChat (FBX)**.
+Allez à l'onglet **CATS → Avatar Tools → Export to VRChat**. Cliquez sur **Export to VRChat (FBX)**.
 
 Choisissez un emplacement de sauvegarde et cliquez sur **Export**.
 
@@ -287,7 +297,7 @@ Allez à **Fichier > Importer > VRM (.vrm)** et sélectionnez votre fichier VRoi
 
 ### Étape 3 — Cartographie automatique au Humanoid VRChat
 
-Allez à l'onglet **VRChat** dans la barre latérale BoneForge. Cliquez sur **Auto-Map Humanoid**. Les avatars VRoid suivent un format de squelette standard, donc cela se termine généralement automatiquement sans aucun ajustement manuel.
+Allez à l'onglet **CATS → Avatar Tools** dans la barre latérale BoneForge. Cliquez sur **Auto-Map Humanoid**. Les avatars VRoid suivent un format de squelette standard, donc cela se termine généralement automatiquement sans aucun ajustement manuel.
 
 ---
 
@@ -299,7 +309,7 @@ Cliquez sur **Fix Bone Names > Auto-Detect and Rename**. VRoid utilise son propr
 
 ### Étape 5 — Configurer les Visemes (Synchronisation labiale)
 
-Les avatars VRoid ont déjà des blend shapes (les mouvements du visage pour les expressions et la synchronisation labiale) intégrés. Allez à l'onglet **VRChat** → **Visemes** et cliquez sur **Auto-Map Visemes**. BoneForge fera correspondre automatiquement les shape keys de VRoid aux 15 phonèmes de synchronisation labiale de VRChat.
+Les avatars VRoid ont déjà des blend shapes (les mouvements du visage pour les expressions et la synchronisation labiale) intégrés. Allez à l'onglet **CATS → VRChat Tools → Facial** → **Visemes** et cliquez sur **Auto-Map Visemes**. BoneForge fera correspondre automatiquement les shape keys de VRoid aux 15 phonèmes de synchronisation labiale de VRChat.
 
 ---
 
@@ -339,7 +349,7 @@ Allez à **Fichier > Importer > MikuMikuDance Model (.pmx/.pmd)** et sélectionn
 
 ### Étape 3 — Corriger les noms des os
 
-MMD utilise des noms d'os en japonais que VRChat ne peut pas comprendre. Dans la section **VRChat > Naming**, cliquez sur **Detect Convention**. BoneForge reconnaîtra le style de nommage MMD. Puis cliquez sur **Translate Bone Names** pour les convertir en noms compatibles VRChat.
+MMD utilise des noms d'os en japonais que VRChat ne peut pas comprendre. Dans la section **CATS → VRChat Tools → VRChat Naming Extras**, cliquez sur **Detect Convention**. BoneForge reconnaîtra le style de nommage MMD. Puis cliquez sur **Translate Bone Names** pour les convertir en noms compatibles VRChat.
 
 Alternativement, utilisez l'outil **CATS tab → Bone Name Translation**, qui supporte la détection automatique du langage pour les noms d'os en japonais, chinois, coréen, portugais, espagnol et français en un seul clic.
 
@@ -352,7 +362,7 @@ Les modèles MMD ont souvent de la géométrie supplémentaire et des sommets en
 - **Join Meshes** — combine les parties du corps en un maillage (recommandé pour VRChat)
 - **Remove Unused Vertex Groups** — supprime les attributions vides d'os
 
-Pour une version guidée et ordonnée par pipeline de ce nettoyage, utilisez l'onglet **CATS** et suivez l'ordre du pipeline décrit dans [Guide 13](#guide-13-préparer-votre-avatar-pour-vrchat-avec-cats).
+Pour une version guidée et ordonnée par pipeline de ce nettoyage, utilisez l'onglet **CATS** et suivez l'ordre du pipeline décrit dans [Guide 13](#guide-13--préparer-votre-avatar-pour-vrchat-avec-cats).
 
 ---
 
@@ -383,7 +393,7 @@ Cliquez sur **Export to VRChat (FBX)**.
 
 ### Étape 1 — Détecter le style de nommage actuel
 
-Allez à l'onglet **VRChat** → Section **Naming**. Cliquez sur **Detect Convention**. BoneForge analysera vos noms d'os et vous montrera le style qu'il a détecté (Mixamo, Ready Player Me, Unity ou Custom).
+Allez à l'onglet **CATS → VRChat Tools → VRChat Naming Extras**. Cliquez sur **Detect Convention**. BoneForge analysera vos noms d'os et vous montrera le style qu'il a détecté (Mixamo, Ready Player Me, Unity ou Custom).
 
 Pour les modèles avec des noms d'os en japonais, chinois, coréen, portugais, espagnol ou français, utilisez l'outil **CATS tab → Bone Name Translation** à la place. Il détecte automatiquement la langue source et convertit tout en noms VRChat anglais en une étape.
 
@@ -430,7 +440,7 @@ Si vous avez un avatar personnalisé avec un nommage unique, cliquez sur **Save 
 
 ### Étape 1 — Ouvrir le Humanoid Mapper
 
-Allez à l'onglet **VRChat** → Section **Humanoid**.
+Allez à l'onglet **CATS → Avatar Tools → Set Up Humanoid Bones**.
 
 ---
 
@@ -485,7 +495,7 @@ Pour une configuration de suivi des yeux plus complète incluant la création de
 
 ### Étape 1 — Détecter les chaînes de cheveux
 
-Allez à l'onglet **VRChat** → Section **Hair Physics**. Cliquez sur **Detect Hair Chains**.
+Allez à l'onglet **CATS → Avatar Tools → Add Hair Physics**. Cliquez sur **Detect Hair Chains**.
 
 BoneForge analyse votre squelette à la recherche de chaînes d'os qui ressemblent à des cheveux (plusieurs os chaînés bout à bout, s'embranchant à partir d'une racine). Il énumère toutes les chaînes qu'il a trouvées.
 
@@ -557,7 +567,7 @@ Cliquez sur **Play Physics Preview** pour simuler le mouvement des cheveux dans 
 
 ### Étape 1 — Ouvrir les outils de vêtements
 
-Allez à l'onglet **VRChat** → Section **Clothing**.
+Allez à l'onglet **CATS → VRChat Tools → Attach Clothing**.
 
 ---
 
@@ -620,7 +630,7 @@ Utilisez le bouton **Detect Collisions** pour analyser les zones où le maillage
 
 ### Étape 1 — Ouvrir le Viseme Mapper
 
-Allez à l'onglet **VRChat** → Section **Visemes**.
+Allez à l'onglet **CATS → VRChat Tools → Facial** → Section **Visemes**.
 
 ---
 
@@ -677,7 +687,7 @@ Si vous souhaitez que le suivi facial de VRChat fonctionne avec votre avatar, ac
 
 ### Étape 1 — Vérifier le classement des performances actuel
 
-Allez à l'onglet **VRChat** → Section **Performance**. Cliquez sur **Calculate Rank**. BoneForge affiche votre classement estimé actuel et les numéros spécifiques qui le causent (nombre de polygones, nombre de matériaux, nombre d'os, etc.).
+Allez à l'onglet **CATS → VRChat Tools → Check Performance**. Cliquez sur **Calculate Rank**. BoneForge affiche votre classement estimé actuel et les numéros spécifiques qui le causent (nombre de polygones, nombre de matériaux, nombre d'os, etc.).
 
 ---
 
@@ -714,7 +724,7 @@ Si votre avatar utilise de nombreux matériaux différents (zones de couleur, fe
 4. Cliquez sur **Bake Atlas** — BoneForge combine les matériaux dans une feuille de texture
 5. Cliquez sur **Accept** pour appliquer, ou **Revert** si vous n'êtes pas satisfait du résultat
 
-L'onglet CATS **Material Atlas Combiner** offre le même flux de travail Accept/Revert dans une interface simplifiée — voir [Référence des outils CATS : Material Atlas Combiner](#material-atlas-combiner).
+L'onglet CATS **Material Atlas Combiner** offre le même flux de travail Accept/Revert dans une interface simplifiée — voir [Référence des outils CATS : Material Atlas Combiner](#combineur-datlas-de-matériaux).
 
 ---
 
@@ -739,7 +749,7 @@ Cliquez sur **Calculate Rank** à nouveau pour voir votre score de performance a
 
 ### Étape 1 — Ouvrir la bibliothèque de poses
 
-Allez à l'onglet **Review** dans la barre latérale BoneForge et trouvez la section **Pose Library**.
+Allez à l'onglet **BoneForge → Review** dans la barre latérale BoneForge et trouvez la section **Pose Library**.
 
 ---
 
@@ -789,7 +799,7 @@ Cliquez sur **Export Poses** pour enregistrer votre bibliothèque de poses dans 
 
 ### Étape 1 — Ouvrir Bone Merge
 
-Allez à l'onglet **Review** → Section **Bone Merge**. Ou trouvez-le dans l'onglet Bone Merge de la barre latérale.
+Allez à l'onglet **BoneForge → Setup Rigging → Bone Merge**.
 
 ---
 
@@ -843,13 +853,13 @@ Quand vous êtes satisfait, cliquez sur **Execute Merge**. BoneForge crée autom
 
 ### « Le téléchargement a échoué — les os ne sont pas reconnus »
 
-Vos os ont des noms que VRChat ne comprend pas. → Allez à [Guide 4 : Corriger les noms des os de votre avatar](#guide-4-corriger-les-noms-des-os-de-votre-avatar)
+Vos os ont des noms que VRChat ne comprend pas. → Allez à [Guide 4 : Corriger les noms des os de votre avatar](#guide-4--corriger-les-noms-des-os-de-votre-avatar)
 
 ---
 
 ### « L'avatar est en position T / ne bouge pas avec moi dans VRChat »
 
-La cartographie humanoid est manquante ou incorrecte. → Allez à [Guide 5 : Cartographier votre avatar au système de corps de VRChat](#guide-5-cartographier-votre-avatar-au-système-de-corps-de-vrchat)
+La cartographie humanoid est manquante ou incorrecte. → Allez à [Guide 5 : Cartographier votre avatar au système de corps de VRChat](#guide-5--cartographier-votre-avatar-au-système-de-corps-de-vrchat)
 
 ---
 
@@ -861,37 +871,37 @@ Les poids des os ont besoin d'ajustement. → Voir **Weight Transfer** et **Weig
 
 ### « Les cheveux traversent la tête »
 
-Les colliders de cheveux manquent ou sont trop petits. → Allez à [Guide 6 : Ajouter la physique des cheveux](#guide-6-ajouter-la-physique-des-cheveux), Étape 6.
+Les colliders de cheveux manquent ou sont trop petits. → Allez à [Guide 6 : Ajouter la physique des cheveux](#guide-6--ajouter-la-physique-des-cheveux), Étape 6.
 
 ---
 
 ### « L'avatar a Very Poor performance et est bloqué par les autres joueurs »
 
-→ Allez à [Guide 9 : Améliorer les performances de votre avatar](#guide-9-améliorer-les-performances-de-votre-avatar)
+→ Allez à [Guide 9 : Améliorer les performances de votre avatar](#guide-9--améliorer-les-performances-de-votre-avatar)
 
 ---
 
 ### « La synchronisation labiale ne fonctionne pas »
 
-Les visemes ne sont pas cartographiés correctement. → Allez à [Guide 8 : Configurer la synchronisation labiale](#guide-8-configurer-la-synchronisation-labiale)
+Les visemes ne sont pas cartographiés correctement. → Allez à [Guide 8 : Configurer la synchronisation labiale](#guide-8--configurer-la-synchronisation-labiale)
 
 ---
 
 ### « Le rig validator affiche des erreurs rouges »
 
-Allez à l'onglet **Review** → Section **Rig Validator**. Cliquez sur **Run Validation**. Pour chaque erreur rouge, cliquez sur le message d'erreur — BoneForge sélectionne l'os du problème pour vous. Lisez la description de l'erreur et suivez sa suggestion, ou consultez l'[Index de dépannage rapide](#index-de-dépannage-rapide).
+Allez à l'onglet **BoneForge → Review** → Section **Rig Validator**. Cliquez sur **Run Validation**. Pour chaque erreur rouge, cliquez sur le message d'erreur — BoneForge sélectionne l'os du problème pour vous. Lisez la description de l'erreur et suivez sa suggestion, ou consultez l'[Index de dépannage rapide](#index-de-correction-rapide).
 
 ---
 
 ### « L'importation VRM ne fonctionne pas »
 
-Le module complémentaire VRM bridge peut ne pas être installé. → Allez à [Guide 2](#guide-2-importer-un-avatar-vroid-dans-vrchat), Étape 1.
+Le module complémentaire VRM bridge peut ne pas être installé. → Allez à [Guide 2](#guide-2--importer-un-avatar-vroid-dans-vrchat), Étape 1.
 
 ---
 
 ### « L'importation MMD ne fonctionne pas »
 
-Le module complémentaire MMD Tools peut ne pas être installé. → Allez à [Guide 3](#guide-3-importer-un-avatar-mmd-dans-vrchat), Étape 1.
+Le module complémentaire MMD Tools peut ne pas être installé. → Allez à [Guide 3](#guide-3--importer-un-avatar-mmd-dans-vrchat), Étape 1.
 
 ---
 
@@ -906,7 +916,7 @@ Les outils CATS utilisent un système **Pipeline**. Chaque phase doit être comp
 
 **Commencez toujours par Fix Model. À chaque fois. Sans exception.**
 
-Lisez [Plugin CATS — Avant de commencer : L'ordre du pipeline](#plugin-cats--avant-de-commencer-lordre-du-pipeline) avant de continuer si vous ne l'avez pas déjà fait.
+Lisez [Plugin CATS — Avant de commencer : L'ordre du pipeline](#plugin-cats--avant-de-commencer--lordre-du-pipeline) avant de continuer si vous ne l'avez pas déjà fait.
 
 **Avant de commencer — vérifiez ceci :**
 - [ ] Votre avatar est importé dans Blender et visible dans la fenêtre d'affichage 3D
@@ -943,7 +953,7 @@ L'étape Fix Model est la base obligatoire pour tout le reste dans CATS. Exécut
 
 Requiert : Fix Model ✓
 
-Le Viseme Generator crée les 15 formes de bouche de synchronisation labiale VRChat à partir de trois formes de base que vous avez déjà. Si votre avatar a déjà des shape keys de viseme complets, vous pouvez ignorer cette phase — mais vous devriez toujours vérifier le Viseme Mapper dans l'onglet VRChat pour confirmer que les clés sont correctement nommées.
+Le Viseme Generator crée les 15 formes de bouche de synchronisation labiale VRChat à partir de trois formes de base que vous avez déjà. Si votre avatar a déjà des shape keys de viseme complets, vous pouvez ignorer cette phase — mais vous devriez toujours vérifier le Viseme Mapper dans l'onglet CATS → VRChat Tools → Facial pour confirmer que les clés sont correctement nommées.
 
 **Ce que le Viseme Generator fait :**
 
@@ -1036,7 +1046,7 @@ Appliquer des transformations sur un maillage qui a toujours une géométrie non
 2. Dans l'onglet **CATS**, trouvez la section **Transform Tools**
 3. Cliquez sur **Apply All Transforms**
 4. Vérifiez que le **Ledger** affiche maintenant une coche (✓) à côté de Apply Transforms — les cinq emplacements devraient maintenant tous être cochés (✓✓✓✓✓)
-5. Allez à l'onglet **VRChat** → Section **Export** et exportez votre avatar en FBX
+5. Allez à l'onglet **CATS → Avatar Tools → Export to VRChat** et exportez votre avatar en FBX
 
 **Ce que vous devriez voir :** Les cinq emplacements du Ledger affichent ✓. Votre avatar est prêt à être importé dans le VRChat Creator Companion.
 
@@ -1145,7 +1155,7 @@ Ces outils vous aident à gérer l'aspect visuel du travail avec les armatures �
 - **Icône / Couleur** — Assignez une icône et une couleur personnalisées au bouton pour l'organisation visuelle
 - **Sections** — Groupez plusieurs collections sous un en-tête réductible
 
-**Où la trouver :** Onglet Review → section Collections
+**Où la trouver :** BoneForge → Review → Collections
 
 ---
 
@@ -1163,7 +1173,7 @@ Ces outils vous aident à gérer l'aspect visuel du travail avec les armatures �
 
 **Boutons de signet par défaut :** FK Arms, IK Body, Face Only, Full Rig
 
-**Où la trouver :** Onglet Review → section Bookmarks
+**Où la trouver :** BoneForge → Review → Collections → Visibility Bookmarks
 
 ---
 
@@ -1200,7 +1210,7 @@ Ces outils vous aident à gérer l'aspect visuel du travail avec les armatures �
 - **Export** — Enregistre les poses dans un fichier `.bfpose`
 - **Import** — Charge les poses à partir d'un fichier `.bfpose`
 
-**Où la trouver :** Onglet Review → section Pose Library
+**Où la trouver :** BoneForge → Review → Pose Library
 
 ---
 
@@ -1218,7 +1228,7 @@ Ces outils vous aident à gérer l'aspect visuel du travail avec les armatures �
 - **Changements d'espace parent** — Change l'espace auquel la cible IK d'un membre est attachée (Monde, Racine, etc.)
 - **Head/Neck follow** — Contrôle combien la tête/cou suit la rotation du corps
 
-**Où la trouver :** Onglet Setup Rigging → section Rigify
+**Où la trouver :** BoneForge → Setup Rigging → Rigify Tools
 
 ---
 
@@ -1236,7 +1246,7 @@ Ces outils vous aident à gérer l'aspect visuel du travail avec les armatures �
 - **Activation angle** — L'angle de rotation (en degrés) auquel la clé de forme atteint sa pleine intensité (1,0)
 - **Falloff** — Combien de degrés avant l'angle d'activation la clé de forme commence à disparaître (plus grand = transition plus fluide)
 
-**Où la trouver :** Onglet Skin → section Correctives
+**Où la trouver :** BoneForge → Skin → Correctives
 
 ---
 
@@ -1253,7 +1263,7 @@ Ces outils vous aident à gérer l'aspect visuel du travail avec les armatures �
 - **Euler Filter** — Corrige les artefacts de basculement de rotation dans les courbes d'animation causés par le verrouillage de cardan
 - **Tangent Tools** — Définit les types de poignées d'image clé (Auto, Vecteur, Aligné, Libre) sur les images clés sélectionnées
 
-**Où la trouver :** Onglet Review → section Graph Tools
+**Où la trouver :** BoneForge → Review → Graph Tools
 
 ---
 
@@ -1277,7 +1287,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 - **Search Distance** — Distance maximale (en unités Blender) pour considérer deux sommets comme une « paire ». Augmentez si votre maillage n'est pas parfaitement symétrique
 - **Normalize After** — Ensures que tous les poids somment à 1,0 après miroir
 
-**Où la trouver :** Onglet Skin → section Weight Mirror
+**Où la trouver :** BoneForge → Skin → Weight Tools → Weight Mirror
 
 ---
 ### Transfert de Poids
@@ -1294,7 +1304,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 - **Nearest Vertex** — Chaque sommet cible obtient le poids du sommet source le plus proche
 - **Nearest Face** — Utilise la projection de face pour des résultats plus lisses sur les surfaces courbes
 
-**Où la trouver :** Onglet Skin → section Weight Transfer
+**Où la trouver :** BoneForge → Skin → Weight Tools → Weight Transfer
 
 ---
 
@@ -1309,7 +1319,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 - **Zero Weight** — Effacer une cellule spécifique à 0,0
 - **Tag Deform Bones** — Marque les os sélectionnés comme os de déformation (nécessaires pour qu'ils apparaissent en mode peinture des poids)
 
-**Où la trouver :** Onglet Skin → section Weight Table
+**Où la trouver :** BoneForge → Skin → Weight Tools → Weight Table
 
 ---
 
@@ -1324,7 +1334,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 - **Iterations** — Combien de passes de lissage à appliquer (plus haut = plus lisse, mais peut perdre des détails)
 - **Influence** — Comment l'effet de lissage est fort (0 = désactivé, 1 = pleine intensité)
 
-**Où la trouver :** Onglet Skin → section Delta Mush
+**Où la trouver :** BoneForge → Skin → Delta Mush
 
 ---
 
@@ -1340,7 +1350,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 - **Max Distance** — À quelle distance de la surface cible l'effet d'enveloppe s'étend
 - **Falloff** — Comment l'effet d'enveloppe s'estompe aux bords (Lisse ou Linéaire)
 
-**Où la trouver :** Onglet Skin → section Proximity Wrap
+**Où la trouver :** BoneForge → Skin → Proximity Wrap
 
 ---
 
@@ -1353,7 +1363,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 - **Apply Shape** — Définit les clés de forme de votre maillage pour correspondre à une entrée enregistrée
 - **Copy Shape From** — Copie une clé de forme d'un autre objet dans votre maillage actuel
 
-**Où la trouver :** Onglet Skin → section Shape Library
+**Où la trouver :** BoneForge → Shape Library
 
 ---
 
@@ -1376,7 +1386,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 - **Switch Without Key** — Bascule l'espace sans encadrement
 - **Set Default Space** — Définit l'espace par lequel l'os commence
 
-**Où la trouver :** Onglet Review → section Space Switching
+**Où la trouver :** BoneForge → Space Switch
 
 ---
 
@@ -1392,7 +1402,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 - **Start/End Bone** — Premier et dernier os de la chaîne
 - **Curve Resolution** — Combien de segments la courbe de contrôle a (plus de segments = plus lisse mais plus lourd)
 
-**Où la trouver :** Onglet Review → section Spline IK
+**Où la trouver :** BoneForge → Spline IK
 
 ---
 
@@ -1410,7 +1420,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 - **Damping** — La rapidité avec laquelle le mouvement s'installe
 - **Gravity** — Traction vers le bas sur la chaîne
 
-**Où la trouver :** Onglet Review → section Chain Dynamics
+**Où la trouver :** BoneForge → Chain Dynamics
 
 ---
 
@@ -1426,7 +1436,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 - **Segment Count** — Nombre de subdivisions le long du ruban
 - **Twist Amount** — La quantité de torsion du ruban d'un bout à l'autre
 
-**Où la trouver :** Onglet Review → section Ribbon
+**Où la trouver :** BoneForge → Ribbon
 
 ---
 
@@ -1442,7 +1452,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 - **Preview Viseme** — Lit les valeurs de clé de forme d'un visème
 - **Delete Set** — Supprime un ensemble de visèmes
 
-**Où la trouver :** Onglet Review → section Viseme
+**Où la trouver :** CATS → Avatar Tools → Viseme Library
 
 ---
 
@@ -1461,7 +1471,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 - **Record Point** — À la position actuelle de l'os, enregistre la valeur actuelle de clé de forme en tant que point sur la courbe du pilote
 - **Set Driver Value** — Tape manuellement une valeur de clé de forme pour un point enregistré
 
-**Où la trouver :** Onglet Review → section SDK Author
+**Où la trouver :** BoneForge → Set Driven Key
 
 ---
 
@@ -1477,7 +1487,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 - **Export Report** — Enregistre les résultats de la validation en tant que fichier texte ou Markdown
 - **Rule Set** — Choisir Standard (règles de rigging général) ou VRChat (exigences spécifiques à VRChat)
 
-**Où la trouver :** Onglet Review → section Rig Validator
+**Où la trouver :** BoneForge → Review → Rig Validator
 
 ---
 ### Notes de Squelette
@@ -1492,7 +1502,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 - **Remove Note** — Supprime une note
 - **Rig Readme** — Affiche les notes dans une vue formatée, en lecture seule
 
-**Où la trouver :** Onglet Review → section Rig Notes
+**Où la trouver :** BoneForge → Overview → Rig Notes
 
 ---
 
@@ -1506,7 +1516,7 @@ Ces outils contrôlent la déformation de votre maillage quand les os bougent. P
 
 **Ce qu'elle fait :** Un processus guidé étape par étape qui place des points de marqueur sur votre maillage et génère automatiquement un squelette complet avec des poids. Le moyen principal de créer un nouveau squelette à partir de zéro dans BoneForge.
 
-Voir [Guide 1 : Obtenez votre premier avatar dans VRChat](#guide-1-obtenez-votre-premier-avatar-dans-vrchat) pour une procédure pas à pas complète.
+Voir [Guide 1 : Obtenez votre premier avatar dans VRChat](#guide-1--placer-votre-premier-avatar-dans-vrchat) pour une procédure pas à pas complète.
 
 **Étapes :** Sélectionner Maillage → Définir Type de Squelette → Définir Nombre de Doigts → Placer Marqueurs Corporels → Placer Marqueurs Faciaux → Placer Marqueurs de Doigts → Examiner → Générer
 
@@ -1527,7 +1537,7 @@ Voir [Guide 1 : Obtenez votre premier avatar dans VRChat](#guide-1-obtenez-votre
 
 **Comportement IK en 8.3.1 :** En modes **IK + FK** et **IK Only**, BoneForge crée des contrôles cibles IK dédiés pour les mains et les pieds nommés `hand_ik.L`, `hand_ik.R`, `foot_ik.L` et `foot_ik.R`. Ces contrôles ne déforment pas la maille. Ils sont utilisés par les contraintes IK pour que les mains et les pieds puissent être positionnés proprement sans faire servir les os déformants de main ou de pied comme leurs propres cibles.
 
-**Où la trouver :** Onglet Rig Builder → section Wizard
+**Où la trouver :** Rig Builder → Auto-Rig Wizard
 
 ---
 
@@ -1538,7 +1548,7 @@ Voir [Guide 1 : Obtenez votre premier avatar dans VRChat](#guide-1-obtenez-votre
 **Contrôles clés :**
 - **Generate Quick Rig** — Crée un squelette humain par défaut, des poids, et des panneaux BoneForge immédiatement
 
-**Où la trouver :** Onglet Rig Builder → section Quick Rig
+**Où la trouver :** Rig Builder → Quick Rig - premade armatures
 
 ---
 
@@ -1559,7 +1569,7 @@ Voir [Guide 1 : Obtenez votre premier avatar dans VRChat](#guide-1-obtenez-votre
 - **Torso/Arm/Leg proportions** — Ajustements de longueur relative
 - **Muscularity** — Type de corps allant mince à fortement construit
 
-**Où la trouver :** Onglet Rig Builder → section Mannequin
+**Où la trouver :** Rig Builder → Mannequin
 
 ---
 
@@ -1579,7 +1589,7 @@ Voir [Guide 1 : Obtenez votre premier avatar dans VRChat](#guide-1-obtenez-votre
 - **Retarget Method** — Simple (transfert direct de rotation) ou IK-Aware (tient compte des différences de longueur de membres)
 - **Frame Range** — Début et fin de l'animation à importer
 
-**Où la trouver :** Onglet Setup Rigging → section Retargeting
+**Où la trouver :** BoneForge → Setup Rigging → Retarget
 
 ---
 
@@ -1587,7 +1597,7 @@ Voir [Guide 1 : Obtenez votre premier avatar dans VRChat](#guide-1-obtenez-votre
 
 **Stabilité : Stable | Introduit : 6.0**
 
-Voir [Guide 11 : Fusionner Deux Squelettes Ensemble](#guide-11-fusionner-deux-squelettes-ensemble) pour une procédure pas à pas complète.
+Voir [Guide 11 : Fusionner Deux Squelettes Ensemble](#guide-11--fusionner-deux-rigs-ensemble) pour une procédure pas à pas complète.
 
 **Les trois étapes :**
 1. **Scope (Étape 1)** — Analyser et examiner les différences entre deux armatures
@@ -1608,7 +1618,7 @@ Voir [Guide 11 : Fusionner Deux Squelettes Ensemble](#guide-11-fusionner-deux-sq
 
 **Normes de dénomination :** Mixamo Préfixé, Mixamo Dépouillé, ou Personnalisé
 
-**Où la trouver :** Onglet Review → section Bone Merge
+**Où la trouver :** BoneForge → Setup Rigging → Bone Merge
 
 ---
 
@@ -1622,7 +1632,7 @@ Voir [Guide 11 : Fusionner Deux Squelettes Ensemble](#guide-11-fusionner-deux-sq
 
 Mappe les os de votre squelette aux emplacements humanoides requis par VRChat et vérifie les erreurs.
 
-Voir [Guide 5 : Mappez votre avatar au système de corps de VRChat](#guide-5-mappez-votre-avatar-au-systeme-de-corps-de-vrchat).
+Voir [Guide 5 : Mappez votre avatar au système de corps de VRChat](#guide-5--cartographier-votre-avatar-au-système-de-corps-de-vrchat).
 
 ---
 
@@ -1630,7 +1640,7 @@ Voir [Guide 5 : Mappez votre avatar au système de corps de VRChat](#guide-5-map
 
 Génère des composants PhysBones pour les cheveux et accessoires dynamiques.
 
-Voir [Guide 6 : Ajoutez la physique des cheveux](#guide-6-ajoutez-la-physique-des-cheveux).
+Voir [Guide 6 : Ajoutez la physique des cheveux](#guide-6--ajouter-la-physique-des-cheveux).
 
 ---
 
@@ -1638,7 +1648,7 @@ Voir [Guide 6 : Ajoutez la physique des cheveux](#guide-6-ajoutez-la-physique-de
 
 Attache les maillages de vêtement au squelette de votre avatar de base.
 
-Voir [Guide 7 : Attachez les vêtements qui se déplacent avec votre corps](#guide-7-attachez-les-vetements-qui-se-deplacent-avec-votre-corps).
+Voir [Guide 7 : Attachez les vêtements qui se déplacent avec votre corps](#guide-7--attacher-des-vêtements-qui-se-déplacent-avec-votre-corps).
 
 ---
 
@@ -1646,13 +1656,13 @@ Voir [Guide 7 : Attachez les vêtements qui se déplacent avec votre corps](#gui
 
 **Ce qu'elle fait :** Détecte le format de dénomination de votre squelette et renomme les os à la norme de VRChat.
 
-Voir [Guide 4 : Corrigez les noms d'os de votre avatar](#guide-4-corrigez-les-noms-dos-de-votre-avatar).
+Voir [Guide 4 : Corrigez les noms d'os de votre avatar](#guide-4--corriger-les-noms-des-os-de-votre-avatar).
 
 **Préréglages disponibles :** Mixamo, Ready Player Me, Unity Standard, Personnalisé (enregistrez le vôtre)
 
 **Outils de lot :** Ajouter un préfixe, Supprimer le préfixe, Ajouter un suffixe, Supprimer le suffixe, Rechercher et Remplacer (texte brut et expression régulière)
 
-**Où la trouver :** Onglet VRChat → section Naming
+**Où la trouver :** CATS → VRChat Tools → VRChat Naming Extras
 
 ---
 
@@ -1660,9 +1670,9 @@ Voir [Guide 4 : Corrigez les noms d'os de votre avatar](#guide-4-corrigez-les-no
 
 **Ce qu'elle fait :** Mappe les clés de forme de votre maillage aux 15 phonèmes de synchronisation labiale de VRChat.
 
-Voir [Guide 8 : Configurez la synchronisation des lèvres](#guide-8-configurez-la-synchronisation-des-levres).
+Voir [Guide 8 : Configurez la synchronisation des lèvres](#guide-8--configurer-la-synchronisation-labiale).
 
-Pour générer des visèmes à partir de zéro quand votre avatar ne les a pas encore, voir [Référence d'outil CATS : Générateur de Visèmes](#viseme-generator-cats).
+Pour générer des visèmes à partir de zéro quand votre avatar ne les a pas encore, voir [Référence d'outil CATS : Générateur de Visèmes](#générateur-de-visèmes-cats).
 
 **Les 15 phonèmes de VRChat :** `aa`, `ch`, `dd`, `e`, `ff`, `ih`, `kk`, `mm`, `nn`, `oh`, `r`, `ss`, `th`, `uh`, `pp`
 
@@ -1672,7 +1682,7 @@ Pour générer des visèmes à partir de zéro quand votre avatar ne les a pas e
 
 **Ce qu'elle fait :** Mesure le classement des performances de votre avatar sur VRChat et fournit des outils pour l'améliorer.
 
-Voir [Guide 9 : Améliorez les performances de votre avatar](#guide-9-ameliorez-les-performances-de-votre-avatar).
+Voir [Guide 9 : Améliorez les performances de votre avatar](#guide-9--améliorer-les-performances-de-votre-avatar).
 
 **Niveaux de performance (meilleur au pire) :** Excellent → Bon → Moyen → Mauvais → Très Mauvais
 
@@ -1696,7 +1706,7 @@ Voir [Guide 9 : Améliorez les performances de votre avatar](#guide-9-ameliorez-
 - **Join Meshes** — Combine tous les maillages en un tout en gardant les emplacements de matériau
 - **Apply Transforms** — Gèle l'échelle/rotation pour qu'ils se lisent comme 1,0/0° (requis par certains exportateurs)
 
-**Où la trouver :** Onglet VRChat → section Cleanup
+**Où la trouver :** CATS → CATS → Fix Model / Mesh Tools
 
 ---
 
@@ -1714,7 +1724,7 @@ Voir [Guide 9 : Améliorez les performances de votre avatar](#guide-9-ameliorez-
 - **Embed Textures** — Intègre les textures image dans le FBX pour faciliter l'import des matériaux Unity
 - **Helper Meshes** — Inclut les maillages masqués, désactivés au rendu ou utilisés comme formes de contrôle seulement si l'option est activée ; laissez-la désactivée pour un export d'avatar normal
 
-**Où la trouver :** Onglet VRChat → section Export
+**Où la trouver :** CATS → Avatar Tools → Export to VRChat
 
 ---
 
@@ -1746,7 +1756,7 @@ Voir [Guide 9 : Améliorez les performances de votre avatar](#guide-9-ameliorez-
 - **Skip Lint on Export** — Ignore la validation de cible ; à utiliser seulement si vous comprenez le risque signalé
 - **Author / License** — Informations sur le créateur stockées dans les métadonnées VRM
 
-**Où la trouver :** Onglet VRM → section Export
+**Où la trouver :** CATS → Import / Export → VRM / VRoid → Export
 
 ---
 
@@ -1758,7 +1768,7 @@ Cliquez sur **Lint Now** pour lancer la vérification sans exporter ni modifier 
 
 Si le linter indique que des os humanoïdes requis manquent alors que les os existent, cliquez sur **Fix Humanoid Map**. BoneForge détecte automatiquement les slots humanoïdes, enregistre la correspondance et inscrit `boneforge_humanoid_alias` sur les bons os. Cela répare les données de mapping obsolètes sans renommer les os réels.
 
-**Où la trouver :** Onglet VRM → section Lint
+**Où la trouver :** CATS → Import / Export → VRM / VRoid → Lint
 
 ---
 
@@ -1791,7 +1801,7 @@ Si le linter indique que des os humanoïdes requis manquent alors que les os exi
 - **VMD File / VMD Scope** — Exporte l'animation de la scène pour un ou plusieurs modèles MMD
 - **VPD File / VPD Scope** — Exporte la pose actuelle pour un ou plusieurs modèles MMD
 
-**Où la trouver :** Onglet MMD → section Export
+**Où la trouver :** CATS → Import / Export → MMD / PMX → Export
 
 ---
 
@@ -1818,7 +1828,7 @@ Si le linter indique que des os humanoïdes requis manquent alors que les os exi
 - **Bake Animation** — Convertit l'animation en keyframes FBX lorsque la cible l'exige
 - **Embed Textures** — Intègre les textures image dans les fichiers FBX pour faciliter l'import Unity/Unreal
 
-**Où la trouver :** Dans la barre latérale sous l'onglet I/O Hub (enregistré en bas de la barre latérale)
+**Où la trouver :** CATS → Import / Export → Game Engine Export
 
 ---
 
@@ -1826,7 +1836,7 @@ Si le linter indique que des os humanoïdes requis manquent alors que les os exi
 
 **Ce qu'elle fait :** Vérifie quels compléments de pont de format (VRM, MMD) sont actuellement installés et leurs versions. Affiche les boutons d'installation pour tous les compléments manquants.
 
-**Où la trouver :** Onglet VRM ou onglet MMD → section du haut
+**Où la trouver :** CATS → Import / Export → VRM / VRoid or MMD / PMX
 
 ---
 
@@ -1842,7 +1852,7 @@ Si le linter indique que des os humanoïdes requis manquent alors que les os exi
 
 L'analyseur de tâches identifie automatiquement les problèmes courants (os humanoïdes manquants, dénomination non résolue, visèmes manquants, etc.) et les répertorie comme des éléments exploitables.
 
-**Où la trouver :** Onglet Review → section Overview
+**Où la trouver :** BoneForge → Overview → Task Board
 
 ---
 
@@ -1856,7 +1866,7 @@ L'analyseur de tâches identifie automatiquement les problèmes courants (os hum
 - Liste de pilotes (cliquez pour ouvrir l'éditeur de pilotes)
 - Valeurs de propriété personnalisées (modifiables inline)
 
-**Où la trouver :** Onglet Review → section Bone Inspector
+**Où la trouver :** BoneForge → Review → Bone Inspector
 
 ---
 
@@ -1872,7 +1882,7 @@ L'analyseur de tâches identifie automatiquement les problèmes courants (os hum
 
 **Stabilité : Stable | Introduit : 7.1.1**
 
-Les outils CATS vivent dans leur propre onglet **CATS** dans la barre latérale N-panel. Ils sont séparés des onglets BoneForge principaux. Tous les outils CATS opèrent dans le système de pipeline décrit dans [Plugin CATS — Avant de Commencer : L'Ordre du Pipeline](#cats-plugin--avant-de-commencer-lordre-du-pipeline).
+Les outils CATS vivent dans leur propre onglet **CATS** dans la barre latérale N-panel. Ils sont séparés des onglets BoneForge principaux. Tous les outils CATS opèrent dans le système de pipeline décrit dans [Plugin CATS — Avant de Commencer : L'Ordre du Pipeline](#plugin-cats--avant-de-commencer--lordre-du-pipeline).
 
 ---
 
@@ -1895,7 +1905,7 @@ Les outils CATS vivent dans leur propre onglet **CATS** dans la barre latérale 
 - **Fix Model** — Exécute toutes les opérations ci-dessus sur le maillage sélectionné en une passe
 - **Threshold** — Distance de fusion pour la détection de sommet en doublon (par défaut : 0,0001 unités Blender). Augmentez si les sommets sont légèrement mal alignés ; diminuez si vous voulez éviter de fusionner les sommets qui sont proches mais intentionnellement séparés
 
-**Où la trouver :** Onglet CATS → section Fix Model (haut du panneau)
+**Où la trouver :** CATS tab → Fix Model (top of panel)
 
 ---
 
@@ -1921,7 +1931,7 @@ La traduction utilise un dictionnaire intégré de modèles de noms d'os connus 
 
 **Remarque sur la portée :** Bone Name Translation gère la langue des noms d'os du *modèle source*, et non la langue de votre interface Blender. Si vous avez un modèle MMD japonais que vous voulez utiliser dans la version anglaise de VRChat, utilisez cet outil quel que soit le langage dans lequel Blender est défini.
 
-**Où la trouver :** Onglet CATS → section Bone Name Translation
+**Où la trouver :** CATS tab → Bone Name Translation
 
 ---
 
@@ -1937,7 +1947,7 @@ La traduction utilise un dictionnaire intégré de modèles de noms d'os connus 
 
 **Quand l'utiliser :** Après l'attachement de vêtements ou la fusion d'armatures, les os supplémentaires sont souvent conservés sans être assignés à aucun maillage. Exécutez ceci après Join Meshes et avant l'exportation.
 
-**Où la trouver :** Onglet CATS → section Bone Tools → Zero Weight Bones
+**Où la trouver :** CATS tab → Bone Tools → Zero Weight Bones
 
 ---
 
@@ -1954,7 +1964,7 @@ La traduction utilise un dictionnaire intégré de modèles de noms d'os connus 
 
 **Quand l'utiliser :** Après l'attachement et la pondération de tous les vêtements et accessoires. N'exécutez pas Join Meshes avant CATS Fix Model — joindre les maillages avant le nettoyage peut propager les problèmes de sommets en doublon d'un objet de maillage à un autre, ce qui les rend plus difficiles à supprimer. Les utilisateurs qui ont joint les maillages avant Fix Model signalent que le maillage unique résultant conserve les sommets fantômes de tous les objets d'origine, ce qui provoque la production de clés de forme par le Générateur de Visèmes qui déchirent visiblement le maillage aux coutures.
 
-**Où la trouver :** Onglet CATS → section Mesh Tools → Join Meshes
+**Où la trouver :** CATS tab → Mesh Tools → Join Meshes
 
 ---
 
@@ -1962,7 +1972,7 @@ La traduction utilise un dictionnaire intégré de modèles de noms d'os connus 
 
 **Ce qu'elle fait :** Cuit plusieurs matériaux dans une seule feuille d'atlas de texture. Moins de matériaux = meilleur classement des performances VRChat.
 
-C'est le même processus d'atlas disponible dans l'onglet VRChat principal, présenté avec un flux de travail Accepter/Rétablir qui vous permet d'afficher un aperçu du résultat avant de le valider.
+C'est le même processus d'atlas disponible dans l'onglet CATS → Avatar Tools principal, présenté avec un flux de travail Accepter/Rétablir qui vous permet d'afficher un aperçu du résultat avant de le valider.
 
 **Contrôles clés :**
 - **Analyze** — Affiche votre nombre de matériaux actuel et les économies estimées
@@ -1971,7 +1981,7 @@ C'est le même processus d'atlas disponible dans l'onglet VRChat principal, pré
 - **Accept** — Valide l'atlas et remplace vos matériaux d'origine
 - **Revert** — Annule l'atlas et restaure vos matériaux d'origine
 
-**Où la trouver :** Onglet CATS → section Material Atlas
+**Où la trouver :** CATS tab → Material Atlas
 
 ---
 
@@ -1992,7 +2002,7 @@ Cet outil nécessite que Fix Model soit complété en premier. Sans lui, la dét
 - **Eye Rotation Limits** — Angle de rotation maximal pour le mouvement haut/bas et gauche/droite (par défaut : 30°)
 - **Test Eye Movement** — Anime les os de l'oeil à travers leur gamme pour vérifier que les contraintes fonctionnent
 
-**Où la trouver :** Onglet CATS → section Eye Tracking Setup
+**Où la trouver :** CATS tab → Eye Tracking Setup
 
 ---
 
@@ -2021,7 +2031,7 @@ Les deux outils de cette section nécessitent que Fix Model soit complété en p
 - **Pose to Shape Key** — Capture l'état déformé actuel comme une nouvelle clé de forme
 - **Name** — Champ de nom pour la nouvelle clé de forme
 
-**Où la trouver :** Onglet CATS → section Shape Key Tools
+**Où la trouver :** CATS tab → Shape Key Tools
 
 ---
 
@@ -2034,7 +2044,7 @@ Les deux outils de cette section nécessitent que Fix Model soit complété en p
 **Contrôles clés :**
 - **Shape Key to Basis** — Cuit la clé de forme sélectionnée dans le maillage de repos et supprime la clé
 
-**Où la trouver :** Onglet CATS → section Shape Key Tools
+**Où la trouver :** CATS tab → Shape Key Tools
 
 ---
 
@@ -2055,7 +2065,7 @@ Apply Transforms est l'étape finale du pipeline. L'exécuter avant que toutes l
 **Contrôles clés :**
 - **Apply All Transforms** — Applique à la fois au maillage et à l'armature à la fois
 
-**Où la trouver :** Onglet CATS → section Transform Tools
+**Où la trouver :** CATS tab → Transform Tools
 
 ---
 
@@ -2068,7 +2078,7 @@ Apply Transforms est l'étape finale du pipeline. L'exécuter avant que toutes l
 **Contrôles clés :**
 - **Fix FBT** — Applique la correction d'os racine FBT
 
-**Où la trouver :** Onglet CATS → section Transform Tools
+**Où la trouver :** CATS tab → Transform Tools
 
 ---
 
@@ -2079,7 +2089,7 @@ Apply Transforms est l'étape finale du pipeline. L'exécuter avant que toutes l
 **Contrôles clés :**
 - **Remove FBT** — Restaure l'ajustement d'os racine FBT
 
-**Où la trouver :** Onglet CATS → section Transform Tools
+**Où la trouver :** CATS tab → Transform Tools
 
 ---
 
@@ -2108,7 +2118,7 @@ Cet outil nécessite que Fix Model soit complété en premier. Générer des vis
 - **Preview** — Parcourt les visèmes générés pour vérifier les résultats avant de les valider
 - **Blend Strength** — Redimensionne les multiplicateurs de coefficients vers le haut ou vers le bas globalement (1,0 = par défaut ; réduisez si les visèmes semblent trop extrêmes)
 
-**Où la trouver :** Onglet CATS → section Viseme Generator
+**Où la trouver :** CATS tab → Viseme Generator
 
 ---
 
@@ -2127,7 +2137,7 @@ Cet outil nécessite que Fix Model soit complété en premier. Générer des vis
 
 **Quand l'utiliser :** Quand votre squelette n'a pas d'os racine, ou quand le Rig Validator signale des erreurs « os racine manquant ».
 
-**Où la trouver :** Onglet CATS → section Bone Tools
+**Où la trouver :** CATS tab → Bone Tools
 
 ---
 
@@ -2140,7 +2150,7 @@ Cet outil nécessite que Fix Model soit complété en premier. Générer des vis
 - **Preview** — Affiche quels os seraient fusionnés sans engagement
 - **Merge** — Applique la fusion
 
-**Où la trouver :** Onglet CATS → section Bone Tools
+**Où la trouver :** CATS tab → Bone Tools
 
 ---
 
@@ -2152,7 +2162,7 @@ Cet outil nécessite que Fix Model soit complété en premier. Générer des vis
 - **Duplicate Selected** — Crée une copie de chaque os sélectionné avec un suffixe `.copy`
 - **Mirror Duplicate** — Duplique et miroir sur la ligne de centre, créant des paires gauche/droite
 
-**Où la trouver :** Onglet CATS → section Bone Tools
+**Où la trouver :** CATS tab → Bone Tools
 
 ---
 
@@ -2172,7 +2182,7 @@ Cet outil nécessite que Fix Model soit complété en premier. Générer des vis
 
 **Pour les fusions multi-étapes complexes avec résolution de conflits de dénomination**, utilisez plutôt l'outil complet Bone Merge de BoneForge dans l'onglet Review.
 
-**Où la trouver :** Onglet CATS → section Armature Tools
+**Où la trouver :** CATS tab → Armature Tools
 
 ---
 
@@ -2189,7 +2199,7 @@ Cet outil nécessite que Fix Model soit complété en premier. Générer des vis
 **Contrôles clés :**
 - **Separate by Materials** — Divise le maillage actif par affectation de matériau
 
-**Où la trouver :** Onglet CATS → section Mesh Tools
+**Où la trouver :** CATS tab → Mesh Tools
 
 ---
 
@@ -2200,7 +2210,7 @@ Cet outil nécessite que Fix Model soit complété en premier. Générer des vis
 **Contrôles clés :**
 - **Separate by Loose Parts** — Divise le maillage actif aux limites de géométrie
 
-**Où la trouver :** Onglet CATS → section Mesh Tools
+**Où la trouver :** CATS tab → Mesh Tools
 
 ---
 
@@ -2211,7 +2221,7 @@ Cet outil nécessite que Fix Model soit complété en premier. Générer des vis
 **Contrôles clés :**
 - **Separate by Shape Keys** — Crée deux objets : un avec les données de clé de forme, un sans
 
-**Où la trouver :** Onglet CATS → section Mesh Tools
+**Où la trouver :** CATS tab → Mesh Tools
 
 ---
 
@@ -2233,7 +2243,7 @@ Le Validateur est séparé du Rig Validator principal de BoneForge — il se con
 - Pose to Shape : Est-ce qu'au moins une clé de forme personnalisée est présente (ou la phase a-t-elle été marquée comme terminée) ?
 - Apply Transforms : Toutes les transformations sont-elles à des valeurs propres (échelle 1,1,1 / rotation 0,0,0) ?
 
-**Où la trouver :** Onglet CATS → section Validator (bas du panneau)
+**Où la trouver :** CATS tab → Validator (bottom of panel)
 
 ---
 
@@ -2243,19 +2253,19 @@ Utilisez cette section quand quelque chose s'est mal passé et que vous devez tr
 
 | Problème | Où regarder |
 |---|---|
-| Téléchargement échoue — os non reconnus | [Guide 4](#guide-4-fix-your-avatars-bone-names) + [Dénomination VRChat](#naming-conventions) |
-| Avatar en pose T / ne suit pas le mouvement | [Guide 5](#guide-5-map-your-avatar-to-vrchats-body-system) + [Validateur Humanoïde](#humanoid-mapper-and-validator) |
-| Maillage se déformant bizarrement / peau s'étirant | [Transfert de Poids](#weight-transfer) + [Miroir de Poids](#weight-mirror) |
-| Un côté du corps a des poids différents | [Miroir de Poids](#weight-mirror) |
-| Les cheveux coupent à travers la tête | [Guide 6, Étape 6](#step-6--add-colliders-recommended) — ajouter des collideurs |
-| La physique des cheveux ne se déplace pas | [Guide 6](#guide-6-add-hair-physics) — vérifier la détection de chaîne + le préréglage physique |
-| Les vêtements coupent à travers le corps | [Guide 7](#guide-7-attach-clothing-that-moves-with-your-body) + vérifier la détection de collision BVH |
-| La synchronisation des lèvres ne fonctionne pas | [Guide 8](#guide-8-set-up-lip-sync) + [Validateur Visème](#viseme-mapper) |
-| Avatar est une performance Très Mauvais | [Guide 9](#guide-9-improve-your-avatars-performance) + [Optimisation des Performances](#performance-and-optimization) |
-| L'importation VRM échoue | [Guide 2, Étape 1](#step-1--install-the-vrm-bridge) — installer le complément VRM |
-| L'importation MMD échoue | [Guide 3, Étape 1](#step-1--install-mmd-tools) — installer MMD Tools |
-| Le validateur de squelette montre les erreurs rouges | [Validateur de Squelette](#rig-validator) — exécuter la validation et suivre les messages d'erreur |
-| Les os ont disparu / ne peuvent pas voir d'os | [Panneau de Collection d'Os](#bone-collection-panel) → cliquez sur Afficher Tout |
+| Téléchargement échoue — os non reconnus | [Guide 4](#guide-4--corriger-les-noms-des-os-de-votre-avatar) + [Dénomination VRChat](#conventions-de-dénomination) |
+| Avatar en pose T / ne suit pas le mouvement | [Guide 5](#guide-5--cartographier-votre-avatar-au-système-de-corps-de-vrchat) + [Validateur Humanoïde](#validateur-et-mappeur-humanoïde) |
+| Maillage se déformant bizarrement / peau s'étirant | [Transfert de Poids](#transfert-de-poids) + [Miroir de Poids](#miroir-de-poids) |
+| Un côté du corps a des poids différents | [Miroir de Poids](#miroir-de-poids) |
+| Les cheveux coupent à travers la tête | [Guide 6, Étape 6](#étape-6--ajouter-les-colliders-recommandé) — ajouter des collideurs |
+| La physique des cheveux ne se déplace pas | [Guide 6](#guide-6--ajouter-la-physique-des-cheveux) — vérifier la détection de chaîne + le préréglage physique |
+| Les vêtements coupent à travers le corps | [Guide 7](#guide-7--attacher-des-vêtements-qui-se-déplacent-avec-votre-corps) + vérifier la détection de collision BVH |
+| La synchronisation des lèvres ne fonctionne pas | [Guide 8](#guide-8--configurer-la-synchronisation-labiale) + [Validateur Visème](#mappeur-visème) |
+| Avatar est une performance Très Mauvais | [Guide 9](#guide-9--améliorer-les-performances-de-votre-avatar) + [Optimisation des Performances](#performance-et-optimisation) |
+| L'importation VRM échoue | [Guide 2, Étape 1](#étape-1--installer-le-vrm-bridge) — installer le complément VRM |
+| L'importation MMD échoue | [Guide 3, Étape 1](#étape-1--installer-les-mmd-tools) — installer MMD Tools |
+| Le validateur de squelette montre les erreurs rouges | [Validateur de Squelette](#validateur-de-squelette) — exécuter la validation et suivre les messages d'erreur |
+| Les os ont disparu / ne peuvent pas voir d'os | [Panneau de Collection d'Os](#panneau-de-collection-dos) → cliquez sur Afficher Tout |
 | Impossible de trouver les panneaux BoneForge | Appuyez sur **N** dans la fenêtre d'affichage 3D, cherchez les onglets BoneForge |
 | FBX d'exportation manque les os | Vérifiez que l'armature est sélectionnée avant l'exportation ; activer « Include Armature » |
 | Les clés de forme ont disparu après l'exportation | Activer « Include Shape Keys » dans les paramètres d'exportation |
@@ -2263,16 +2273,16 @@ Utilisez cette section quand quelque chose s'est mal passé et que vous devez tr
 | Le FBX exporté affiche de grandes formes d'aide ou des tubes | Gardez **Helper Meshes** désactivé sauf si vous avez volontairement besoin des maillages de contrôle |
 | Unity ou Unreal importe des matériaux gris | Exportez avec **Embed Textures** activé, puis utilisez les options d'import/extraction de matériaux de Unity ou l'import de matériaux FBX d'Unreal |
 | Les poids sont tous sur les mauvais os | Réexécutez Auto-Weight dans l'Assistant, ou utilisez Transfert de Poids |
-| Deux squelettes doivent en être un | [Guide 11 : Fusionner Deux Squelettes Ensemble](#guide-11-merge-two-rigs-together) |
-| La forme corrective n'est pas activée | Vérifiez l'axe d'os et l'angle d'activation dans [Clés de Forme Correctives](#corrective-shape-keys) |
-| L'animation a l'air mauvaise sur un squelette différent | [Retargeting d'Animation](#animation-retargeting) — vérifier les mappages d'os |
-| Les outils CATS sont grisés / indisponibles | Exécutez Fix Model en premier — [Ordre du Pipeline CATS](#cats-plugin--before-you-begin-the-pipeline-order) |
+| Deux squelettes doivent en être un | [Guide 11 : Fusionner Deux Squelettes Ensemble](#guide-11--fusionner-deux-rigs-ensemble) |
+| La forme corrective n'est pas activée | Vérifiez l'axe d'os et l'angle d'activation dans [Clés de Forme Correctives](#clés-de-forme-correctives) |
+| L'animation a l'air mauvaise sur un squelette différent | [Retargeting d'Animation](#retargeting-danimation) — vérifier les mappages d'os |
+| Les outils CATS sont grisés / indisponibles | Exécutez Fix Model en premier — [Ordre du Pipeline CATS](#plugin-cats--avant-de-commencer--lordre-du-pipeline) |
 | La bouche se déchire ou se fend en parlant | Fix Model a été ignoré — relancer à partir de la Phase 1 — [Guide 13, Phase 1](#phase-1--fix-model) |
-| Les yeux de l'avatar sont coincés en regardant vers le bas dans VRChat | La configuration du suivi des yeux a été exécutée avant Fix Model — relancer à partir de Fix Model — [CATS : Configuration du Suivi des Yeux](#eye-tracking-setup) |
-| La clé de forme fait exploser le maillage lorsqu'elle est déclenchée | Pose to Shape Key a été exécutée avant Fix Model — relancer à partir de Fix Model — [CATS : Outils de Clé de Forme](#shape-key-tools) |
+| Les yeux de l'avatar sont coincés en regardant vers le bas dans VRChat | La configuration du suivi des yeux a été exécutée avant Fix Model — relancer à partir de Fix Model — [CATS : Configuration du Suivi des Yeux](#configuration-du-suivi-des-yeux) |
+| La clé de forme fait exploser le maillage lorsqu'elle est déclenchée | Pose to Shape Key a été exécutée avant Fix Model — relancer à partir de Fix Model — [CATS : Outils de Clé de Forme](#outils-de-clé-de-forme) |
 | L'avatar se génère à la mauvaise taille dans VRChat | Apply Transforms a été exécuté avant la fin du pipeline — réimporter de la source, relancer à partir de Fix Model |
-| Les noms d'os sont en japonais / chinois / coréen | [CATS : Traduction du Nom d'Os](#bone-name-translation) |
-| L'avatar n'a pas de synchronisation des lèvres et pas de clés de forme existantes | [CATS : Générateur de Visèmes](#viseme-generator-cats) — générer 15 visèmes à partir de 3 formes de base |
+| Les noms d'os sont en japonais / chinois / coréen | [CATS : Traduction du Nom d'Os](#traduction-du-nom-dos) |
+| L'avatar n'a pas de synchronisation des lèvres et pas de clés de forme existantes | [CATS : Générateur de Visèmes](#générateur-de-visèmes-cats) — générer 15 visèmes à partir de 3 formes de base |
 | Les cases à cocher du Ledger CATS ont disparu | Le maillage a été modifié après le pipeline — exécuter le Validateur CATS, puis réexécuter les phases affectées |
 | Le bouton Apply Transforms est toujours grisé | Pas tout les 4 phases antérieures du Ledger sont vérifiées — vérifier le Validateur pour voir quelle phase est incomplète |
 
@@ -2361,5 +2371,5 @@ Utilisez cette section quand quelque chose s'est mal passé et que vous devez tr
 
 ---
 
-*Documentation BoneForge | Version 8.6.9*
+*Documentation BoneForge | Version 9.0.2*
 *Pour le support, consultez la page GitHub de BoneForge ou le Discord de la communauté.*
