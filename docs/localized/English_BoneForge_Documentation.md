@@ -1,5 +1,5 @@
 # BoneForge Documentation
-### Version 9.0.3 | For VRChat Users
+### Version 9.0.4 | For VRChat Users
 
 ---
 
@@ -68,7 +68,7 @@ BoneForge 9.0.0 and later target standard Blender. BoneCraft is the separate Bfo
 
 | Product | Host | Repository | Release |
 | --- | --- | --- | --- |
-| BoneForge | Standard Blender | Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender | BoneForge-9.0.3.zip |
+| BoneForge | Standard Blender | Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender | BoneForge-9.0.4.zip |
 | BoneCraft | Bforartists | Axleonex/B4Artists_Toolkit | BoneCraft-BFA-9.2.2.zip |
 
 Versions are independent. Install the package for your host. The older BoneForge BFA name describes historical releases.
@@ -2388,5 +2388,5 @@ Use this section when something has gone wrong and you need to find the answer f
 
 ---
 
-*BoneForge Documentation | Version 9.0.3*
+*BoneForge Documentation | Version 9.0.4*
 *For support, check the BoneForge GitHub page or community Discord.*

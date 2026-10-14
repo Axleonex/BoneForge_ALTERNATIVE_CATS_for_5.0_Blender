@@ -1,5 +1,24 @@
 # BoneForge releases
 
+## 9.0.4 — Health Check and Task Board (local candidate)
+
+Candidate: [BoneForge-9.0.4.zip](BoneForge-9.0.4.zip). Not published.
+
+- Open Health Check runs the registered validator and displays refreshable results.
+- Accepts an armature or a mesh bound to one; explains a disabled or unavailable validator.
+- Quick Wins keeps the top three recommendations. Remaining Tasks lists only other cards, with correct counts and no empty categories.
+- Add-on metadata, export-sidecar stamp and current manual labels are 9.0.4.
+
+Verified in standard Blender 5.1.2: 628 panel/menu draws, existing tool placements,
+273 registered operators (only Health Check behavior changes), sidebar/Scene
+visibility, toggles, reload and seven languages. Focused Task Board tests cover
+selection, validator execution/availability, popup dispatch/results/refresh and
+unique cards/counts/collapse. Native popup appearance is not visually verified.
+
+Package entries: 156. SHA-256: `0ee80234c9f86c76d532e51ab75159634f0e8972929c02faa74ad515820c9139`.
+The [package receipt](BoneForge-9.0.4-receipt.json) records CRC, source parity,
+version stamps and absence of Bforartists host gates. Earlier archives remain available.
+
 ## 9.0.3 — VRChat export interface cleanup
 
 Download: [BoneForge-9.0.3.zip](BoneForge-9.0.3.zip).

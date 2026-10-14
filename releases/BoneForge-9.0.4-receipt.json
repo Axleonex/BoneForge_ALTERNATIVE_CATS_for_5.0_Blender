@@ -1,0 +1,19 @@
+{
+  "version": "9.0.4",
+  "status": "local candidate; not published",
+  "archive": "BoneForge-9.0.4.zip",
+  "files": 156,
+  "bytes": 683585,
+  "sha256": "0ee80234c9f86c76d532e51ab75159634f0e8972929c02faa74ad515820c9139",
+  "crc_passed": true,
+  "all_files_match_source": true,
+  "addon_and_sidecar_version_match": true,
+  "live_window_verified": false,
+  "host_gates_absent": true,
+  "host": "standard Blender 5.1.2",
+  "host_checks": {
+    "blender_ui_layout": "passed: 628 panel/menu draws; 273 operators, only Health Check behavior changed; toggles/reload/visibility; seven languages",
+    "blender_taskboard_health": "passed"
+  },
+  "taskboard_cases": "unique cards/counts/collapse; armature, parented/modifier mesh, Pose; invalid selection; disabled/missing validator; popup dispatch/results/refresh; seven languages"
+}

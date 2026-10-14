@@ -1,5 +1,5 @@
 # Documentação BoneForge
-### Versão 9.0.3 | Para Usuários de VRChat
+### Versão 9.0.4 | Para Usuários de VRChat
 
 ---
 
@@ -2379,5 +2379,5 @@ Use essa seção quando algo deu errado e você precisa encontrar a resposta rá
 
 ---
 
-*Documentação BoneForge | Versão 9.0.3*
+*Documentação BoneForge | Versão 9.0.4*
 *Para suporte, verifique a página GitHub de BoneForge ou comunidade Discord.*

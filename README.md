@@ -8,6 +8,8 @@ This build is an attempted revival and continuation of no-longer-maintained free
 > If you hit a problem, a screenshot or a short note about what you were doing
 > helps a lot — please open an [issue](../../issues).
 
+**Local candidate: BoneForge 9.0.4.** Fixes Open Health Check and repeated Task Board cards. [Installable candidate ZIP](releases/BoneForge-9.0.4.zip), [checks and release notes](releases/README.md#904--health-check-and-task-board-local-candidate). Not published; the published download below remains 9.0.3.
+
 ## Install
 
 1. Download the add-on zip: **[BoneForge-9.0.3.zip](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/raw/refs/heads/main/releases/BoneForge-9.0.3.zip)** (or grab it from the [Releases](../../releases) page).
