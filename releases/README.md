@@ -1,6 +1,6 @@
 # BoneForge releases
 
-## 9.0.3 — VRChat export interface cleanup (local)
+## 9.0.3 — VRChat export interface cleanup
 
 Download: [BoneForge-9.0.3.zip](BoneForge-9.0.3.zip).
 
