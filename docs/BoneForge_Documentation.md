@@ -1,5 +1,5 @@
 # BoneForge Documentation
-### Version 9.0.2 | For VRChat Users
+### Version 9.0.3 | For VRChat Users
 
 ---
 
@@ -74,7 +74,7 @@ BoneForge 9.0.0 and later target standard Blender. BoneCraft is the separate Bfo
 
 | Product | Host | Repository | Release |
 | --- | --- | --- | --- |
-| BoneForge | Standard Blender | Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender | BoneForge-9.0.2.zip |
+| BoneForge | Standard Blender | Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender | BoneForge-9.0.3.zip |
 | BoneCraft | Bforartists | Axleonex/B4Artists_Toolkit | BoneCraft-BFA-9.2.2.zip |
 
 Versions are independent. Install the package for your host. The older BoneForge BFA name describes historical releases.
@@ -118,7 +118,8 @@ Tab names select a workspace group. Setup Rigging, Skin, Review, Avatar Tools an
 | Delta Mush / Proximity Wrap | BoneForge → Skin → Delta Mush / Proximity Wrap |
 | Viseme Library / Lip Sync | CATS → Avatar Tools → Viseme Library → Lip Sync |
 | VRChat Viseme Mapping / Face Tracking | CATS → VRChat Tools → Facial |
-| Humanoid / Hair / VRChat export | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics / Export to VRChat |
+| Humanoid / Hair | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics |
+| VRChat export | CATS → Import / Export → Unity / VRChat |
 | VRM / MMD / I/O Hub | CATS → Import / Export → VRM / VRoid, MMD / PMX, Game Engine Export |
 | Performance / Clothing / Naming | CATS → VRChat Tools → Check Performance / Attach Clothing / VRChat Naming Extras |
 
@@ -267,7 +268,7 @@ Run **Validate Humanoid** to check for any remaining issues.
 
 ### Step 10 — Export for VRChat
 
-Go to the **CATS → Avatar Tools → Export to VRChat** section. Click **Export to VRChat (FBX)**.
+Go to the **CATS → Import / Export → Unity / VRChat** section. Click **Export to VRChat (Unity)**.
 
 Choose a save location and click **Export**.
 
@@ -325,7 +326,7 @@ VRoid avatars already have blend shapes (the face movements for expressions and 
 
 ### Step 6 — Export
 
-Click **Export to VRChat (FBX)** in the VRChat Export section.
+Click **Export to VRChat (Unity)** in the VRChat Export section.
 
 **What This Unlocks:** Your VRoid avatar is now ready to import into the VRChat Creator Companion. You can also add hair physics (Guide 6) and optimize performance (Guide 9) before uploading.
 
@@ -384,7 +385,7 @@ Click **Auto-Map Humanoid** in the VRChat Humanoid section. MMD's skeleton is si
 
 ### Step 6 — Export
 
-Click **Export to VRChat (FBX)**.
+Click **Export to VRChat (Unity)**.
 
 **What This Unlocks:** Your MMD avatar is now ready for VRChat. You can add hair physics (Guide 6) and set up lip sync (Guide 8) before uploading.
 
@@ -1056,7 +1057,7 @@ Applying transforms on a mesh that still has unfixed geometry (missing Fix Model
 2. In the **CATS** tab, find the **Transform Tools** section
 3. Click **Apply All Transforms**
 4. Check that the **Ledger** now shows a checkmark (✓) next to Apply Transforms — all five slots should now be checked (✓✓✓✓✓)
-5. Go to the **CATS → Avatar Tools → Export to VRChat** section and export your avatar as FBX
+5. Go to the **CATS → Import / Export → Unity / VRChat** section and export your avatar as FBX
 
 **What you should be seeing:** All five Ledger slots show ✓. Your avatar is ready to import into the VRChat Creator Companion.
 
@@ -1731,7 +1732,7 @@ See [Guide 9: Improve Your Avatar's Performance](#guide-9-improve-your-avatars-p
 - **Embed Textures** — Packs image textures into the FBX for easier Unity material import
 - **Helper Meshes** — Includes hidden/render-disabled/custom-shape helper meshes only when enabled; leave this off for normal avatar exports
 
-**Where to find it:** CATS → Avatar Tools → Export to VRChat
+**Where to find it:** CATS → Import / Export → Unity / VRChat
 
 ---
 
@@ -2385,5 +2386,5 @@ Use this section when something has gone wrong and you need to find the answer f
 
 ---
 
-*BoneForge Documentation | Version 9.0.2*
+*BoneForge Documentation | Version 9.0.3*
 *For support, check the BoneForge GitHub page or community Discord.*

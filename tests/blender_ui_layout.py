@@ -124,7 +124,10 @@ assert BONEFORGE_PT_p2c_viseme_library.bl_parent_id == "BF_PT_sb_vrchat"
 assert BONEFORGE_PT_p2c_viseme_library.bl_category == BONEFORGE_PT_p2c_lip_sync.bl_category == "CATS"
 assert sidebar.BF_PT_sb_vrc_visemes.bl_parent_id == "BF_PT_cats_vrc_tools"
 assert sidebar.BF_PT_sb_vrc_clothing.bl_order < sidebar.BF_PT_sb_vrc_visemes.bl_order < sidebar.BF_PT_sb_vrc_naming.bl_order
-assert sidebar.BF_PT_sb_vrc_hair.bl_order < BONEFORGE_PT_p2c_viseme_library.bl_order < sidebar.BF_PT_sb_vrc_export.bl_order
+assert sidebar.BF_PT_sb_vrc_hair.bl_order < BONEFORGE_PT_p2c_viseme_library.bl_order
+assert not hasattr(bpy.types, "BF_PT_sb_vrc_export")
+assert not hasattr(bpy.types, "BF_PT_sb_vrc_export_Scene")
+assert not hasattr(sidebar, "BF_PT_sb_vrc_export")
 assert hasattr(bpy.types, "BONEFORGE_PT_p2c_viseme_library_Scene")
 assert hasattr(bpy.types, "BONEFORGE_PT_p2c_lip_sync_Scene")
 
@@ -227,6 +230,12 @@ for language in ("en", "ja", "ko", "zh", "pt", "es", "fr"):
     draw(sidebar.BF_PT_sb_vrchat, Context(220))
     draw(sidebar.BF_PT_cats_vrc_tools, Context(220))
 prefs.language = "en"
+bpy.context.view_layer.objects.active = arm
+records = draw(BF_PT_sb_io, Context(220))
+assert ("operator", "boneforge.vrc_export_to_unity") in records
+records = draw(sidebar.BF_PT_sb_vrchat, Context(220))
+assert ("operator", "boneforge.vrc_export_to_unity") not in records
+assert not hasattr(bpy.types, "BF_PT_sb_vrc_export"), "reload/toggles must not recreate export panel"
 
 print("CHECK: unregister", flush=True)
 addon_utils.disable("boneforge", default_set=True)

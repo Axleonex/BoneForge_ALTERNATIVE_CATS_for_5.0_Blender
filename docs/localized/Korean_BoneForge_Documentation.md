@@ -1,5 +1,5 @@
 # BoneForge 문서
-### 버전 9.0.2 | VRChat 사용자용
+### 버전 9.0.3 | VRChat 사용자용
 
 ---
 
@@ -98,7 +98,8 @@ BoneForge는 VRChat, VRoid/VRM, MMD용 3D 아바타를 준비하는 데 도움�
 | Delta Mush / Proximity Wrap | BoneForge → Skin → Delta Mush / Proximity Wrap |
 | Viseme Library / Lip Sync | CATS → Avatar Tools → Viseme Library → Lip Sync |
 | VRChat Viseme Mapping / Face Tracking | CATS → VRChat Tools → Facial |
-| Humanoid / Hair / VRChat export | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics / Export to VRChat |
+| Humanoid / Hair | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics |
+| VRChat export | CATS → Import / Export → Unity / VRChat |
 | VRM / MMD / I/O Hub | CATS → Import / Export → VRM / VRoid, MMD / PMX, Game Engine Export |
 | Performance / Clothing / Naming | CATS → VRChat Tools → Check Performance / Attach Clothing / VRChat Naming Extras |
 
@@ -259,7 +260,7 @@ IK가 활성화되어 있으면 생성된 리그에는 `hand_ik.L`, `hand_ik.R`,
 
 ### 단계 10 — VRChat용으로 내보내기
 
-**CATS → Avatar Tools → Export to VRChat** 섹션으로 이동합니다. **Export to VRChat (FBX)**를 클릭합니다.
+**CATS → Import / Export → Unity / VRChat** 섹션으로 이동합니다. **Export to VRChat (Unity)**를 클릭합니다.
 
 저장 위치를 선택하고 **Export**를 클릭합니다.
 
@@ -317,7 +318,7 @@ VRoid 아바타는 이미 혼합 모양을 가지고 있습니다 (표정 및 �
 
 ### 단계 6 — 내보내기
 
-VRChat Export 섹션에서 **Export to VRChat (FBX)**를 클릭합니다.
+VRChat Export 섹션에서 **Export to VRChat (Unity)**를 클릭합니다.
 
 **이것이 잠금 해제하는 것:** VRoid 아바타는 이제 VRChat Creator Companion으로 가져올 준비가 되었습니다. 업로드하기 전에 헤어 물리를 추가하고 (가이드 6) 성능을 최적화할 수도 있습니다 (가이드 9).
 
@@ -376,7 +377,7 @@ VRChat Humanoid 섹션에서 **Auto-Map Humanoid**를 클릭합니다. MMD의 �
 
 ### 단계 6 — 내보내기
 
-**Export to VRChat (FBX)**를 클릭합니다.
+**Export to VRChat (Unity)**를 클릭합니다.
 
 **이것이 잠금 해제하는 것:** MMD 아바타는 이제 VRChat용 준비가 되었습니다. 업로드하기 전에 헤어 물리를 추가하고 (가이드 6) 입술 싱크를 설정할 수 있습니다 (가이드 8).
 
@@ -681,7 +682,7 @@ Fix Model 단계 없이, 꼭짓점 순서는 제거된 중복 꼭짓점에서 �
 2. **CATS** 탭에서 **Transform Tools** 섹션을 찾습니다
 3. **Apply All Transforms**를 클릭합니다
 4. **원장**이 Apply Transforms 옆에 체크 표시 (✓)를 표시하는지 확인합니다 — 5개 모든 슬롯이 이제 확인되어야 합니다 (✓✓✓✓✓)
-5. **CATS → Avatar Tools → Export to VRChat** 섹션으로 이동하고 아바타를 FBX로 내보냅니다
+5. **CATS → Import / Export → Unity / VRChat** 섹션으로 이동하고 아바타를 FBX로 내보냅니다
 
 **다음을 확인하면 됩니다:** 5개 모든 원장 슬롯이 ✓를 표시합니다. 아바타가 VRChat Creator Companion으로 가져올 준비가 되었습니다.
 
@@ -1363,7 +1364,7 @@ CATS 원장 — CATS 패널의 상단에 보이는 것 — 체크 표시로 이�
 - **Embed Textures** — Unity 재료 가져오기를 쉽게 하도록 이미지 텍스처를 FBX에 포함합니다
 - **Helper Meshes** — 숨김, 렌더 비활성, 커스텀 셰이프 헬퍼 메시를 켠 경우에만 포함합니다. 일반 아바타 export에서는 꺼 둡니다
 
-**찾을 위치:** CATS → Avatar Tools → Export to VRChat
+**찾을 위치:** CATS → Import / Export → Unity / VRChat
 
 ---
 
@@ -2501,5 +2502,5 @@ Mixamo와의 통합입니다.
 
 ---
 
-*BoneForge 문서 | 버전 9.0.2*
+*BoneForge 문서 | 버전 9.0.3*
 *지원이 필요하면 BoneForge GitHub 페이지 또는 커뮤니티 Discord를 확인하세요.*

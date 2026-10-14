@@ -818,7 +818,7 @@ STRINGS.update({
     "Options": "Opções",
     "Select an armature or mesh to use avatar tools.": "Selecione uma armadura ou malha para usar as ferramentas de avatar.",
     "Enable the matching tool package in preferences.": "Ative o pacote de ferramentas correspondente nas preferências.",
-    "Humanoid bones, hair physics, visemes and avatar export.": "Ossos humanoides, física de cabelo, visemas e exportação do avatar.",
+    "Humanoid bones, hair physics and visemes.": "Ossos humanoides, física de cabelo e visemas.",
     "Naming, clothing and performance are in VRChat Tools.": "Nomes, roupas e desempenho estão nas Ferramentas VRChat.",
     "Naming, clothing and performance tools for your avatar.": "Ferramentas de nomes, roupas e desempenho do avatar.",
     "Need precise marker placement? Use the Auto-Rig Wizard above.": "Precisa posicionar marcadores com precisão? Use o assistente de rig acima."

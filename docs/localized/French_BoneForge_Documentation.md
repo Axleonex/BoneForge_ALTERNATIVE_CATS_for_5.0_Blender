@@ -1,5 +1,5 @@
 # Documentation BoneForge
-### Version 9.0.2 | Pour les utilisateurs VRChat
+### Version 9.0.3 | Pour les utilisateurs VRChat
 
 ---
 
@@ -98,7 +98,8 @@ Les onglets sélectionnent un groupe. Setup Rigging, Skin, Review, Avatar Tools 
 | Delta Mush / Proximity Wrap | BoneForge → Skin → Delta Mush / Proximity Wrap |
 | Viseme Library / Lip Sync | CATS → Avatar Tools → Viseme Library → Lip Sync |
 | VRChat Viseme Mapping / Face Tracking | CATS → VRChat Tools → Facial |
-| Humanoid / Hair / VRChat export | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics / Export to VRChat |
+| Humanoid / Hair | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics |
+| VRChat export | CATS → Import / Export → Unity / VRChat |
 | VRM / MMD / I/O Hub | CATS → Import / Export → VRM / VRoid, MMD / PMX, Game Engine Export |
 | Performance / Clothing / Naming | CATS → VRChat Tools → Check Performance / Attach Clothing / VRChat Naming Extras |
 
@@ -257,7 +258,7 @@ Exécutez **Validate Humanoid** pour vérifier les problèmes restants.
 
 ### Étape 10 — Exporter pour VRChat
 
-Allez à l'onglet **CATS → Avatar Tools → Export to VRChat**. Cliquez sur **Export to VRChat (FBX)**.
+Allez à l'onglet **CATS → Import / Export → Unity / VRChat**. Cliquez sur **Export to VRChat (Unity)**.
 
 Choisissez un emplacement de sauvegarde et cliquez sur **Export**.
 
@@ -315,7 +316,7 @@ Les avatars VRoid ont déjà des blend shapes (les mouvements du visage pour les
 
 ### Étape 6 — Exporter
 
-Cliquez sur **Export to VRChat (FBX)** dans la section VRChat Export.
+Cliquez sur **Export to VRChat (Unity)** dans la section VRChat Export.
 
 **Ce que cela déverrouille :** Votre avatar VRoid est maintenant prêt à être importé dans le VRChat Creator Companion. Vous pouvez également ajouter la physique des cheveux (Guide 6) et optimiser les performances (Guide 9) avant de télécharger.
 
@@ -374,7 +375,7 @@ Cliquez sur **Auto-Map Humanoid** dans la section VRChat Humanoid. Le squelette 
 
 ### Étape 6 — Exporter
 
-Cliquez sur **Export to VRChat (FBX)**.
+Cliquez sur **Export to VRChat (Unity)**.
 
 **Ce que cela déverrouille :** Votre avatar MMD est maintenant prêt pour VRChat. Vous pouvez ajouter la physique des cheveux (Guide 6) et configurer la synchronisation labiale (Guide 8) avant de télécharger.
 
@@ -1046,7 +1047,7 @@ Appliquer des transformations sur un maillage qui a toujours une géométrie non
 2. Dans l'onglet **CATS**, trouvez la section **Transform Tools**
 3. Cliquez sur **Apply All Transforms**
 4. Vérifiez que le **Ledger** affiche maintenant une coche (✓) à côté de Apply Transforms — les cinq emplacements devraient maintenant tous être cochés (✓✓✓✓✓)
-5. Allez à l'onglet **CATS → Avatar Tools → Export to VRChat** et exportez votre avatar en FBX
+5. Allez à l'onglet **CATS → Import / Export → Unity / VRChat** et exportez votre avatar en FBX
 
 **Ce que vous devriez voir :** Les cinq emplacements du Ledger affichent ✓. Votre avatar est prêt à être importé dans le VRChat Creator Companion.
 
@@ -1724,7 +1725,7 @@ Voir [Guide 9 : Améliorez les performances de votre avatar](#guide-9--améliore
 - **Embed Textures** — Intègre les textures image dans le FBX pour faciliter l'import des matériaux Unity
 - **Helper Meshes** — Inclut les maillages masqués, désactivés au rendu ou utilisés comme formes de contrôle seulement si l'option est activée ; laissez-la désactivée pour un export d'avatar normal
 
-**Où la trouver :** CATS → Avatar Tools → Export to VRChat
+**Où la trouver :** CATS → Import / Export → Unity / VRChat
 
 ---
 
@@ -2371,5 +2372,5 @@ Utilisez cette section quand quelque chose s'est mal passé et que vous devez tr
 
 ---
 
-*Documentation BoneForge | Version 9.0.2*
+*Documentation BoneForge | Version 9.0.3*
 *Pour le support, consultez la page GitHub de BoneForge ou le Discord de la communauté.*

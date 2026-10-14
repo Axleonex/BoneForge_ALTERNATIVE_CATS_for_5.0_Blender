@@ -818,7 +818,7 @@ STRINGS.update({
     "Options": "选项",
     "Select an armature or mesh to use avatar tools.": "请选择骨架或网格以使用化身工具。",
     "Enable the matching tool package in preferences.": "请在偏好设置中启用对应的工具包。",
-    "Humanoid bones, hair physics, visemes and avatar export.": "人形骨骼、头发物理、口型和化身导出。",
+    "Humanoid bones, hair physics and visemes.": "人形骨骼、头发物理和口型。",
     "Naming, clothing and performance are in VRChat Tools.": "命名、服装和性能工具位于 VRChat 工具中。",
     "Naming, clothing and performance tools for your avatar.": "化身的命名、服装和性能工具。",
     "Need precise marker placement? Use the Auto-Rig Wizard above.": "需要精确放置标记？请使用上方的自动绑定向导。"

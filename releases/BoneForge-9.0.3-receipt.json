@@ -1,0 +1,19 @@
+{
+  "version": "9.0.3",
+  "host": "standard Blender 5.1.2",
+  "archive": "BoneForge-9.0.3.zip",
+  "files": 156,
+  "bytes": 681518,
+  "sha256": "2153a62d6fb84d8ca48b106fa7e0d0eecbd362e0da1ee964c017aeeeccef022d",
+  "crc_passed": true,
+  "source_parity": true,
+  "addon_and_sidecar_version_match": true,
+  "host_gates_absent": true,
+  "duplicate_export_panel_removed": true,
+  "import_export_controls_retained": true,
+  "panel_menu_draws": 628,
+  "unchanged_operators": 273,
+  "languages": 7,
+  "toggles_and_reload": "passed",
+  "live_window_verified": false
+}

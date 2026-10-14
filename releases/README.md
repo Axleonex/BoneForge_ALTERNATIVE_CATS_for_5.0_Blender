@@ -1,5 +1,25 @@
 # BoneForge releases
 
+## 9.0.3 — VRChat export interface cleanup (local)
+
+Download: [BoneForge-9.0.3.zip](BoneForge-9.0.3.zip).
+
+Adapts BoneCraft 9.2.3's export-panel cleanup to standard Blender:
+
+- Removes Export to VRChat from CATS → Avatar Tools, including its Scene-tab copy.
+- Keeps VRChat export under CATS → Import / Export → Unity / VRChat.
+- Updates Avatar Tools overview text in all seven languages.
+- Updates add-on metadata, the exported sidecar version stamp, README download links and current manual labels to 9.0.3.
+
+Standard Blender 5.1.2 passes 628 panel/menu draw checks, export placement,
+sidebar/Scene visibility, package toggles, reload, all seven languages and
+parity of all 273 operator implementations. No BoneCraft-exclusive feature
+or Bforartists host gate is added. Live-window appearance is not verified.
+
+Package entries: 156. SHA-256: `2153a62d6fb84d8ca48b106fa7e0d0eecbd362e0da1ee964c017aeeeccef022d`.
+The [package receipt](BoneForge-9.0.3-receipt.json) records CRC, source parity,
+version stamps and absence of Bforartists host gates. Historical archives are retained.
+
 ## 9.0.2 — BoneCraft 9.2.2 workflow grouping (local)
 
 Download: [BoneForge-9.0.2.zip](BoneForge-9.0.2.zip).

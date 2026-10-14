@@ -818,7 +818,7 @@ STRINGS.update({
     "Options": "옵션",
     "Select an armature or mesh to use avatar tools.": "아바타 도구를 사용하려면 아마추어나 메시를 선택하세요.",
     "Enable the matching tool package in preferences.": "환경설정에서 해당 도구 패키지를 활성화하세요.",
-    "Humanoid bones, hair physics, visemes and avatar export.": "휴머노이드 본, 머리카락 물리, 비짐 및 아바타 내보내기.",
+    "Humanoid bones, hair physics and visemes.": "휴머노이드 본, 머리카락 물리 및 비짐.",
     "Naming, clothing and performance are in VRChat Tools.": "이름, 의상 및 성능 도구는 VRChat 도구에 있습니다.",
     "Naming, clothing and performance tools for your avatar.": "아바타의 이름, 의상 및 성능 도구.",
     "Need precise marker placement? Use the Auto-Rig Wizard above.": "마커를 정확히 배치하려면 위의 자동 리그 마법사를 사용하세요."

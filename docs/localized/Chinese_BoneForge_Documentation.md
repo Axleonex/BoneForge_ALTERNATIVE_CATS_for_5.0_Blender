@@ -1,5 +1,5 @@
 # BoneForge 文档
-### 版本 9.0.2 | VRChat 用户指南
+### 版本 9.0.3 | VRChat 用户指南
 
 ---
 
@@ -98,7 +98,8 @@ BoneForge 是一个 Blender 插件，帮助您为 VRChat、VRoid/VRM 和 MMD 准
 | Delta Mush / Proximity Wrap | BoneForge → Skin → Delta Mush / Proximity Wrap |
 | Viseme Library / Lip Sync | CATS → Avatar Tools → Viseme Library → Lip Sync |
 | VRChat Viseme Mapping / Face Tracking | CATS → VRChat Tools → Facial |
-| Humanoid / Hair / VRChat export | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics / Export to VRChat |
+| Humanoid / Hair | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics |
+| VRChat export | CATS → Import / Export → Unity / VRChat |
 | VRM / MMD / I/O Hub | CATS → Import / Export → VRM / VRoid, MMD / PMX, Game Engine Export |
 | Performance / Clothing / Naming | CATS → VRChat Tools → Check Performance / Attach Clothing / VRChat Naming Extras |
 
@@ -257,7 +258,7 @@ BoneForge 9.0.0 及以后用于标准 Blender；BoneCraft 是独立的 Bforartis
 
 ### 步骤 10 — 导出供 VRChat 使用
 
-转到 **CATS → Avatar Tools → Export to VRChat** 部分。点击 **Export to VRChat (FBX)**。
+转到 **CATS → Import / Export → Unity / VRChat** 部分。点击 **Export to VRChat (Unity)**。
 
 选择保存位置并点击 **Export**。
 
@@ -315,7 +316,7 @@ VRoid 化身已经内置了形状键（脸部表情和唇形同步的脸部运�
 
 ### 步骤 6 — 导出
 
-点击 VRChat Export 部分中的 **Export to VRChat (FBX)**。
+点击 VRChat Export 部分中的 **Export to VRChat (Unity)**。
 
 **这解锁了什么：** 您的 VRoid 化身现在已准备好导入 VRChat Creator Companion。您也可以在上传前添加头发物理效果（指南 6）并优化性能（指南 9）。
 
@@ -374,7 +375,7 @@ MMD 模型通常有额外的几何体和重复的顶点。转到 **VRChat > Clea
 
 ### 步骤 6 — 导出
 
-点击 **Export to VRChat (FBX)**。
+点击 **Export to VRChat (Unity)**。
 
 **这解锁了什么：** 您的 MMD 化身现在已准备好用于 VRChat。您可以在上传前添加头发物理效果（指南 6）并设置唇形同步（指南 8）。
 
@@ -1046,7 +1047,7 @@ VRChat 需要 15 个特定嘴形（称为 visemes）来在说话时驱动化身�
 2. 在 **CATS** 选项卡中，找到 **Transform Tools** 部分
 3. 点击 **Apply All Transforms**
 4. 检查 **Ledger** 现在在"Apply Transforms"旁显示复选标记（✓）— 所有五个槽现在应检查（✓✓✓✓✓）
-5. 转到 **CATS → Avatar Tools → Export to VRChat** 部分并将化身导出为 FBX
+5. 转到 **CATS → Import / Export → Unity / VRChat** 部分并将化身导出为 FBX
 
 **您应该看到的：** 所有五个账本槽显示 ✓。化身准备好导入到 VRChat Creator Companion。
 
@@ -1728,7 +1729,7 @@ CATS 账本 — 在 CATS 面板顶部可见 — 用复选标记跟踪这些阶�
 - **Embed Textures** — 将图像纹理打包进 FBX，方便 Unity 材质导入
 - **Helper Meshes** — 只有启用时才包含隐藏、禁用渲染或作为控制形状的辅助网格；普通头像导出应保持关闭
 
-**在哪里找到它：** CATS → Avatar Tools → Export to VRChat
+**在哪里找到它：** CATS → Import / Export → Unity / VRChat
 
 ---
 
@@ -2374,5 +2375,5 @@ CATS 工具位于 N-panel 侧边栏中自己的 **CATS** 选项卡中。它们�
 
 ---
 
-*BoneForge 文档 | 版本 9.0.2*
+*BoneForge 文档 | 版本 9.0.3*
 *如需支持，检查 BoneForge GitHub 页面或社区 Discord。*

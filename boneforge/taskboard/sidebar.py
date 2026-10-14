@@ -857,10 +857,9 @@ class BF_PT_sb_correctives(Panel):
 
 # =============================================================
 # HUB: VRChat  (order=35)
-# 3 clusters communicated through panel naming and explainer text:
+# Avatar setup groups communicated through panel naming and explainer text:
 #   A — VRChat Setup (panels ordered 1-2)
 #   B — Body & Physics (panels ordered 4-6)
-#   C — Finalize     (panels ordered 7-8)
 # =============================================================
 
 class BF_PT_sb_vrchat(Panel):
@@ -891,7 +890,7 @@ class BF_PT_sb_vrchat(Panel):
             return
         draw_wrapped(layout, context, obj.name, icon='COMMUNITY')
         layout.prop(context.scene, "boneforge_vrc_compact_mode", text=T("Compact Mode"))
-        _draw_explainer(layout, context, "Humanoid bones, hair physics, visemes and avatar export.",
+        _draw_explainer(layout, context, "Humanoid bones, hair physics and visemes.",
                         "Naming, clothing and performance are in VRChat Tools.")
 
 
@@ -1112,8 +1111,6 @@ class BF_PT_sb_vrc_visemes(Panel):
             _delegate_draw(self, context, module_path, class_name)
 
 
-# ── Cluster C — Finalize ───────────────────────────────────────
-
 class BF_PT_sb_vrc_perf(Panel):
     """VRChat performance: rank check, optimizer, poly decimation."""
     bl_label       = " "
@@ -1147,84 +1144,6 @@ class BF_PT_sb_vrc_perf(Panel):
         ):
             layout.separator(factor=0.3)
             _delegate_draw(self, context, module_path, class_name)
-
-
-class BF_PT_sb_vrc_export(Panel):
-    """VRChat export: FBX to Unity + sidecar generation."""
-    bl_label       = " "
-    bl_idname      = "BF_PT_sb_vrc_export"
-    bl_space_type  = _SPACE
-    bl_region_type = _REGION
-    bl_category    = _CATS_CAT
-    bl_parent_id   = "BF_PT_sb_vrchat"
-    bl_order       = 8
-    bl_options     = {'DEFAULT_CLOSED'}
-
-    def draw_header(self, context):
-        self.layout.label(text=T("Export to VRChat"))
-
-    @classmethod
-    def poll(cls, context):
-        return (
-            context.active_object is not None
-            and context.active_object.type == 'ARMATURE'
-        )
-
-    def draw(self, context):
-        layout = self.layout
-        _draw_explainer(
-            layout, context,
-            "Packages your avatar for VRChat SDK upload. Final step.",
-            "Complete needed VRChat setup and body/physics steps first.",
-        )
-
-        layout.separator(factor=0.3)
-
-        try:
-            from boneforge.vrchat.export.vrchat_export import draw_export_settings
-            draw_export_settings(layout, context)
-        except Exception:
-            layout.label(text=T("Export settings unavailable"), icon='INFO')
-
-        layout.separator(factor=0.3)
-
-        col = layout.column(align=True)
-        col.scale_y = 1.2
-        try:
-            col.operator(
-                "boneforge.vrc_export_to_unity",
-                text=T("Export to VRChat (Unity)"),
-                icon='EXPORT',
-            )
-        except Exception:
-            col.label(text=T("Export operator unavailable"), icon='ERROR')
-
-        layout.separator(factor=0.5)
-
-        col2 = layout.column(align=True)
-        try:
-            col2.operator(
-                "boneforge.vrc_generate_sidecar",
-                text=T("Generate Sidecar"),
-                icon='FILE_SCRIPT',
-            )
-            col2.operator(
-                "boneforge.vrc_copy_unity_script_path",
-                text=T("Copy Importer Path"),
-                icon='COPYDOWN',
-            )
-        except Exception:
-            col2.label(text=T("Sidecar operators unavailable"), icon='INFO')
-
-        layout.separator(factor=0.4)
-
-        mtoon_col = layout.column(align=True)
-        mtoon_col.label(text=T("Material Check:"), icon='MATERIAL')
-        mtoon_col.operator(
-            "boneforge.vrc_check_mtoon",
-            text=T("Check / Preserve MToon"),
-            icon='SHADING_RENDERED',
-        )
 
 
 # =============================================================
@@ -1492,7 +1411,6 @@ _CLASSES = (
     BF_PT_sb_vrc_clothing,   # B-5
     BF_PT_sb_vrc_visemes,    # B-6
     BF_PT_sb_vrc_perf,       # C-7
-    BF_PT_sb_vrc_export,     # C-8
     # Review hub — parent before children (animate + inspect merged)
     BF_PT_sb_animate,
     BF_PT_sb_collections,

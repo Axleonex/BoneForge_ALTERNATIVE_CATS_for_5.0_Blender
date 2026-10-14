@@ -1,5 +1,5 @@
 # BoneForge ドキュメント
-### バージョン 9.0.2 | VRChat ユーザー向け
+### バージョン 9.0.3 | VRChat ユーザー向け
 
 ---
 
@@ -98,7 +98,8 @@ BoneForge は、VRChat、VRoid/VRM、MMD 用に 3D アバターを準備する�
 | Delta Mush / Proximity Wrap | BoneForge → Skin → Delta Mush / Proximity Wrap |
 | Viseme Library / Lip Sync | CATS → Avatar Tools → Viseme Library → Lip Sync |
 | VRChat Viseme Mapping / Face Tracking | CATS → VRChat Tools → Facial |
-| Humanoid / Hair / VRChat export | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics / Export to VRChat |
+| Humanoid / Hair | CATS → Avatar Tools → Set Up Humanoid Bones / Add Hair Physics |
+| VRChat export | CATS → Import / Export → Unity / VRChat |
 | VRM / MMD / I/O Hub | CATS → Import / Export → VRM / VRoid, MMD / PMX, Game Engine Export |
 | Performance / Clothing / Naming | CATS → VRChat Tools → Check Performance / Attach Clothing / VRChat Naming Extras |
 
@@ -257,7 +258,7 @@ IK が有効な場合、生成されたリグには `hand_ik.L`、`hand_ik.R`、
 
 ### ステップ 10 — VRChat 用にエクスポート
 
-**CATS → Avatar Tools → Export to VRChat** セクションに移動します。**Export to VRChat (FBX)** をクリックします。
+**CATS → Import / Export → Unity / VRChat** セクションに移動します。**Export to VRChat (Unity)** をクリックします。
 
 保存場所を選択して **Export** をクリックします。
 
@@ -315,7 +316,7 @@ VRoid アバターには既にブレンドシェイプ (表情とリップシン
 
 ### ステップ 6 — エクスポート
 
-VRChat エクスポートセクションで **Export to VRChat (FBX)** をクリックします。
+VRChat エクスポートセクションで **Export to VRChat (Unity)** をクリックします。
 
 **これが開き込むもの:** VRoid アバターは VRChat Creator Companion にインポートする準備ができました。アップロード前に髪の物理演算 (ガイド 6) とパフォーマンス (ガイド 9) を追加することもできます。
 
@@ -374,7 +375,7 @@ VRChat Humanoid セクションで **Auto-Map Humanoid** をクリックしま�
 
 ### ステップ 6 — エクスポート
 
-**Export to VRChat (FBX)** をクリックします。
+**Export to VRChat (Unity)** をクリックします。
 
 **これが開き込むもの:** MMD アバターは VRChat 用に準備ができています。アップロード前に髪の物理演算 (ガイド 6) とリップシンク (ガイド 8) をセットアップできます。
 
@@ -1049,7 +1050,7 @@ Fix Model ステップを実行しない場合、頂点の順序は削除され�
 2. **CATS** タブで **Transform Tools** セクションを見つけます
 3. **Apply All Transforms** をクリック
 4. **Ledger** が Apply Transforms の横にチェックマーク (✓) を表示していることを確認。5 つすべてのスロットがチェックされている必要があります (✓✓✓✓✓)
-5. **CATS → Avatar Tools → Export to VRChat** セクションに移動し、アバターを FBX としてエクスポート
+5. **CATS → Import / Export → Unity / VRChat** セクションに移動し、アバターを FBX としてエクスポート
 
 **見えるはず:** 5 つすべての Ledger スロットに ✓ が表示されます。アバターは VRChat Creator Companion にインポートする準備ができています。
 
@@ -1732,7 +1733,7 @@ Ledger は新しいアバターの作業を開始するときにリセットさ�
 - **Embed Textures** — Unity のマテリアル取り込みを簡単にするため、画像テクスチャを FBX に埋め込みます
 - **Helper Meshes** — 非表示、レンダー無効、カスタムシェイプ用のヘルパーメッシュは有効時のみ含めます。通常のアバター export ではオフのままにします
 
-**どこで見つけるか:** CATS → Avatar Tools → Export to VRChat
+**どこで見つけるか:** CATS → Import / Export → Unity / VRChat
 
 ---
 
@@ -2379,5 +2380,5 @@ Apply Transforms は最終パイプラインステップです。すべての以
 
 ---
 
-*BoneForge ドキュメント | バージョン 9.0.2*
+*BoneForge ドキュメント | バージョン 9.0.3*
 *サポートについては、BoneForge GitHub ページまたはコミュニティ Discord を確認してください。*

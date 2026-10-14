@@ -10,7 +10,7 @@ This build is an attempted revival and continuation of no-longer-maintained free
 
 ## Version and Blender support
 
-**Current release: BoneForge 9.0.2.**
+**Current release: BoneForge 9.0.3.**
 
 BoneForge 9.0.0 and all future BoneForge releases support standard Blender.
 BoneForge does not require Bforartists and must not contain a Bforartists host
@@ -23,14 +23,14 @@ BoneForge releases.
 Version 9.0.0 continues the open Blender 8.6.9 codebase, including the weight
 recalculation tools and atlas selection guidance already committed in this
 repository. The older 8.6.9 zip does not contain those committed updates.
-See [release notes](releases/README.md). The [manual](docs/BoneForge_Documentation.md) and [translated editions](docs/localized/) describe the 9.0.2 interface, including tabs, nested sections and moved tool locations.
+See [release notes](releases/README.md). The [manual](docs/BoneForge_Documentation.md) and [translated editions](docs/localized/) describe the 9.0.3 interface, including tabs, nested sections and moved tool locations.
 
 ## Install
 
-1. Download the add-on zip: **[BoneForge-9.0.2.zip](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/raw/refs/heads/main/releases/BoneForge-9.0.2.zip)** (or grab it from the [Releases](../../releases) page).
+1. Download the add-on zip: **[BoneForge-9.0.3.zip](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/raw/refs/heads/main/releases/BoneForge-9.0.3.zip)** (or grab it from the [Releases](../../releases) page).
 2. In Blender, open **Edit → Preferences → Add-ons**.
 3. Click the **dropdown arrow (˅) at the top-right of the Add-ons panel → Install from Disk…**
-4. Select the `BoneForge-9.0.2.zip` you downloaded.
+4. Select the `BoneForge-9.0.3.zip` you downloaded.
 5. Tick the checkbox next to **BoneForge** to enable it.
 6. In the 3D Viewport, press **N** to open the sidebar — BoneForge adds its tabs there.
 
