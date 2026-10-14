@@ -27,7 +27,7 @@ See [release notes](releases/README.md). The existing manuals describe 8.6.9.
 
 ## Install
 
-1. Download the add-on zip: **[BoneForge-9.0.2.zip](releases/BoneForge-9.0.2.zip)** (or grab it from the [Releases](../../releases) page).
+1. Download the add-on zip: **[BoneForge-9.0.2.zip](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/raw/refs/heads/main/releases/BoneForge-9.0.2.zip)** (or grab it from the [Releases](../../releases) page).
 2. In Blender, open **Edit → Preferences → Add-ons**.
 3. Click the **dropdown arrow (˅) at the top-right of the Add-ons panel → Install from Disk…**
 4. Select the `BoneForge-9.0.2.zip` you downloaded.
