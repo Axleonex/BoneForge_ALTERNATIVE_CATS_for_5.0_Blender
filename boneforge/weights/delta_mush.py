@@ -162,6 +162,8 @@ class BONEFORGE_PT_p2b_delta_mush(Panel):
     """Delta Mush panel in Object mode."""
     bl_label = " "
     bl_idname = "BONEFORGE_PT_p2b_delta_mush"
+    bl_parent_id = "BF_PT_sb_skin"
+    bl_order = 1
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "BoneForge"

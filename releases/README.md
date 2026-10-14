@@ -1,5 +1,33 @@
 # BoneForge releases
 
+## 9.0.2 — BoneCraft 9.2.2 workflow grouping (local)
+
+Download: [BoneForge-9.0.2.zip](BoneForge-9.0.2.zip).
+
+Adapts BoneCraft 9.2.2's organization to existing standard Blender tools:
+
+- Bone Merge: BoneForge → Setup Rigging.
+- Delta Mush and Proximity Wrap: BoneForge → Skin.
+- Viseme Library, with its Lip Sync child: CATS → Avatar Tools, between Hair
+  Physics and Export.
+- VRChat Viseme Mapping and Face Tracking: CATS → VRChat Tools → Facial,
+  between Clothing and Naming. Performance is the first section in VRChat Tools.
+
+BoneForge has no Other Tools module; none is introduced. All 273 registered
+operators and their execute/invoke/modal/poll bodies remain unchanged. No
+BoneCraft-exclusive tool or Bforartists requirement is added. The add-on and
+export metadata are 9.0.2; prior release archives are retained.
+
+Verified in standard Blender 5.1.2: 636 panel/menu draw checks, all five placement
+checks, Lip Sync drawing in Pose mode, Scene and Object Data mirror placement,
+relocated tool-package toggles, sidebar visibility, reload, operator parity,
+and seven languages. Live-window appearance is not verified.
+
+Reference: BoneCraft 9.2.2 (`bonecraft-v9.2.2`, source `bc91de5`). Its 232-file
+archive SHA-256 matches the published release digest.
+
+Package entries: 156. SHA-256: `4e7513fd81ed4e49cc8c58d01f2455a5a2b20555be418c9a4d24f9a4f9b2d48b`.
+
 ## 9.0.1 — shared interface layout (local)
 
 Download: [BoneForge-9.0.1.zip](BoneForge-9.0.1.zip).

@@ -112,6 +112,22 @@ assert BF_PT_sb_io.bl_category == "CATS"
 assert sidebar.BF_PT_sb_wizard.bl_order < sidebar.BF_PT_sb_quick_rig.bl_order < sidebar.BF_PT_rb_mannequin.bl_order
 for name in ("BF_PT_sb_vrc_naming", "BF_PT_sb_vrc_clothing", "BF_PT_sb_vrc_perf"):
     assert getattr(sidebar, name).bl_parent_id == "BF_PT_cats_vrc_tools"
+from boneforge.bone_merge import BONEFORGE_PT_bone_merge
+from boneforge.weights.delta_mush import BONEFORGE_PT_p2b_delta_mush
+from boneforge.weights.proximity_wrap import BONEFORGE_PT_p2b_proximity_wrap
+from boneforge.advanced_rigging.viseme import BONEFORGE_PT_p2c_viseme_library, BONEFORGE_PT_p2c_lip_sync
+relocated = (BONEFORGE_PT_bone_merge, BONEFORGE_PT_p2b_delta_mush,
+             BONEFORGE_PT_p2b_proximity_wrap, BONEFORGE_PT_p2c_viseme_library, BONEFORGE_PT_p2c_lip_sync)
+assert BONEFORGE_PT_bone_merge.bl_parent_id == "BF_PT_sb_setup"
+assert BONEFORGE_PT_p2b_delta_mush.bl_parent_id == BONEFORGE_PT_p2b_proximity_wrap.bl_parent_id == "BF_PT_sb_skin"
+assert BONEFORGE_PT_p2c_viseme_library.bl_parent_id == "BF_PT_sb_vrchat"
+assert BONEFORGE_PT_p2c_viseme_library.bl_category == BONEFORGE_PT_p2c_lip_sync.bl_category == "CATS"
+assert sidebar.BF_PT_sb_vrc_visemes.bl_parent_id == "BF_PT_cats_vrc_tools"
+assert sidebar.BF_PT_sb_vrc_clothing.bl_order < sidebar.BF_PT_sb_vrc_visemes.bl_order < sidebar.BF_PT_sb_vrc_naming.bl_order
+assert sidebar.BF_PT_sb_vrc_hair.bl_order < BONEFORGE_PT_p2c_viseme_library.bl_order < sidebar.BF_PT_sb_vrc_export.bl_order
+assert hasattr(bpy.types, "BONEFORGE_PT_p2c_viseme_library_Scene")
+assert hasattr(bpy.types, "BONEFORGE_PT_p2c_lip_sync_Scene")
+
 assert len(scene_tab_mirror._classes) > 20
 assert set(scene_tab_mirror.ROOTS) <= {cls.bl_idname.removesuffix("_Scene") for cls in scene_tab_mirror._classes}
 
@@ -125,7 +141,7 @@ for active in (None, mesh, arm):
     for width in (220, 480):
         context = Context(width)
         for expanded in (False, True):
-            for cls in (*sidebar._CLASSES, BF_PT_sb_io, CATS_PT_main, *scene_tab_mirror._classes, *access._CLASSES):
+            for cls in (*sidebar._CLASSES, *relocated, BF_PT_sb_io, CATS_PT_main, *scene_tab_mirror._classes, *access._CLASSES):
                 if not hasattr(cls, "poll") or cls.poll(context):
                     records = draw(cls, context, expanded)
                     assert not any(kind == "operator" and value == "boneforge.autorig_run_detection" for kind, value in records)
@@ -183,6 +199,28 @@ for tool_id, panel_id in (("io_hub", "BF_PT_sb_io"), ("phase3_autorig", "BF_PT_r
 for leaf in ("vrm_bridge", "mmd_bridge"):
     BF_OT_ToggleTool._deferred_work({"tool_id": leaf})
 assert registered_ops() == original_ops
+
+# Relocated tools follow their original package toggles in both mirror surfaces.
+for tool_id, panel_id, suffix in (("phase2b_weights", "BONEFORGE_PT_p2b_delta_mush", "_Prop"),
+                                  ("phase2c_advanced", "BONEFORGE_PT_p2c_viseme_library", "_Scene")):
+    assert hasattr(bpy.types, panel_id + suffix)
+    BF_OT_ToggleTool._deferred_work({"tool_id": tool_id})
+    assert not hasattr(bpy.types, panel_id + suffix)
+    BF_OT_ToggleTool._deferred_work({"tool_id": tool_id})
+    assert hasattr(bpy.types, panel_id + suffix)
+assert registered_ops() == original_ops
+
+# Lip Sync remains reachable inside Viseme Library in Pose mode.
+bpy.context.view_layer.objects.active = arm
+arm.select_set(True)
+bpy.ops.object.mode_set(mode="EDIT")
+arm.data.edit_bones.new("UI test bone").tail = (0, 0, 1)
+bpy.ops.object.mode_set(mode="POSE")
+for width in (220, 480):
+    draw(BONEFORGE_PT_p2c_lip_sync, Context(width))
+    draw(getattr(bpy.types, "BONEFORGE_PT_p2c_lip_sync_Scene"), Context(width))
+    draws += 2
+bpy.ops.object.mode_set(mode="OBJECT")
 
 for language in ("en", "ja", "ko", "zh", "pt", "es", "fr"):
     prefs.language = language

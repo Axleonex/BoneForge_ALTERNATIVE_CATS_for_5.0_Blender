@@ -372,9 +372,11 @@ class BONEFORGE_PT_p2c_viseme_library(Panel):
     """Viseme Library panel in Animation tab."""
     bl_label = " "
     bl_idname = "BONEFORGE_PT_p2c_viseme_library"
+    bl_parent_id = "BF_PT_sb_vrchat"
+    bl_order = 6
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "BoneForge"
+    bl_category = "CATS"
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
@@ -423,7 +425,7 @@ class BONEFORGE_PT_p2c_lip_sync(Panel):
     bl_idname = "BONEFORGE_PT_p2c_lip_sync"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "BoneForge"
+    bl_category = "CATS"
     bl_parent_id = "BONEFORGE_PT_p2c_viseme_library"
     bl_options = {'DEFAULT_CLOSED'}
 

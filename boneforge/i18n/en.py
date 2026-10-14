@@ -836,3 +836,5 @@ STRINGS.update({
     "Naming, clothing and performance tools for your avatar.": "Naming, clothing and performance tools for your avatar.",
     "Need precise marker placement? Use the Auto-Rig Wizard above.": "Need precise marker placement? Use the Auto-Rig Wizard above."
 })
+
+STRINGS["Facial"] = 'Facial'

@@ -1010,6 +1010,8 @@ class BONEFORGE_OT_bone_merge_execute(Operator):
 class BONEFORGE_PT_bone_merge(Panel):
     bl_label = " "
     bl_idname = "BONEFORGE_PT_bone_merge"
+    bl_parent_id = "BF_PT_sb_setup"
+    bl_order = 2
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "BoneForge"

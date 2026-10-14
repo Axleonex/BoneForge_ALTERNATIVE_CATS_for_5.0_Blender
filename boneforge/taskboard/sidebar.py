@@ -934,7 +934,7 @@ class BF_PT_sb_vrc_naming(Panel):
     bl_region_type = _REGION
     bl_category    = _CATS_CAT
     bl_parent_id   = "BF_PT_cats_vrc_tools"
-    bl_order       = 1
+    bl_order       = 4
     bl_options     = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
@@ -1048,7 +1048,7 @@ class BF_PT_sb_vrc_clothing(Panel):
     bl_region_type = _REGION
     bl_category    = _CATS_CAT
     bl_parent_id   = "BF_PT_cats_vrc_tools"
-    bl_order       = 5
+    bl_order       = 2
     bl_options     = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
@@ -1083,12 +1083,12 @@ class BF_PT_sb_vrc_visemes(Panel):
     bl_space_type  = _SPACE
     bl_region_type = _REGION
     bl_category    = _CATS_CAT
-    bl_parent_id   = "BF_PT_sb_vrchat"
-    bl_order       = 6
+    bl_parent_id   = "BF_PT_cats_vrc_tools"
+    bl_order       = 3
     bl_options     = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text=T("VRChat Viseme Mapping"))
+        self.layout.label(text=T("Facial"))
 
     @classmethod
     def poll(cls, context):
@@ -1122,7 +1122,7 @@ class BF_PT_sb_vrc_perf(Panel):
     bl_region_type = _REGION
     bl_category    = _CATS_CAT
     bl_parent_id   = "BF_PT_cats_vrc_tools"
-    bl_order       = 7
+    bl_order       = 1
     bl_options     = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):

@@ -823,3 +823,5 @@ STRINGS.update({
     "Naming, clothing and performance tools for your avatar.": "化身的命名、服装和性能工具。",
     "Need precise marker placement? Use the Auto-Rig Wizard above.": "需要精确放置标记？请使用上方的自动绑定向导。"
 })
+
+STRINGS["Facial"] = '面部'

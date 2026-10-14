@@ -823,3 +823,5 @@ STRINGS.update({
     "Naming, clothing and performance tools for your avatar.": "Outils de nommage, vêtements et performances de l’avatar.",
     "Need precise marker placement? Use the Auto-Rig Wizard above.": "Pour placer les repères avec précision, utilisez l’assistant de rig ci-dessus."
 })
+
+STRINGS["Facial"] = 'Visage'
