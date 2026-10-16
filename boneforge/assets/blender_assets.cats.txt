@@ -1,0 +1,4 @@
+# BoneForge starter rig catalog
+VERSION 1
+
+869ee94b-534c-44d1-9285-3a746947cbde:Starter Rigs:Starter Rigs

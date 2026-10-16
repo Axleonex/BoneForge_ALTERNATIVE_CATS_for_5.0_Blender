@@ -1,0 +1,18 @@
+[
+  {
+    "region": "ASSET_SHELF",
+    "shelf": "BF_AST_boneforge_starters",
+    "size": [
+      1574,
+      107
+    ]
+  },
+  {
+    "region": "ASSET_SHELF_HEADER",
+    "shelf": "BF_AST_boneforge_starters",
+    "size": [
+      1574,
+      24
+    ]
+  }
+]

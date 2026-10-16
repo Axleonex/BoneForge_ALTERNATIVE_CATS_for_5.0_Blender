@@ -74,6 +74,7 @@ _SUBMODULE_NAMES = (
     "merge",
     "retarget",
     "quick_human",
+    "rig_assets",
     "mannequin",
 )
 

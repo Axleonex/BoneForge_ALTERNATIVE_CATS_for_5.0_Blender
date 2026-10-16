@@ -1,0 +1,33 @@
+{
+  "version": "9.0.5",
+  "archive": "BoneForge-9.0.5.zip",
+  "status": "local unpublished build",
+  "files": 160,
+  "bytes": 984612,
+  "sha256": "9ce7c2505985d6a252af8c87572e07b9f9663decf5bae73e1e1b40234a8e9834",
+  "crc_passed": true,
+  "all_files_match_source": true,
+  "all_python_syntax_passed": true,
+  "addon_and_sidecar_version_match": true,
+  "host_gates_absent": true,
+  "catalog_assets": 9,
+  "manual_catalog_tab_enable_required": true,
+  "host_checks": {
+    "starter_shelf": [
+      "PASS Blender 4.5.9",
+      "PASS Blender 5.2.2"
+    ],
+    "existing_ui": "PASS Blender 5.2.2: 628 panel/menu draws, toggles, reload, seven languages, 273 existing operators and Task Board checks"
+  },
+  "routing": {
+    "outcome": "pre-host-apply qualification failure: desktop workspace must use a local drive",
+    "continuation": "native continuation under shared infrastructure recovery rule"
+  },
+  "native_gui": {
+    "host": "Blender 5.2.2",
+    "passed": true,
+    "setup": "enabled Starter Rigs and the separate Primitives catalog through the native selector",
+    "result": "Starter Rigs is the rightmost tab; selecting it displays the nine starter skeletons without the fixture cube",
+    "evidence": "../docs/releases/9.0.5/ui/starter-rigs-selected.png"
+  }
+}

@@ -41,6 +41,12 @@ class BoneForgePreferences(bpy.types.AddonPreferences):
 
     bl_idname = "boneforge"
 
+    starter_library_owned: StringProperty(
+        name="Starter rig library owner",
+        description="Asset library entry created by BoneForge",
+        default="", options={'HIDDEN'},
+    )
+
     # ── i18n language selector ───────────────────────────────────
     language: EnumProperty(
         name="Language",

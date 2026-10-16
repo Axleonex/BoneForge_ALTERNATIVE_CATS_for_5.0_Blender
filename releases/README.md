@@ -1,5 +1,25 @@
 # BoneForge releases
 
+## 9.0.5 — Starter Rigs catalog (local build)
+
+Local package: [BoneForge-9.0.5.zip](BoneForge-9.0.5.zip). Unpublished.
+
+- Adds an Object Mode asset shelf for standard Blender, reusing a host Object shelf when one exists.
+- Includes nine real starter skeleton/metarig assets in one **Starter Rigs** catalog.
+- Displays other compatible asset libraries and catalogs alongside the starters.
+- Adds no controls to the top-left viewport header.
+- Updates add-on metadata and export-sidecar stamp to 9.0.5.
+
+Open the bottom shelf's catalog menu, choose **All** libraries and check
+**Starter Rigs** once to enable its tab. The host does not expose automatic tab
+configuration to Python. Drag a thumbnail into the viewport to import a rig;
+use Quick Rig for fitted generation and Rigify control generation.
+
+Focused standard Blender checks cover registration, reload, other assets,
+library ownership and all nine bundled assets. The existing 628 panel/menu
+draw checks and Task Board suite pass on Blender 5.2.2. The package receipt
+records integrity, source parity, version stamps and absence of Bforartists gates.
+
 ## 9.0.4 — Health Check and Task Board (repository build)
 
 Repository package: [BoneForge-9.0.4.zip](BoneForge-9.0.4.zip). No 9.0.4 GitHub Release has been published.
