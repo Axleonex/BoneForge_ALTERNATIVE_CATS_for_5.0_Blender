@@ -836,3 +836,21 @@ STRINGS.update({
     "Warnings: {count}": "警告：{count}",
     "Refresh Results": "結果を更新",
 })
+
+# Material atlas selection and workflow.
+STRINGS.update({
+    "Select All": "\u3059\u3079\u3066\u9078\u629e",
+    "Deselect All": "\u3059\u3079\u3066\u9078\u629e\u89e3\u9664",
+    "Atlas Source Selection": "\u30a2\u30c8\u30e9\u30b9\u306e\u30bd\u30fc\u30b9\u9078\u629e",
+    "Materials to Combine": "\u7d50\u5408\u3059\u308b\u30de\u30c6\u30ea\u30a2\u30eb",
+    "Texture Images": "\u30c6\u30af\u30b9\u30c1\u30e3\u753b\u50cf",
+    "Refresh Analysis": "\u89e3\u6790\u3092\u66f4\u65b0",
+    "1. Choose Target": "1. \u5bfe\u8c61\u3092\u9078\u629e",
+    "2. Choose Materials and Textures": "2. \u30de\u30c6\u30ea\u30a2\u30eb\u3068\u30c6\u30af\u30b9\u30c1\u30e3\u3092\u9078\u629e",
+    "Checkboxes include sources in this group.": "\u30c1\u30a7\u30c3\u30af\u3057\u305f\u30bd\u30fc\u30b9\u3092\u3053\u306e\u30b0\u30eb\u30fc\u30d7\u306b\u542b\u3081\u307e\u3059\u3002",
+    "Group disabled: enable its checkbox to bake.": "\u30b0\u30eb\u30fc\u30d7\u306f\u7121\u52b9\u3067\u3059\u3002\u30d9\u30a4\u30af\u3059\u308b\u306b\u306f\u30c1\u30a7\u30c3\u30af\u3057\u3066\u304f\u3060\u3055\u3044\u3002",
+    "Source Details": "\u30bd\u30fc\u30b9\u306e\u8a73\u7d30",
+    "3. Bake and Review": "3. \u30d9\u30a4\u30af\u3057\u3066\u78ba\u8a8d",
+    "Bake Checked Sources": "\u30c1\u30a7\u30c3\u30af\u3057\u305f\u30bd\u30fc\u30b9\u3092\u30d9\u30a4\u30af",
+    "Advanced Options": "\u8a73\u7d30\u30aa\u30d7\u30b7\u30e7\u30f3"
+})

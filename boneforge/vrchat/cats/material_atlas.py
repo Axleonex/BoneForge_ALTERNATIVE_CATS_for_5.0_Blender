@@ -32,7 +32,7 @@ from bpy.props import (
 )
 
 from boneforge.i18n import T
-from bpy.types import Operator, Panel, PropertyGroup, UIList
+from bpy.types import Operator, Panel, PropertyGroup, UIList, Menu
 
 from boneforge.core import active_armature
 from boneforge.vrchat.cats import pipeline
@@ -220,13 +220,17 @@ def _material_alpha_mode(mat) -> str:
         if mode == "OPAQUE":
             return "OPAQUE"
 
-    blend = str(getattr(mat, "blend_method", "") or "").upper()
-    if blend in ("BLEND", "HASHED"):
-        return "BLEND"
-    if blend == "CLIP":
-        return "CLIP"
-
-    if str(getattr(mat, "surface_render_method", "") or "").upper() == "BLENDED":
+    surface_method = str(getattr(mat, "surface_render_method", "") or "").upper()
+    # Modern Blender's deprecated blend_method getter maps DITHERED to
+    # HASHED even for a completely opaque Principled shader. It cannot
+    # determine transparency on hosts exposing surface_render_method.
+    if not surface_method:
+        blend = str(getattr(mat, "blend_method", "") or "").upper()
+        if blend in ("BLEND", "HASHED"):
+            return "BLEND"
+        if blend == "CLIP":
+            return "CLIP"
+    if surface_method == "BLENDED":
         return "BLEND"
 
     # Node fallback for hand-built materials (no MToon data, no explicit
@@ -236,10 +240,10 @@ def _material_alpha_mode(mat) -> str:
             if node.type != "BSDF_PRINCIPLED":
                 continue
             alpha_input = node.inputs.get("Alpha")
-            if alpha_input is not None and alpha_input.is_linked:
-                for link in alpha_input.links:
-                    if getattr(link.from_node, "type", "") == "TEX_IMAGE":
-                        return "BLEND"
+            if alpha_input is not None:
+                # Math, ramps and groups can supply alpha just as images can.
+                if alpha_input.is_linked or float(alpha_input.default_value) < 0.999:
+                    return "BLEND"
     return "OPAQUE"
 
 
@@ -811,8 +815,52 @@ def _material_base_color_default(mat):
     return (1.0, 1.0, 1.0, 1.0)
 
 
+def _build_principled_input_bake_material(source_mat, input_name, prefix):
+    """Bake the actual connected input graph instead of guessing an image.
+
+    MToon retains its dedicated Cycles-safe texture fallback. For a normal
+    Principled surface, copying the graph preserves tint, math, ramps, groups,
+    image settings and authored UV mapping without editing the source material.
+    """
+    if not source_mat or not source_mat.use_nodes or not source_mat.node_tree:
+        return None
+    if _is_mtoon_material(source_mat):
+        return None
+    output = next((node for node in source_mat.node_tree.nodes
+                   if node.type == "OUTPUT_MATERIAL" and node.is_active_output), None)
+    surface = output.inputs.get("Surface") if output else None
+    if surface is None or not surface.is_linked:
+        return None
+    shader = surface.links[0].from_node
+    while shader.type == "REROUTE" and shader.inputs[0].is_linked:
+        shader = shader.inputs[0].links[0].from_node
+    if shader.type != "BSDF_PRINCIPLED" or shader.inputs.get(input_name) is None:
+        return None
+
+    temp = source_mat.copy()
+    temp.name = f"{prefix}{source_mat.name}"
+    nodes, links = temp.node_tree.nodes, temp.node_tree.links
+    value = nodes[shader.name].inputs[input_name]
+    output = nodes.new("ShaderNodeOutputMaterial")
+    output.is_active_output = True
+    emission = nodes.new("ShaderNodeEmission")
+    emission.inputs["Strength"].default_value = 1.0
+    if value.is_linked:
+        links.new(value.links[0].from_socket, emission.inputs["Color"])
+    elif input_name == "Alpha":
+        alpha = float(value.default_value)
+        emission.inputs["Color"].default_value = (alpha, alpha, alpha, 1.0)
+    else:
+        emission.inputs["Color"].default_value = value.default_value
+    links.new(emission.outputs["Emission"], output.inputs["Surface"])
+    return temp
+
+
 def _build_albedo_bake_material(source_mat):
     """Build a Cycles-safe base-colour graph for one source material."""
+    evaluated = _build_principled_input_bake_material(source_mat, "Base Color", "__BF_ALBEDO_BAKE_")
+    if evaluated is not None:
+        return evaluated
     temp = bpy.data.materials.new(
         f"__BF_ALBEDO_BAKE_{source_mat.name if source_mat else 'blank'}"
     )
@@ -925,6 +973,9 @@ def _fallback_alpha_image_node(mat):
 
 
 def _build_alpha_bake_material(source_mat):
+    evaluated = _build_principled_input_bake_material(source_mat, "Alpha", "__BF_ALPHA_BAKE_")
+    if evaluated is not None:
+        return evaluated
     temp = bpy.data.materials.new(f"__BF_ALPHA_BAKE_{source_mat.name if source_mat else 'opaque'}")
     temp.use_nodes = True
     nodes = temp.node_tree.nodes
@@ -1799,13 +1850,15 @@ def _validate_atlas_mesh(obj, atlas_mat):
 def _mirror_active_uv_to_atlas(mesh):
     """Keep preserved faces on their authored UVs in the rebuilt atlas mesh."""
     source_uv = mesh.uv_layers.active
-    if source_uv is None:
-        return False
-    if source_uv.name != "UVMap_pre_atlas":
+    if source_uv is not None and source_uv.name != "UVMap_pre_atlas":
         source_uv.name = "UVMap_pre_atlas"
     atlas_uv = mesh.uv_layers.get("atlas_uv")
     if atlas_uv is None:
         atlas_uv = mesh.uv_layers.new(name="atlas_uv")
+    if source_uv is None:
+        # Smart Pack can bake color-only meshes without authored UVs. The
+        # rebuilt full mesh still needs a layer to receive those baked loops.
+        return _activate_atlas_uv(mesh)
     for source_loop, atlas_loop in zip(source_uv.data, atlas_uv.data):
         atlas_loop.uv = source_loop.uv
     return _activate_atlas_uv(mesh)
@@ -2160,7 +2213,7 @@ def _projected_mat_count(settings) -> int:
             total += detected
             continue
         if enabled >= 2:
-            total += 1
+            total += len(_enabled_slots_by_object(group))
             total += max(0, detected - enabled)
         else:
             total += detected
@@ -2489,6 +2542,11 @@ class BF_AtlasSettings(PropertyGroup):
         default="//textures/atlas/",
         subtype="DIR_PATH",
     )
+    show_source_details: BoolProperty(
+        name="Source Details",
+        description="Show mesh information, selected material sizing and texture roles",
+        default=False,
+    )
     show_advanced: BoolProperty(name="Advanced Options", default=False)
 
 
@@ -2590,6 +2648,68 @@ class BF_UL_VRC_AtlasTextures(UIList):
         sub.label(text=item.colorspace or packed)
         if item.duplicate_group:
             sub.label(text=item.duplicate_group)
+
+
+class BF_OT_VRC_AtlasSelectSources(Operator):
+    """Check or uncheck sources in the active atlas group; missing textures stay excluded"""
+    bl_idname = "boneforge.vrc_atlas_select_sources"
+    bl_label = "Select Atlas Sources"
+    bl_options = {"REGISTER", "UNDO"}
+
+    target: EnumProperty(
+        name="Source List",
+        description="The source list in the active atlas group to change",
+        items=[("MATERIALS", "Materials", "Material slots"),
+               ("TEXTURES", "Textures", "Available texture images")],
+        options={"HIDDEN", "SKIP_SAVE"},
+    )
+    select: BoolProperty(
+        name="Select",
+        description="Check all available sources, or uncheck the entire list",
+        default=True,
+        options={"HIDDEN", "SKIP_SAVE"},
+    )
+
+    @classmethod
+    def poll(cls, context):
+        settings = getattr(getattr(context, "scene", None), "boneforge_atlas_settings", None)
+        if settings is None or not 0 <= settings.active_group_index < len(settings.atlas_groups):
+            cls.poll_message_set("Analyze materials and choose an atlas group first")
+            return False
+        if settings.has_backup:
+            cls.poll_message_set("Accept or Revert the current atlas preview first")
+            return False
+        return True
+
+    def execute(self, context):
+        settings = context.scene.boneforge_atlas_settings
+        group = settings.atlas_groups[settings.active_group_index]
+        items = group.materials if self.target == "MATERIALS" else group.textures
+        for item in items:
+            item.enabled = self.select and not getattr(item, "missing", False)
+        return {"FINISHED"}
+
+
+def _draw_source_selection(layout, target):
+    row = layout.row(align=True)
+    for label, select in (("Select All", True), ("Deselect All", False)):
+        op = row.operator("boneforge.vrc_atlas_select_sources", text=T(label))
+        op.target = target
+        op.select = select
+
+
+class BONEFORGE_MT_atlas_selection(Menu):
+    bl_label = "Atlas Source Selection"
+    bl_idname = "BONEFORGE_MT_atlas_selection"
+
+    def draw(self, context):
+        for label, target in (("Materials to Combine", "MATERIALS"), ("Texture Images", "TEXTURES")):
+            self.layout.label(text=T(label))
+            _draw_source_selection(self.layout, target)
+
+
+def _atlas_selection_menu(self, context):
+    self.layout.menu(BONEFORGE_MT_atlas_selection.bl_idname, text=T("Atlas Source Selection"))
 
 
 class BF_OT_VRC_AtlasAnalyze(Operator):
@@ -2889,6 +3009,22 @@ class BF_OT_VRC_AtlasBake(Operator):
                     f"(single-material groups have no effect)"
                 )
                 continue
+            for item in getattr(group, "materials", []):
+                if not item.enabled:
+                    continue
+                obj = bpy.data.objects.get(item.object_name)
+                slot = int(item.slot_index)
+                valid_slot = (obj is not None and obj.type == "MESH"
+                              and 0 <= slot < len(obj.data.materials))
+                material = obj.data.materials[slot] if valid_slot else None
+                material_name = material.name if material else "<empty>"
+                if (not valid_slot or material_name != item.material_name
+                        or not any(poly.material_index == slot for poly in obj.data.polygons)
+                        or _effective_render_type(obj, slot, material) != item.render_type):
+                    errors.append(
+                        f"{group.name}: source {item.object_name} / slot {slot} changed since Analyze. "
+                        "Run Analyze again before baking."
+                    )
             bake_groups.append(group)
 
             res = group.resolution
@@ -2982,7 +3118,7 @@ class BF_OT_VRC_AtlasBake(Operator):
         lines_change.append(
             f"  Output surface: {_output_surface_shader_label(settings)}"
         )
-        after = sum(1 for g in bake_groups) + sum(
+        after = sum(len(_enabled_slots_by_object(g)) for g in bake_groups) + sum(
             _group_detected_material_count(g) for g in settings.atlas_groups
             if not g.enabled or _group_enabled_material_count(g) < 2
         ) + sum(
@@ -3105,7 +3241,12 @@ class BF_OT_VRC_AtlasBake(Operator):
                 if result:
                     results.append(result)
                     completed_groups.append(group)
-                    mats_after_count -= (_group_enabled_material_count(group) - 1)
+                    mats_after_count -= (
+                        _group_enabled_material_count(group)
+                        - len(_enabled_slots_by_object(group))
+                    )
+                else:
+                    raise RuntimeError(f"{group.name}: no atlas mesh was created. Run Analyze again.")
 
             finalized_results = self._finalize_source_partitions(
                 context, completed_groups, settings, results
@@ -3186,6 +3327,11 @@ class BF_OT_VRC_AtlasBake(Operator):
                 dup = obj.copy()
                 dup.data = obj.data.copy()
                 dup.name = f"PRE_ATLAS_{obj.name}"
+                dup["boneforge_atlas_source_visibility"] = json.dumps({
+                    "hide_render": bool(obj.hide_render),
+                    "hide_viewport": bool(obj.hide_viewport),
+                    "hide_set": bool(obj.hide_get()),
+                })
                 backup_coll.objects.link(dup)
                 dup.hide_set(False)
                 dup.hide_viewport = False
@@ -3255,7 +3401,8 @@ class BF_OT_VRC_AtlasBake(Operator):
             if source_atlases:
                 combined = obj.copy()
                 combined.data = obj.data.copy()
-                _copy_material_slots(combined.data)
+                # Kept slots retain their authored material and shared identity.
+                # Only the temporary bake meshes need independent materials.
                 original_materials = list(combined.data.materials)
                 original_polygon_slots = [
                     int(polygon.material_index)
@@ -3323,7 +3470,7 @@ class BF_OT_VRC_AtlasBake(Operator):
                         ):
                             combined_uv[target_loop].uv = atlas_uv.data[atlas_loop].uv
 
-                _activate_atlas_uv(combined.data)
+                _prepare_atlas_uv_for_export(combined.data, settings.keep_source_uv_maps)
                 context.scene.collection.objects.link(combined)
                 first_atlas = source_atlases[0][0]
                 for key in first_atlas.keys():
@@ -3338,7 +3485,6 @@ class BF_OT_VRC_AtlasBake(Operator):
             elif unbaked_slots:
                 preserved = obj.copy()
                 preserved.data = obj.data.copy()
-                _copy_material_slots(preserved.data)
                 remove_slots = set(range(len(preserved.data.materials))) - set(
                     unbaked_slots
                 )
@@ -3438,6 +3584,11 @@ class BF_OT_VRC_AtlasBake(Operator):
                     )
             dup.name = f"__BF_ATLAS_WORK_{obj.name}"
             scene.collection.objects.link(dup)
+            # Bake targets must be renderable even when their source is hidden
+            # from the camera. Only the temporary duplicate is made visible.
+            dup.hide_viewport = False
+            dup.hide_render = False
+            dup.hide_set(False)
             dup.select_set(True)
             work_objs.append(dup)
 
@@ -3884,10 +4035,15 @@ class BF_OT_VRC_AtlasRevert(Operator):
         # Restore originals first; backup duplicates are a fallback if a source was removed.
         for obj in list(coll.objects):
             orig_name = obj.name.replace("PRE_ATLAS_", "", 1)
+            try:
+                visibility = json.loads(obj.get("boneforge_atlas_source_visibility", "{}"))
+            except (TypeError, ValueError):
+                visibility = {}
             original = bpy.data.objects.get(orig_name)
             if original is not None:
-                original.hide_set(False)
-                original.hide_render = False
+                original.hide_viewport = bool(visibility.get("hide_viewport", False))
+                original.hide_render = bool(visibility.get("hide_render", False))
+                original.hide_set(bool(visibility.get("hide_set", False)))
                 bpy.data.objects.remove(obj, do_unlink=True)
                 continue
 
@@ -3896,14 +4052,21 @@ class BF_OT_VRC_AtlasRevert(Operator):
                 scene.collection.objects.link(obj)
             except RuntimeError:
                 pass
-            obj.hide_set(False)
-            obj.hide_render = False
+            obj.hide_viewport = bool(visibility.get("hide_viewport", False))
+            obj.hide_render = bool(visibility.get("hide_render", False))
+            obj.hide_set(bool(visibility.get("hide_set", False)))
+            if "boneforge_atlas_source_visibility" in obj:
+                del obj["boneforge_atlas_source_visibility"]
 
         bpy.data.collections.remove(coll)
 
         settings.has_backup = False
         settings.backup_collection_name = ""
         settings.last_bake_result = ""
+        settings.total_mats_before = sum(
+            _group_detected_material_count(group) for group in settings.atlas_groups
+        )
+        settings.rank_before = _get_rank(settings.total_mats_before)
         self.report({"INFO"}, "Reverted to original meshes")
         return {"FINISHED"}
 
@@ -3965,18 +4128,23 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
             row.label(text=f"→  {after} mats  [{rank_after}]")
 
         col.separator()
+        col.label(text=T("1. Choose Target"))
         col.prop(settings, "target_scope")
-        smart_row = col.row()
-        smart_row.scale_y = 1.35
-        smart_row.operator(
-            "boneforge.vrc_atlas_smart_combine",
-            text=T("Smart Combine Materials"),
-            icon="MATERIAL",
+        if not settings.atlas_groups:
+            smart_row = col.row()
+            smart_row.scale_y = 1.35
+            smart_row.operator(
+                "boneforge.vrc_atlas_smart_combine",
+                text=T("Smart Combine Materials"),
+                icon="MATERIAL",
+            )
+        analyze_row = col.row()
+        analyze_row.enabled = not settings.has_backup
+        analyze_row.operator(
+            "boneforge.vrc_atlas_analyze",
+            text=T("Refresh Analysis" if settings.atlas_groups else "Analyze Materials"),
+            icon="VIEWZOOM",
         )
-
-        tool_row = col.row(align=True)
-        tool_row.operator("boneforge.vrc_atlas_analyze", text=T("Analyze"), icon="VIEWZOOM")
-        tool_row.operator("boneforge.vrc_atlas_copy_debug", text=T("Copy Debug"), icon="COPYDOWN")
         backup_row = col.row(align=True)
         backup_row.prop(settings, "preserve_originals", text=T("Preserve Backup Duplicate"))
         if not settings.preserve_originals:
@@ -4004,7 +4172,7 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
 
         # ── ZONE 2 — Grouping Control ─────────────────────────
         if settings.atlas_groups:
-            layout.label(text=T("Atlas Groups:"))
+            layout.label(text=T("2. Choose Materials and Textures"))
 
             # UIList
             row = layout.row()
@@ -4073,8 +4241,13 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
                         icon="CHECKMARK",
                     )
 
-                # Meshes in this group
-                if active_group.meshes:
+                dcol.label(text=T("Checkboxes include sources in this group."))
+                if not active_group.enabled:
+                    dcol.label(text=T("Group disabled: enable its checkbox to bake."), icon="INFO")
+                dcol.prop(settings, "show_source_details", text=T("Source Details"))
+
+                # Optional information and source overrides.
+                if settings.show_source_details and active_group.meshes:
                     dcol.separator()
                     dcol.label(text=T("Meshes in group:"))
                     for item in active_group.meshes:
@@ -4098,6 +4271,7 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
                         ),
                         icon="MATERIAL_DATA",
                     )
+                    _draw_source_selection(dcol, "MATERIALS")
                     dcol.template_list(
                         "BF_UL_VRC_AtlasMaterials", "",
                         active_group, "materials",
@@ -4105,7 +4279,7 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
                         rows=5,
                     )
                     mat_idx = active_group.active_material_index
-                    if 0 <= mat_idx < len(active_group.materials):
+                    if settings.show_source_details and 0 <= mat_idx < len(active_group.materials):
                         mat_item = active_group.materials[mat_idx]
                         mat_detail = dcol.box()
                         mat_detail.label(text=T("Selected Material:"), icon="MATERIAL_DATA")
@@ -4133,6 +4307,7 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
                         ),
                         icon="IMAGE_DATA",
                     )
+                    _draw_source_selection(dcol, "TEXTURES")
                     dcol.template_list(
                         "BF_UL_VRC_AtlasTextures", "",
                         active_group, "textures",
@@ -4140,7 +4315,7 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
                         rows=5,
                     )
                     tex_idx = active_group.active_texture_index
-                    if 0 <= tex_idx < len(active_group.textures):
+                    if settings.show_source_details and 0 <= tex_idx < len(active_group.textures):
                         tex_item = active_group.textures[tex_idx]
                         tex_detail = dcol.box()
                         tex_detail.label(text=T("Selected Texture:"), icon="IMAGE_DATA")
@@ -4162,16 +4337,18 @@ class BONEFORGE_PT_vrc_w2_atlas(Panel):
             layout.separator()
 
             # Primary action
+            layout.label(text=T("3. Bake and Review"))
             bake_row = layout.row()
+            bake_row.enabled = not settings.has_backup
             bake_row.scale_y = 1.4
-            bake_row.operator("boneforge.vrc_atlas_bake", text=T("Bake Atlas"), icon="RENDER_STILL")
+            bake_row.operator("boneforge.vrc_atlas_bake", text=T("Bake Checked Sources"), icon="RENDER_STILL")
 
         # ── ZONE 3 — Advanced Options ─────────────────────────
         adv_box = layout.box()
         adv_header = adv_box.row()
         adv_header.prop(
             settings, "show_advanced",
-            text=T("Override Inherited Settings"),
+            text=T("Advanced Options"),
             icon="TRIA_DOWN" if settings.show_advanced else "TRIA_RIGHT",
             emboss=False,
         )
@@ -4240,6 +4417,8 @@ _classes = (
     BF_UL_VRC_AtlasGroups,
     BF_UL_VRC_AtlasMaterials,
     BF_UL_VRC_AtlasTextures,
+    BF_OT_VRC_AtlasSelectSources,
+    BONEFORGE_MT_atlas_selection,
     BF_OT_VRC_AtlasAnalyze,
     BF_OT_VRC_AtlasAddGroup,
     BF_OT_VRC_AtlasRemoveGroup,
@@ -4258,12 +4437,15 @@ def register():
         except RuntimeError as e:
             logger.error(f"[BoneForge Atlas] Failed to register {cls.__name__}: {e}")
 
+    bpy.types.VIEW3D_MT_object.append(_atlas_selection_menu)
+
     bpy.types.Scene.boneforge_atlas_settings = bpy.props.PointerProperty(
         type=BF_AtlasSettings
     )
 
 
 def unregister():
+    bpy.types.VIEW3D_MT_object.remove(_atlas_selection_menu)
     if hasattr(bpy.types.Scene, "boneforge_atlas_settings"):
         del bpy.types.Scene.boneforge_atlas_settings
 

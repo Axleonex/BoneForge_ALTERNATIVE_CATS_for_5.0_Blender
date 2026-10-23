@@ -1,0 +1,122 @@
+[
+  {
+    "product": "BoneForge",
+    "before": "9.0.5",
+    "after": "9.0.6",
+    "fix": "MMD extension installation, detection and PMX import repair"
+  },
+  {
+    "product": "BoneCraft",
+    "before": "9.2.5",
+    "after": "9.2.6",
+    "fix": "MMD extension installation, detection and PMX import repair"
+  },
+  {
+    "product": "BoneForge",
+    "before": "9.0.6",
+    "after": "9.0.7",
+    "fix": "Material classification: modern DITHERED opacity and linked/constant alpha"
+  },
+  {
+    "product": "BoneCraft",
+    "before": "9.2.6",
+    "after": "9.2.7",
+    "fix": "Material classification: modern DITHERED opacity and linked/constant alpha"
+  },
+  {
+    "product": "BoneForge",
+    "before": "9.0.7",
+    "after": "9.0.8",
+    "fix": "Material combiner preserves connected Principled tint, mapping and alpha graphs while baking"
+  },
+  {
+    "product": "BoneCraft",
+    "before": "9.2.7",
+    "after": "9.2.8",
+    "fix": "Material combiner preserves connected Principled tint, mapping and alpha graphs while baking"
+  },
+  {
+    "product": "BoneForge",
+    "before": "9.0.8",
+    "after": "9.0.9",
+    "fix": "Combiner handles render-hidden sources and restores original visibility on Revert"
+  },
+  {
+    "product": "BoneCraft",
+    "before": "9.2.8",
+    "after": "9.2.9",
+    "fix": "Combiner handles render-hidden sources and restores original visibility on Revert"
+  },
+  {
+    "product": "BoneForge",
+    "before": "9.0.9",
+    "after": "9.0.10",
+    "fix": "Preserve excluded material datablocks and shared references during atlas assembly"
+  },
+  {
+    "product": "BoneCraft",
+    "before": "9.2.9",
+    "after": "9.2.10",
+    "fix": "Preserve excluded material datablocks and shared references during atlas assembly"
+  },
+  {
+    "product": "BoneForge",
+    "before": "9.0.10",
+    "after": "9.0.11",
+    "fix": "Reject deleted or changed analyzed material sources before creating an atlas backup"
+  },
+  {
+    "product": "BoneCraft",
+    "before": "9.2.10",
+    "after": "9.2.11",
+    "fix": "Reject deleted or changed analyzed material sources before creating an atlas backup"
+  },
+  {
+    "product": "BoneForge",
+    "before": "9.0.11",
+    "after": "9.0.12",
+    "fix": "Final rebuilt atlas mesh exports atlas_uv as UV0 when source UV retention is off"
+  },
+  {
+    "product": "BoneCraft",
+    "before": "9.2.11",
+    "after": "9.2.12",
+    "fix": "Final rebuilt atlas mesh exports atlas_uv as UV0 when source UV retention is off"
+  },
+  {
+    "product": "BoneForge",
+    "before": "9.0.12",
+    "after": "9.0.13",
+    "fix": "Material-count estimates and results count atlas slots on every output mesh and reset on Revert"
+  },
+  {
+    "product": "BoneCraft",
+    "before": "9.2.12",
+    "after": "9.2.13",
+    "fix": "Material-count estimates and results count atlas slots on every output mesh and reset on Revert"
+  },
+  {
+    "product": "BoneForge",
+    "before": "9.0.13",
+    "after": "9.0.14",
+    "fix": "Color-only meshes without authored UVs receive the baked UV layer during final assembly"
+  },
+  {
+    "product": "BoneCraft",
+    "before": "9.2.13",
+    "after": "9.2.14",
+    "fix": "Color-only meshes without authored UVs receive the baked UV layer during final assembly"
+  },
+  {
+    "product": "BoneForge",
+    "before": "9.0.14",
+    "after": "9.0.15",
+    "fix": "Atlas selection UX: Select All/Deselect All for both source lists, progressive disclosure and clear reviewed-bake path"
+  },
+  {
+    "product": "BoneCraft",
+    "before": "9.2.14",
+    "after": "9.2.15",
+    "fix": "Atlas selection UX: Select All/Deselect All for both source lists, progressive disclosure and clear reviewed-bake path"
+  }
+]

@@ -8,14 +8,18 @@ This build is an attempted revival and continuation of no-longer-maintained free
 > If you hit a problem, a screenshot or a short note about what you were doing
 > helps a lot — please open an [issue](../../issues).
 
-**Current local build: BoneForge 9.0.5.** Adds a Starter Rigs catalog in the bottom viewport asset shelf. [Checks and release notes](releases/README.md#905--starter-rigs-catalog-local-build). The latest tagged GitHub Release remains 9.0.3.
+**Current repository build: BoneForge 9.0.15.** Includes the MMD/PMX repair and
+material-combiner fixes for opacity, shader tint/alpha, visibility, preserved
+materials, stale analysis, export UV0, material counts and meshes without UVs.
+[Release notes](releases/README.md#9015---material-and-texture-selection).
+[Verification details](tests/combiner-evidence/README.md).
 
 ## Install
 
-1. Download the current local build: **[BoneForge-9.0.5.zip](releases/BoneForge-9.0.5.zip)**. Tagged releases are listed on the [Releases](../../releases) page.
+1. Download the current repository build: **[BoneForge-9.0.15.zip](releases/BoneForge-9.0.15.zip)**. Tagged releases are listed on the [Releases](../../releases) page.
 2. In Blender, open **Edit → Preferences → Add-ons**.
 3. Click the **dropdown arrow (˅) at the top-right of the Add-ons panel → Install from Disk…**
-4. Select the `BoneForge-9.0.5.zip` you downloaded.
+4. Select the `BoneForge-9.0.15.zip` you downloaded.
 5. Tick the checkbox next to **BoneForge** to enable it.
 6. In the 3D Viewport, press **N** to open the sidebar — BoneForge adds its tabs there.
 
@@ -76,3 +80,7 @@ Additional detailed UV integration credits live in [`boneforge/vrchat/cats/uv_to
 ## License
 
 Released under the **GNU General Public License v2.0 or later** — see [`LICENSE`](LICENSE).
+
+Material Atlas now includes Select All / Deselect All for each active-group source list.
+The reviewed workflow is Analyze, check sources, then Bake Checked Sources. Source Details
+and Advanced Options fold away sizing, roles and diagnostics. Missing textures stay excluded.

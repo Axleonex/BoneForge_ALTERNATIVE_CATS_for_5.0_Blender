@@ -1,5 +1,12 @@
 # BoneForge releases
 
+## 9.0.15 - Material and texture selection
+
+Download [BoneForge-9.0.15.zip](BoneForge-9.0.15.zip). Repository package; no standalone GitHub Release.
+Adds active-group Select All / Deselect All for materials and textures, skips missing
+textures, folds source details and makes the reviewed bake path explicit. Retains all
+9.0.14 MMD and combiner fixes. [UI review and checks](../tests/combiner-evidence/ui-review.md).
+
 ## 9.0.5 — Starter Rigs catalog (local build)
 
 Local package: [BoneForge-9.0.5.zip](BoneForge-9.0.5.zip). Unpublished.

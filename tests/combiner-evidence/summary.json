@@ -1,0 +1,238 @@
+{
+  "date": "2026-10-23",
+  "result": "PASS",
+  "supersedes": "9.0.14 / 9.2.14 local builds",
+  "packages": [
+    {
+      "product": "BoneForge",
+      "version": [
+        9,
+        0,
+        15
+      ],
+      "candidate": "local-bugfix-release",
+      "source": "\\\\100.114.2.71\\Gdrive\\LapArt\\Projects\\Blender_Addons\\BoneForge_Free\\boneforge",
+      "files": 160,
+      "crc": "PASS",
+      "source_parity": "PASS",
+      "sha256": "2c9cbd8f30ee6142f7c7a8ba77b9831380f0f3fb60c52a31bb3e3402e8e55615",
+      "ui_selection": {
+        "result": "PASS",
+        "host": "5.2.2 LTS",
+        "version": [
+          9,
+          0,
+          15
+        ],
+        "checks": [
+          "materials all/none",
+          "textures all/none",
+          "missing textures excluded",
+          "group isolation",
+          "preserved group remains disabled",
+          "independent lists",
+          "repeat action",
+          "empty/stale/backup polls",
+          "registered menu",
+          "collapsed/expanded draw",
+          "reviewed bake path",
+          "operator RNA"
+        ]
+      },
+      "bake_regressions": {
+        "product": "BoneForge",
+        "version": [
+          9,
+          0,
+          15
+        ],
+        "host": "5.2.2 LTS",
+        "checks": [
+          {
+            "name": "material_classification",
+            "result": "PASS",
+            "detail": {
+              "classes": [
+                "Opaque",
+                "Alpha Blend",
+                "Alpha Blend"
+              ],
+              "solid_legacy_method": "HASHED",
+              "solid_surface_method": "DITHERED"
+            }
+          },
+          {
+            "name": "shader_graph_pixels",
+            "result": "PASS",
+            "detail": {
+              "pixels": [
+                [
+                  0.8000000715255737,
+                  0.0,
+                  0.0,
+                  0.40000003576278687
+                ],
+                [
+                  0.0,
+                  1.0,
+                  0.0,
+                  0.8000000715255737
+                ]
+              ]
+            }
+          },
+          {
+            "name": "mixed_mesh_accept_revert",
+            "result": "PASS",
+            "detail": {
+              "combined_meshes": 2,
+              "accept": true,
+              "revert": true
+            }
+          },
+          {
+            "name": "deleted_source_preflight",
+            "result": "PASS",
+            "detail": {
+              "stale_bake": "CANCELLED"
+            }
+          },
+          {
+            "name": "no_uv_color_only",
+            "result": "PASS",
+            "detail": {
+              "color_bake": true,
+              "generated_uv0": true,
+              "original_untouched": true
+            }
+          }
+        ],
+        "result": "PASS"
+      },
+      "mmd_source_unchanged": true,
+      "mmd_regressions": 13,
+      "export_stamp": "PASS",
+      "translations": "PASS"
+    },
+    {
+      "product": "BoneCraft",
+      "version": [
+        9,
+        2,
+        15
+      ],
+      "candidate": "local-bugfix-release",
+      "source": "\\\\100.114.2.71\\Gdrive\\LapArt\\Projects\\Blender_Addons\\B4Artists_Tools\\.claude\\worktrees\\bonecraft-mmd-925\\bonecraft\\boneforge",
+      "files": 232,
+      "crc": "PASS",
+      "source_parity": "PASS",
+      "sha256": "d7e1c1af87cbc7e3e1bc98bc35877ced83f81fa55035ef70e95a0c69db7ef158",
+      "ui_selection": {
+        "result": "PASS",
+        "host": "5.3.0 Alpha",
+        "version": [
+          9,
+          2,
+          15
+        ],
+        "checks": [
+          "materials all/none",
+          "textures all/none",
+          "missing textures excluded",
+          "group isolation",
+          "preserved group remains disabled",
+          "independent lists",
+          "repeat action",
+          "empty/stale/backup polls",
+          "registered menu",
+          "collapsed/expanded draw",
+          "reviewed bake path",
+          "operator RNA"
+        ]
+      },
+      "bake_regressions": {
+        "product": "BoneCraft",
+        "version": [
+          9,
+          2,
+          15
+        ],
+        "host": "5.3.0 Alpha",
+        "checks": [
+          {
+            "name": "material_classification",
+            "result": "PASS",
+            "detail": {
+              "classes": [
+                "Opaque",
+                "Alpha Blend",
+                "Alpha Blend"
+              ],
+              "solid_legacy_method": "HASHED",
+              "solid_surface_method": "DITHERED"
+            }
+          },
+          {
+            "name": "shader_graph_pixels",
+            "result": "PASS",
+            "detail": {
+              "pixels": [
+                [
+                  0.8000000715255737,
+                  0.0,
+                  0.0,
+                  0.40000003576278687
+                ],
+                [
+                  0.0,
+                  1.0,
+                  0.0,
+                  0.8000000715255737
+                ]
+              ]
+            }
+          },
+          {
+            "name": "mixed_mesh_accept_revert",
+            "result": "PASS",
+            "detail": {
+              "combined_meshes": 2,
+              "accept": true,
+              "revert": true
+            }
+          },
+          {
+            "name": "deleted_source_preflight",
+            "result": "PASS",
+            "detail": {
+              "stale_bake": "CANCELLED"
+            }
+          },
+          {
+            "name": "no_uv_color_only",
+            "result": "PASS",
+            "detail": {
+              "color_bake": true,
+              "generated_uv0": true,
+              "original_untouched": true
+            }
+          }
+        ],
+        "result": "PASS"
+      },
+      "mmd_source_unchanged": true,
+      "mmd_regressions": 13,
+      "export_stamp": "PASS",
+      "translations": "PASS"
+    }
+  ],
+  "focused_atlas_tests": {
+    "passed": 27,
+    "preexisting_unrelated_deselected": 2
+  },
+  "visual_window_review": "NOT VERIFIED",
+  "interactive_undo_redo": "NOT VERIFIED",
+  "notes": [
+    "Bake tests completed with PASS result JSON in both hosts. PowerShell combined-stream redirection marked deprecation warnings as NativeCommandError; expected stale-source rejection is asserted by the tests."
+  ]
+}

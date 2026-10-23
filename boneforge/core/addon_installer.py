@@ -17,10 +17,8 @@ fork releases trigger.
 The :func:`smart_install_zip` flow:
 
 1. Inspect the zip's structure.
-2. If ``__init__.py`` or ``blender_manifest.toml`` sits at the root,
-   extract → re-zip with everything wrapped in a single directory →
-   try ``addon_install`` against the wrapped zip.
-3. If the zip is already structured correctly, install directly.
+2. Install manifest-bearing ZIPs through Blender Extensions, preserving wheels.
+3. Wrap flat legacy ZIPs; install already structured legacy ZIPs directly.
 4. Surface a structured ``InstallResult`` to the caller — success
    flag, human-readable message, and the eventual filepath used.
 """
@@ -29,7 +27,6 @@ from __future__ import annotations
 
 import logging
 import os
-import shutil
 import tempfile
 import zipfile
 from dataclasses import dataclass
@@ -83,11 +80,22 @@ def _try_extension_install(filepath: str) -> InstallResult:
     """Try installing via the Blender 4.2+ Extensions system.
 
     Returns a successful InstallResult if the Extensions API is
-    available and accepted the zip, otherwise a failed result so the
-    caller can fall back to the legacy path.
+    available and accepted the zip. Extensions must never fall back to
+    legacy installation: it skips manifest requirements and bundled wheels.
     """
     try:
-        bpy.ops.extensions.package_install_file(filepath=filepath)
+        repos = bpy.context.preferences.extensions.repos
+        repo = next((r for r in repos
+                     if r.enabled and not r.use_remote_url
+                     and getattr(r, "source", "USER") != "SYSTEM"), None)
+        if repo is None:
+            return InstallResult(False, "No enabled local extension repository. "
+                                 "Add one in Preferences > Get Extensions > Repositories.")
+        outcome = bpy.ops.extensions.package_install_files(
+            filepath=filepath, repo=repo.module, enable_on_install=True,
+        )
+        if "FINISHED" not in outcome:
+            return InstallResult(False, "Extension installation was cancelled or did not finish")
         return InstallResult(
             success=True,
             message="Installed as Blender 4.2+ Extension",
@@ -101,7 +109,7 @@ def _try_extension_install(filepath: str) -> InstallResult:
     except RuntimeError as exc:
         return InstallResult(
             success=False,
-            message=f"extensions.package_install_file failed: {exc}",
+            message=f"extensions.package_install_files failed: {exc}",
             error=exc,
         )
 
@@ -135,18 +143,9 @@ def smart_install_zip(
             error=exc,
         )
 
-    # Path 0: Blender 4.2+ Extension zip (blender_manifest.toml at root,
-    # no __init__.py) — try the Extensions installer first before falling
-    # back to the legacy repackage path, which Blender 4.2+ rejects.
-    if info["has_manifest_at_root"] and not info["has_init_at_root"]:
-        ext_result = _try_extension_install(filepath)
-        if ext_result.success:
-            return ext_result
-        logger.info(
-            "[BoneForge] Extension installer did not succeed (%s); "
-            "falling back to legacy repackage path",
-            ext_result.message,
-        )
+    # Modern extensions include BOTH a manifest and __init__.py.
+    if info["has_manifest_at_root"]:
+        return _try_extension_install(filepath)
 
     needs_wrap = (
         info["has_init_at_root"] or info["has_manifest_at_root"]
@@ -155,9 +154,11 @@ def smart_install_zip(
     # Path 1: zip is structured normally — try direct install.
     if not needs_wrap:
         try:
-            bpy.ops.preferences.addon_install(
+            outcome = bpy.ops.preferences.addon_install(
                 filepath=filepath, overwrite=True,
             )
+            if "FINISHED" not in outcome:
+                return InstallResult(False, "Add-on installation was cancelled or did not finish")
             return InstallResult(
                 success=True,
                 message="Installed directly",
@@ -215,9 +216,12 @@ def _install_with_wrap(filepath: str, folder_name: str) -> InstallResult:
             )
 
         try:
-            bpy.ops.preferences.addon_install(
+            outcome = bpy.ops.preferences.addon_install(
                 filepath=wrapped_zip, overwrite=True,
             )
+            if "FINISHED" not in outcome:
+                return InstallResult(False, "Add-on installation was cancelled or did not finish",
+                                     repackaged=True)
             return InstallResult(
                 success=True,
                 message=f"Installed (repackaged into {folder_name}/)",

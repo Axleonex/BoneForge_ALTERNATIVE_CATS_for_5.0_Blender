@@ -836,3 +836,21 @@ STRINGS.update({
     "Warnings: {count}": "警告：{count}",
     "Refresh Results": "刷新结果",
 })
+
+# Material atlas selection and workflow.
+STRINGS.update({
+    "Select All": "\u5168\u9009",
+    "Deselect All": "\u53d6\u6d88\u5168\u9009",
+    "Atlas Source Selection": "\u56fe\u96c6\u6e90\u9009\u62e9",
+    "Materials to Combine": "\u8981\u5408\u5e76\u7684\u6750\u8d28",
+    "Texture Images": "\u7eb9\u7406\u56fe\u50cf",
+    "Refresh Analysis": "\u5237\u65b0\u5206\u6790",
+    "1. Choose Target": "1. \u9009\u62e9\u76ee\u6807",
+    "2. Choose Materials and Textures": "2. \u9009\u62e9\u6750\u8d28\u548c\u7eb9\u7406",
+    "Checkboxes include sources in this group.": "\u52fe\u9009\u7684\u6e90\u5c06\u5305\u542b\u5728\u6b64\u7ec4\u4e2d\u3002",
+    "Group disabled: enable its checkbox to bake.": "\u7ec4\u5df2\u7981\u7528\uff1a\u52fe\u9009\u8be5\u7ec4\u4ee5\u8fdb\u884c\u70d8\u7119\u3002",
+    "Source Details": "\u6e90\u8be6\u60c5",
+    "3. Bake and Review": "3. \u70d8\u7119\u5e76\u68c0\u67e5",
+    "Bake Checked Sources": "\u70d8\u7119\u52fe\u9009\u7684\u6e90",
+    "Advanced Options": "\u9ad8\u7ea7\u9009\u9879"
+})

@@ -1,0 +1,14 @@
+{
+  "product": "BoneForge",
+  "version": [
+    9,
+    0,
+    15
+  ],
+  "candidate": "local-bugfix-release",
+  "source": "\\\\100.114.2.71\\Gdrive\\LapArt\\Projects\\Blender_Addons\\BoneForge_Free\\boneforge",
+  "files": 160,
+  "crc": "PASS",
+  "source_parity": "PASS",
+  "sha256": "2c9cbd8f30ee6142f7c7a8ba77b9831380f0f3fb60c52a31bb3e3402e8e55615"
+}

@@ -1,0 +1,200 @@
+{
+  "date": "2026-10-23",
+  "result": "PASS",
+  "baseline": {
+    "unit_tests": 13,
+    "failures": 10,
+    "errors": 1,
+    "host": "Blender disk installer reported success without MMD availability"
+  },
+  "unit_tests": {
+    "BoneForge": 13,
+    "BoneCraft": 13,
+    "result": "PASS"
+  },
+  "host_checks": [
+    {
+      "host": "5.2.2 LTS",
+      "binary": "C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe",
+      "module": "bl_ext.user_default.mmd_tools",
+      "status": {
+        "installed": true,
+        "enabled": true,
+        "import_pmx_available": true,
+        "import_vmd_available": true,
+        "import_vpd_available": true,
+        "export_pmx_available": true,
+        "export_vmd_available": true,
+        "export_vpd_available": true,
+        "version": [
+          4,
+          5,
+          14
+        ],
+        "module_name": "bl_ext.user_default.mmd_tools"
+      },
+      "new_armatures": [
+        "result_arm"
+      ],
+      "wheel_dependency": "opencc",
+      "result": "PASS",
+      "product": "BoneForge",
+      "candidate_zip_installed": false,
+      "evidence": "blender-fixed/result.json"
+    },
+    {
+      "host": "5.2.2 LTS",
+      "binary": "C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe",
+      "install_mode": "auto",
+      "module": "bl_ext.user_default.mmd_tools",
+      "status": {
+        "installed": true,
+        "enabled": true,
+        "import_pmx_available": true,
+        "import_vmd_available": true,
+        "import_vpd_available": true,
+        "export_pmx_available": true,
+        "export_vmd_available": true,
+        "export_vpd_available": true,
+        "version": [
+          4,
+          5,
+          14
+        ],
+        "module_name": "bl_ext.user_default.mmd_tools"
+      },
+      "new_armatures": [
+        "auto-result_arm"
+      ],
+      "wheel_dependency": "opencc",
+      "result": "PASS",
+      "product": "BoneForge",
+      "candidate_zip_installed": false,
+      "evidence": "blender-fixed/auto-result.json"
+    },
+    {
+      "host": "5.3.0 Alpha",
+      "binary": "C:\\Program Files\\Bforartists\\5.2.0\\bforartists.exe",
+      "module": "bl_ext.user_default.mmd_tools",
+      "status": {
+        "installed": true,
+        "enabled": true,
+        "import_pmx_available": true,
+        "import_vmd_available": true,
+        "import_vpd_available": true,
+        "export_pmx_available": true,
+        "export_vmd_available": true,
+        "export_vpd_available": true,
+        "version": [
+          4,
+          5,
+          14
+        ],
+        "module_name": "bl_ext.user_default.mmd_tools"
+      },
+      "new_armatures": [
+        "result_arm"
+      ],
+      "wheel_dependency": "opencc",
+      "result": "PASS",
+      "product": "BoneCraft",
+      "candidate_zip_installed": false,
+      "evidence": "bforartists-fixed/result.json"
+    },
+    {
+      "host": "5.2.2 LTS",
+      "binary": "C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe",
+      "install_mode": "disk",
+      "module": "bl_ext.user_default.mmd_tools",
+      "status": {
+        "installed": true,
+        "enabled": true,
+        "import_pmx_available": true,
+        "import_vmd_available": true,
+        "import_vpd_available": true,
+        "export_pmx_available": true,
+        "export_vmd_available": true,
+        "export_vpd_available": true,
+        "version": [
+          4,
+          5,
+          14
+        ],
+        "module_name": "bl_ext.user_default.mmd_tools"
+      },
+      "new_armatures": [
+        "result_arm"
+      ],
+      "wheel_dependency": "opencc",
+      "result": "PASS",
+      "product": "BoneForge",
+      "candidate_zip_installed": true,
+      "evidence": "blender-package/result.json"
+    },
+    {
+      "host": "5.3.0 Alpha",
+      "binary": "C:\\Program Files\\Bforartists\\5.2.0\\bforartists.exe",
+      "install_mode": "auto",
+      "module": "bl_ext.user_default.mmd_tools",
+      "status": {
+        "installed": true,
+        "enabled": true,
+        "import_pmx_available": true,
+        "import_vmd_available": true,
+        "import_vpd_available": true,
+        "export_pmx_available": true,
+        "export_vmd_available": true,
+        "export_vpd_available": true,
+        "version": [
+          4,
+          5,
+          14
+        ],
+        "module_name": "bl_ext.user_default.mmd_tools"
+      },
+      "new_armatures": [
+        "result_arm"
+      ],
+      "wheel_dependency": "opencc",
+      "result": "PASS",
+      "product": "BoneCraft",
+      "candidate_zip_installed": true,
+      "evidence": "bforartists-package/result.json"
+    }
+  ],
+  "packages": [
+    {
+      "product": "BoneForge",
+      "version": [
+        9,
+        0,
+        5
+      ],
+      "candidate": "mmd-fix",
+      "source": "\\\\100.114.2.71\\Gdrive\\LapArt\\Projects\\Blender_Addons\\BoneForge_Free\\boneforge",
+      "files": 160,
+      "crc": "PASS",
+      "source_parity": "PASS",
+      "sha256": "d015d7addbe5df4fb3ffa6c063b8b1cb97cf2a8f4a7fa1ef03598d86ceadbe14"
+    },
+    {
+      "product": "BoneCraft",
+      "version": [
+        9,
+        1,
+        3
+      ],
+      "candidate": "mmd-fix",
+      "source": "\\\\100.114.2.71\\Gdrive\\LapArt\\Projects\\Blender_Addons\\B4Artists_Tools\\bonecraft\\boneforge",
+      "files": 232,
+      "crc": "PASS",
+      "source_parity": "PASS",
+      "sha256": "253ad130c8af5e27a9d05018ada86647c9c9b7bfc4b56379ce6f961cb2734e46"
+    }
+  ],
+  "manual_limits": [
+    "native file-browser appearance",
+    "production avatar content",
+    "VMD/VPD/export data round trips"
+  ]
+}

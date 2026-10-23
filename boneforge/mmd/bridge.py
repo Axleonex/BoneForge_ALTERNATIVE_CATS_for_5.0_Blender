@@ -1,9 +1,8 @@
 """Detect ``mmd_tools`` and offer four install paths.
 
 mmd_tools is the canonical PMX/PMD/VMD I/O addon for Blender —
-maintained by UuuNyaa, free, GPL. It has shipped under several
-module names across versions, so we probe by ``bl_info`` name
-("MMD Tools" / "mmd_tools") rather than by exact module string.
+maintained by MMD-Blender, free, GPL. Detect both legacy module
+names and namespaced Blender Extensions; modern extensions need no bl_info.
 
 Same install-path pattern as the v3.2.1 VRM bridge:
 
@@ -52,30 +51,33 @@ def is_mmd_op_available(op_name: str) -> bool:
         return False
     try:
         op_func.get_rna_type()
-    except (AttributeError, KeyError):
+    except (AttributeError, KeyError, RuntimeError):
         return False
     return True
 
 
-def find_mmd_addon() -> Optional[object]:
-    """Return the addon_utils module object if installed AND enabled."""
+def _mmd_modules(*, refresh=False):
+    """Recognize legacy packages and namespaced extensions without bl_info."""
     import addon_utils
 
-    enabled_names = {a.module for a in bpy.context.preferences.addons}
-
-    # First pass: known module names
-    for name in _KNOWN_MODULE_NAMES:
-        if name not in enabled_names:
-            continue
-        for mod in addon_utils.modules():
-            if getattr(mod, "__name__", "").endswith(name):
-                return mod
-
-    # Second pass: scan bl_info for any add-on whose name mentions "MMD"
-    for mod in addon_utils.modules():
+    modules = addon_utils.modules(refresh=refresh)
+    enabled = {a.module for a in bpy.context.preferences.addons}
+    candidates = []
+    for mod in modules:
+        name = mod.__name__
+        leaf = name.rsplit(".", 1)[-1]
         info = addon_utils.module_bl_info(mod)
-        bl_name = (info.get("name") or "").strip().lower()
-        if "mmd" in bl_name and mod.__name__ in enabled_names:
+        if leaf in _KNOWN_MODULE_NAMES or "mmd" in (info.get("name") or "").lower():
+            candidates.append(mod)
+    # A disabled legacy copy must not mask an enabled extension.
+    return sorted(candidates, key=lambda mod: mod.__name__ not in enabled)
+
+
+def find_mmd_addon() -> Optional[object]:
+    """Return the addon_utils module object if installed AND enabled."""
+    enabled_names = {a.module for a in bpy.context.preferences.addons}
+    for mod in _mmd_modules():
+        if mod.__name__ in enabled_names:
             return mod
 
     return None
@@ -99,11 +101,8 @@ def mmd_addon_status() -> dict:
     }
     enabled_names = {a.module for a in bpy.context.preferences.addons}
 
-    for mod in addon_utils.modules():
+    for mod in _mmd_modules():
         info = addon_utils.module_bl_info(mod)
-        bl_name = (info.get("name") or "").strip().lower()
-        if "mmd" not in bl_name:
-            continue
         status["installed"] = True
         status["module_name"] = mod.__name__
         status["version"] = info.get("version")
@@ -131,17 +130,16 @@ def mmd_addon_status() -> dict:
 
 def _enable_first_mmd_addon() -> Optional[str]:
     """Find an MMD addon that's installed but disabled and enable it."""
-    import addon_utils
-    addon_utils.modules(refresh=True)
-
-    for mod in addon_utils.modules():
-        info = addon_utils.module_bl_info(mod)
-        bl_name = (info.get("name") or "").strip().lower()
-        if "mmd" not in bl_name:
-            continue
-        try:
-            bpy.ops.preferences.addon_enable(module=mod.__name__)
+    for mod in _mmd_modules(refresh=True):
+        if (mod.__name__ in {a.module for a in bpy.context.preferences.addons}
+                and is_mmd_op_available("import_model")):
             return mod.__name__
+        try:
+            outcome = bpy.ops.preferences.addon_enable(module=mod.__name__)
+            if ("FINISHED" in outcome
+                    and mod.__name__ in {a.module for a in bpy.context.preferences.addons}
+                    and is_mmd_op_available("import_model")):
+                return mod.__name__
         except RuntimeError as exc:
             logger.warning(
                 "[BoneForge] could not enable %s: %s", mod.__name__, exc,
@@ -152,9 +150,9 @@ def _enable_first_mmd_addon() -> Optional[str]:
 # ── Install URLs ────────────────────────────────────────────────
 
 _MMD_EXTENSIONS_URL = "https://extensions.blender.org/add-ons/mmd-tools/"
-_MMD_GITHUB_URL = "https://github.com/UuuNyaa/blender_mmd_tools"
+_MMD_GITHUB_URL = "https://github.com/MMD-Blender/blender_mmd_tools"
 _MMD_GITHUB_API_LATEST = (
-    "https://api.github.com/repos/UuuNyaa/"
+    "https://api.github.com/repos/MMD-Blender/"
     "blender_mmd_tools/releases/latest"
 )
 
@@ -243,11 +241,11 @@ class BF_OT_MMDInstallFromDisk(bpy.types.Operator):
         enabled_module = _enable_first_mmd_addon()
         if enabled_module is None:
             self.report(
-                {"WARNING"},
+                {"ERROR"},
                 "mmd_tools installed but could not auto-enable. "
                 "Open Preferences > Add-ons, search 'MMD', tick the checkbox.",
             )
-            return {"FINISHED"}
+            return {"CANCELLED"}
 
         self.report({"INFO"}, f"Installed and enabled: {enabled_module}")
         return {"FINISHED"}
@@ -266,7 +264,7 @@ class BF_OT_MMDOpenWebsite(bpy.types.Operator):
             ("EXTENSIONS", "Blender Extensions",
              "Official Blender Extensions platform"),
             ("GITHUB", "GitHub Releases",
-             "Source releases on GitHub (UuuNyaa)"),
+             "Source releases on GitHub (MMD-Blender)"),
         ],
         default="EXTENSIONS",
     )
@@ -289,7 +287,7 @@ class BF_OT_MMDInstallAuto(bpy.types.Operator):
     bl_idname = "boneforge.mmd_install_auto"
     bl_label = "Auto-Install Latest from GitHub"
     bl_description = (
-        "Download the latest mmd_tools release from UuuNyaa's GitHub "
+        "Download the latest mmd_tools release from MMD-Blender's GitHub "
         "and install + enable it. Requires internet access"
     )
     bl_options = {"REGISTER"}
@@ -412,27 +410,16 @@ class BF_OT_MMDInstallAuto(bpy.types.Operator):
 
             wm.progress_update(95)
 
-            # Extensions-system installs are auto-enabled by Blender;
-            # calling addon_enable on them fails because they live in
-            # the Extensions registry, not the legacy Addons list.
-            if result.auto_enabled:
-                self.report(
-                    {"INFO"},
-                    f"Installed mmd_tools {tag} as a Blender Extension. "
-                    "If the MMD panel doesn't appear, reload scripts "
-                    "(F8) or restart Blender.",
-                )
-                return {"FINISHED"}
-
+            # Verify activation for both legacy and extension installations.
             enabled_module = _enable_first_mmd_addon()
             if enabled_module is None:
                 self.report(
-                    {"WARNING"},
+                    {"ERROR"},
                     f"Downloaded {asset_name} ({tag}) and installed, but "
                     "could not auto-enable. Open Preferences > Add-ons, "
                     "search 'MMD', tick the checkbox.",
                 )
-                return {"FINISHED"}
+                return {"CANCELLED"}
 
             self.report(
                 {"INFO"},

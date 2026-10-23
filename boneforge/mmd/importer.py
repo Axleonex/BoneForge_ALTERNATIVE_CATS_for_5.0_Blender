@@ -84,7 +84,10 @@ class BF_OT_MMDImportPMX(Operator):
             # Snapshot armatures so we can identify what was added
             before = {o.name for o in bpy.data.objects
                       if o.type == "ARMATURE"}
-            bpy.ops.mmd_tools.import_model(filepath=self.filepath)
+            outcome = bpy.ops.mmd_tools.import_model(filepath=self.filepath)
+            if "FINISHED" not in outcome:
+                self.report({"WARNING"}, "PMX import was cancelled or did not finish")
+                return {"CANCELLED"}
             after = {o.name for o in bpy.data.objects
                      if o.type == "ARMATURE"}
             new_count = len(after - before)

@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-23",
+  "product": "BoneCraft",
+  "version": [
+    9,
+    2,
+    5
+  ],
+  "result": "PASS",
+  "correction": "Initial 9.1.3 candidate was based on a stale Ghost Tool checkout. Installed BoneCraft is 9.2.5.",
+  "base_commit": "a1092dc",
+  "source": "\\\\100.114.2.71\\Gdrive\\LapArt\\Projects\\Blender_Addons\\B4Artists_Tools\\.claude\\worktrees\\bonecraft-mmd-925\\bonecraft\\boneforge",
+  "unit_regressions": {
+    "tests": 13,
+    "result": "PASS"
+  },
+  "package": {
+    "product": "BoneCraft",
+    "version": [
+      9,
+      2,
+      5
+    ],
+    "candidate": "mmd-fix",
+    "source": "\\\\100.114.2.71\\Gdrive\\LapArt\\Projects\\Blender_Addons\\B4Artists_Tools\\.claude\\worktrees\\bonecraft-mmd-925\\bonecraft\\boneforge",
+    "files": 232,
+    "crc": "PASS",
+    "source_parity": "PASS",
+    "sha256": "97b2178d831a36070c68d31639eed1bc0481107eafa60799aedcd0dff4730509",
+    "base_commit": "a1092dc",
+    "base_version": "9.2.5",
+    "only_changed_addon_files": [
+      "boneforge/core/addon_installer.py",
+      "boneforge/mmd/bridge.py",
+      "boneforge/mmd/importer.py"
+    ],
+    "release_base_parity": "PASS"
+  },
+  "fresh_package_auto_install_and_pmx": {
+    "host": "5.3.0 Alpha",
+    "binary": "C:\\Program Files\\Bforartists\\5.2.0\\bforartists.exe",
+    "install_mode": "auto",
+    "module": "bl_ext.user_default.mmd_tools",
+    "status": {
+      "installed": true,
+      "enabled": true,
+      "import_pmx_available": true,
+      "import_vmd_available": true,
+      "import_vpd_available": true,
+      "export_pmx_available": true,
+      "export_vmd_available": true,
+      "export_vpd_available": true,
+      "version": [
+        4,
+        5,
+        14
+      ],
+      "module_name": "bl_ext.user_default.mmd_tools"
+    },
+    "new_armatures": [
+      "result_arm"
+    ],
+    "wheel_dependency": "opencc",
+    "result": "PASS"
+  },
+  "test_environment_note": "First UNC user-extension-directory test failed with WinError 5 while renaming an MMD staging directory; retry with mapped G: project directories passed.",
+  "manual_limits": [
+    "visible file-browser workflow",
+    "production avatar content",
+    "VMD/VPD/export round trips"
+  ],
+  "routing": "T3 classification; native continuation after the same task pre-apply SupervisorError admission failures"
+}

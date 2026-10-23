@@ -836,3 +836,21 @@ STRINGS.update({
     "Warnings: {count}": "경고: {count}",
     "Refresh Results": "결과 새로 고침",
 })
+
+# Material atlas selection and workflow.
+STRINGS.update({
+    "Select All": "\ubaa8\ub450 \uc120\ud0dd",
+    "Deselect All": "\ubaa8\ub450 \uc120\ud0dd \ud574\uc81c",
+    "Atlas Source Selection": "\uc544\ud2c0\ub77c\uc2a4 \uc18c\uc2a4 \uc120\ud0dd",
+    "Materials to Combine": "\uacb0\ud569\ud560 \uba38\ud2f0\ub9ac\uc5bc",
+    "Texture Images": "\ud14d\uc2a4\ucc98 \uc774\ubbf8\uc9c0",
+    "Refresh Analysis": "\ubd84\uc11d \uc0c8\ub85c \uace0\uce68",
+    "1. Choose Target": "1. \ub300\uc0c1 \uc120\ud0dd",
+    "2. Choose Materials and Textures": "2. \uba38\ud2f0\ub9ac\uc5bc \ubc0f \ud14d\uc2a4\ucc98 \uc120\ud0dd",
+    "Checkboxes include sources in this group.": "\uccb4\ud06c\ud55c \uc18c\uc2a4\ub97c \uc774 \uadf8\ub8f9\uc5d0 \ud3ec\ud568\ud569\ub2c8\ub2e4.",
+    "Group disabled: enable its checkbox to bake.": "\uadf8\ub8f9\uc774 \ube44\ud65c\uc131 \uc0c1\ud0dc\uc785\ub2c8\ub2e4. \ubca0\uc774\ud06c\ud558\ub824\uba74 \uccb4\ud06c\ud558\uc138\uc694.",
+    "Source Details": "\uc18c\uc2a4 \uc138\ubd80 \uc815\ubcf4",
+    "3. Bake and Review": "3. \ubca0\uc774\ud06c \ubc0f \uac80\ud1a0",
+    "Bake Checked Sources": "\uccb4\ud06c\ud55c \uc18c\uc2a4 \ubca0\uc774\ud06c",
+    "Advanced Options": "\uace0\uae09 \uc635\uc158"
+})

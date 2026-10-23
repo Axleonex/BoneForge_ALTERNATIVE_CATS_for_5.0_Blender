@@ -836,3 +836,21 @@ STRINGS.update({
     "Warnings: {count}": "Advertencias: {count}",
     "Refresh Results": "Actualizar resultados",
 })
+
+# Material atlas selection and workflow.
+STRINGS.update({
+    "Select All": "Seleccionar todo",
+    "Deselect All": "Deseleccionar todo",
+    "Atlas Source Selection": "Selecci\u00f3n de fuentes del atlas",
+    "Materials to Combine": "Materiales para combinar",
+    "Texture Images": "Im\u00e1genes de textura",
+    "Refresh Analysis": "Actualizar an\u00e1lisis",
+    "1. Choose Target": "1. Elegir destino",
+    "2. Choose Materials and Textures": "2. Elegir materiales y texturas",
+    "Checkboxes include sources in this group.": "Las casillas incluyen fuentes en este grupo.",
+    "Group disabled: enable its checkbox to bake.": "Grupo desactivado: marque su casilla para hornear.",
+    "Source Details": "Detalles de las fuentes",
+    "3. Bake and Review": "3. Hornear y revisar",
+    "Bake Checked Sources": "Hornear fuentes marcadas",
+    "Advanced Options": "Opciones avanzadas"
+})

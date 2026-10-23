@@ -1,0 +1,6 @@
+*
+!.gitignore
+!README.md
+!summary.json
+!bugfix-versions.json
+!ui-review.md
