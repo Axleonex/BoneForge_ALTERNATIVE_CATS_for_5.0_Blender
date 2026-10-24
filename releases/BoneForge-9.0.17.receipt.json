@@ -1,0 +1,28 @@
+{
+  "product": "BoneForge",
+  "version": [
+    9,
+    0,
+    17
+  ],
+  "files": 161,
+  "crc": "PASS",
+  "source_parity": "PASS",
+  "sha256": "27ce71164df04b3815af5fcb92a3fdcb0a3b9eebd67f86958d4bf4cdcf86a727",
+  "source": "boneforge",
+  "tag": "v9.0.17",
+  "host_verification": {
+    "context": {
+      "result": "PASS",
+      "host": "5.2.2 LTS",
+      "count": 19,
+      "evidence": "tests/export-context-evidence/context.json"
+    },
+    "naming": {
+      "result": "PASS",
+      "host": "5.2.2 LTS",
+      "count": 14,
+      "evidence": "tests/export-context-evidence/naming.json"
+    }
+  }
+}

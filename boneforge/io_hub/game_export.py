@@ -5,14 +5,13 @@ Unity/VRChat export operators live in the VRChat phase; they are only
 surfaced here in the panel for discoverability.
 """
 
-from __future__ import annotations
-
 import os
 
 import bpy
-from bpy.props import BoolProperty, PointerProperty, StringProperty
+from bpy.props import BoolProperty, EnumProperty, PointerProperty, StringProperty
 from bpy.types import PropertyGroup
 from bpy_extras.io_utils import ExportHelper, ImportHelper
+from .bone_naming import naming_items, draw_naming, export_copies, object_export_context
 
 
 def _sanitize_filename(name: str, fallback: str) -> str:
@@ -88,6 +87,10 @@ def build_unreal_export_filepath(settings, context) -> str:
 
 
 class BF_GameExportSettings(PropertyGroup):
+    bone_naming: EnumProperty(
+        name="Bone Names", items=naming_items, default=0,
+        description="Bone naming preset for export copies only",
+    )
     unreal_export_path: StringProperty(
         name="Export Folder",
         description="Folder for Unreal FBX exports",
@@ -135,6 +138,10 @@ class BF_OT_ExportUnrealFBX(bpy.types.Operator, ExportHelper):
 
     filename_ext = ".fbx"
     filter_glob: StringProperty(default="*.fbx", options={'HIDDEN'})
+    bone_naming: EnumProperty(
+        name="Bone Names", items=naming_items, default=0,
+        description="Bone naming preset for export copies only",
+    )
 
     use_selection: BoolProperty(
         name="Selected Only",
@@ -168,6 +175,14 @@ class BF_OT_ExportUnrealFBX(bpy.types.Operator, ExportHelper):
         return obj is not None and obj.type in {'ARMATURE', 'MESH'}
 
     def execute(self, context):
+        try:
+            with object_export_context(context):
+                return self._execute_object_mode(context)
+        except (RuntimeError, ValueError, OSError) as exc:
+            self.report({'ERROR'}, f'FBX export failed: {exc}')
+            return {'CANCELLED'}
+
+    def _execute_object_mode(self, context):
         if not self.filepath:
             settings = getattr(context.scene, "boneforge_game_export_settings", None)
             if settings is not None:
@@ -177,29 +192,36 @@ class BF_OT_ExportUnrealFBX(bpy.types.Operator, ExportHelper):
             return {'CANCELLED'}
 
         export_scope = (context.selected_objects if self.use_selection
-                        else context.scene.objects)
-        shielded, shielded_names = _shield_shapekey_modifiers(export_scope)
+                        else context.view_layer.objects)
+        shielded, shielded_names = [], []
         try:
-            bpy.ops.export_scene.fbx(
-                filepath=self.filepath,
-                use_selection=self.use_selection,
-                apply_unit_scale=self.apply_unit_scale,
-                apply_scale_options='FBX_SCALE_NONE',
-                axis_forward='-Z',
-                axis_up='Y',
-                mesh_smooth_type='OFF',
-                use_mesh_modifiers=True,
-                add_leaf_bones=self.add_leaf_bones,
-                primary_bone_axis='Y',
-                secondary_bone_axis='X',
-                use_armature_deform_only=True,
-                bake_anim=self.bake_anim,
-                bake_anim_use_all_actions=False,
-                bake_anim_force_startend_keying=True,
-                path_mode='COPY' if self.embed_textures else 'AUTO',
-                embed_textures=self.embed_textures,
-            )
-        except RuntimeError as exc:
+            with export_copies(context, export_scope, self.bone_naming) as copies:
+                shielded, shielded_names = _shield_shapekey_modifiers(copies.values())
+                result = bpy.ops.export_scene.fbx(
+                    filepath=self.filepath,
+                    use_selection=True if self.bone_naming != 'NONE' else self.use_selection,
+                    apply_unit_scale=self.apply_unit_scale,
+                    apply_scale_options='FBX_SCALE_NONE',
+                    axis_forward='-Z',
+                    axis_up='Y',
+                    mesh_smooth_type='OFF',
+                    use_mesh_modifiers=True,
+                    add_leaf_bones=self.add_leaf_bones,
+                    primary_bone_axis='Y',
+                    secondary_bone_axis='X',
+                    use_armature_deform_only=True,
+                    bake_anim=self.bake_anim,
+                    bake_anim_use_all_actions=False,
+                    bake_anim_use_nla_strips=False,
+                    bake_anim_force_startend_keying=True,
+                    path_mode='COPY' if self.embed_textures else 'AUTO',
+                    embed_textures=self.embed_textures,
+                )
+                _restore_shapekey_modifiers(shielded)
+                shielded = []
+                if 'FINISHED' not in result:
+                    raise RuntimeError("FBX exporter cancelled")
+        except (RuntimeError, ValueError) as exc:
             self.report({'ERROR'}, f"FBX export failed: {exc}")
             return {'CANCELLED'}
         finally:
@@ -257,6 +279,7 @@ def draw_unreal_export_settings(layout, context):
 
     layout.prop(settings, "unreal_export_path", text="Folder")
     layout.prop(settings, "unreal_export_name", text="File")
+    draw_naming(layout, settings, context)
 
     row = layout.row(align=True)
     row.prop(settings, "unreal_use_selection", text="Selected Only")

@@ -1,0 +1,18 @@
+{
+  "result": "PASS",
+  "product": "BoneForge",
+  "version": "9.0.17",
+  "package_sha256": "27ce71164df04b3815af5fcb92a3fdcb0a3b9eebd67f86958d4bf4cdcf86a727",
+  "context": {
+    "result": "PASS",
+    "host": "5.2.2 LTS",
+    "count": 19,
+    "evidence": "tests/export-context-evidence/context.json"
+  },
+  "naming": {
+    "result": "PASS",
+    "host": "5.2.2 LTS",
+    "count": 14,
+    "evidence": "tests/export-context-evidence/naming.json"
+  }
+}

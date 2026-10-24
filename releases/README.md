@@ -1,5 +1,13 @@
 # BoneForge releases
 
+## 9.0.17 - Export naming presets and mode fix
+
+Download [BoneForge-9.0.17.zip](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/releases/download/v9.0.17/BoneForge-9.0.17.zip) from the [9.0.17 release](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/releases/tag/v9.0.17).
+Adds Unity/Unreal export naming presets and fixes the selection/cleanup
+traceback from Pose/Edit Mode. Working-rig names, original mode and selection
+are preserved. Retains prior MMD and material-combiner fixes.
+[Release notes](../docs/releases/9.0.17/RELEASE-NOTES.md) · [Verification](../tests/export-context-evidence/README.md).
+
 ## 9.0.15 - Material and texture selection
 
 Download [BoneForge-9.0.15.zip](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/releases/download/v9.0.15/BoneForge-9.0.15.zip) from the [9.0.15 GitHub Release](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/releases/tag/v9.0.15).

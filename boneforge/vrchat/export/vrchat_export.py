@@ -10,11 +10,15 @@ import os
 from typing import Tuple, List
 
 import bpy
-from bpy.props import StringProperty, BoolProperty
+from bpy.props import StringProperty, BoolProperty, EnumProperty
 from bpy.types import Operator, PropertyGroup
 
 from boneforge.core import active_armature, read_custom_json
 from boneforge.vrchat.humanoid.mapper import HumanoidMapping, REQUIRED_SLOTS
+from boneforge.io_hub.bone_naming import (
+    naming_items, draw_naming, export_copies, make_plan, remap_sidecar,
+    deselect_objects, object_export_context,
+)
 
 import logging
 
@@ -26,6 +30,10 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────────────────────────
 
 class BF_VRCExportSettings(PropertyGroup):
+    bone_naming: EnumProperty(
+        name="Bone Names", items=naming_items, default=0,
+        description="Bone naming preset for export copies only",
+    )
     """VRChat export settings stored on the scene."""
 
     export_path: StringProperty(
@@ -302,7 +310,7 @@ def _select_avatar_objects(armature) -> None:
         armature: The armature object to select along with its children
     """
     # Deselect all
-    bpy.ops.object.select_all(action='DESELECT')
+    deselect_objects(bpy.context)
 
     # Select armature
     armature.select_set(True)
@@ -403,6 +411,14 @@ class BF_OT_VRC_ExportToUnity(Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
+        try:
+            with object_export_context(context):
+                return self._execute_object_mode(context)
+        except (RuntimeError, ValueError, OSError) as exc:
+            self.report({'ERROR'}, f'Export failed: {exc}')
+            return {'CANCELLED'}
+
+    def _execute_object_mode(self, context):
         """Main export workflow."""
         arm = active_armature(context)
         if arm is None:
@@ -502,39 +518,46 @@ class BF_OT_VRC_ExportToUnity(Operator):
                     )
 
             # ─ Step 6: Select arm + temp copies for export ─
-            bpy.ops.object.select_all(action='DESELECT')
+            deselect_objects(context)
             arm.select_set(True)
             for t in temp_meshes:
                 t.select_set(True)
             context.view_layer.objects.active = arm
 
             # ─ Step 7: Call FBX export ─
-            bpy.ops.export_scene.fbx(
-                filepath=fbx_path,
-                use_selection=True,
-                apply_unit_scale=True,
-                apply_scale_options='FBX_SCALE_ALL',
-                axis_forward='-Z',
-                axis_up='Y',
-                use_armature_deform_only=True,
-                add_leaf_bones=False,
-                primary_bone_axis='Y',
-                secondary_bone_axis='X',
-                path_mode='COPY',
-                embed_textures=settings.embed_textures,
-                mesh_smooth_type='FACE',
-                bake_anim=False,
-            )
+            with export_copies(context, [arm] + temp_meshes, settings.bone_naming) as export_objects:
+                result = bpy.ops.export_scene.fbx(
+                    filepath=fbx_path,
+                    use_selection=True,
+                    apply_unit_scale=True,
+                    apply_scale_options='FBX_SCALE_ALL',
+                    axis_forward='-Z',
+                    axis_up='Y',
+                    use_armature_deform_only=True,
+                    add_leaf_bones=False,
+                    primary_bone_axis='Y',
+                    secondary_bone_axis='X',
+                    path_mode='COPY',
+                    embed_textures=settings.embed_textures,
+                    mesh_smooth_type='FACE',
+                    bake_anim=False,
+                )
 
-            # ─ Step 8: Generate sidecar if enabled ─
-            if settings.export_sidecar:
-                try:
-                    from . import sidecar
-                    sidecar_data = sidecar.generate_sidecar(arm, settings)
-                    sidecar_path = fbx_path.replace('.fbx', '.bfvrc')
-                    sidecar.write_sidecar(sidecar_data, sidecar_path)
-                except Exception as e:
-                    self.report({'WARNING'}, f"Sidecar generation failed: {e}")
+                if 'FINISHED' not in result:
+                    raise RuntimeError('FBX exporter cancelled')
+
+                # ─ Step 8: Generate sidecar if enabled ─
+                if settings.export_sidecar:
+                    try:
+                        from . import sidecar
+                        sidecar_data = remap_sidecar(
+                            sidecar.generate_sidecar(arm, settings),
+                            *make_plan(arm, settings.bone_naming),
+                        )
+                        sidecar_path = fbx_path.replace('.fbx', '.bfvrc')
+                        sidecar.write_sidecar(sidecar_data, sidecar_path)
+                    except Exception as e:
+                        self.report({'WARNING'}, f"Sidecar generation failed: {e}")
 
             # ─ Step 9: Post-export summary ─
             self.report({'INFO'}, f"Exported to {fbx_path}")
@@ -546,6 +569,10 @@ class BF_OT_VRC_ExportToUnity(Operator):
                     "shape keys — apply or remove them manually if you need "
                     "their geometry): " + "; ".join(shapekey_mod_warnings)
                 )
+
+        except (RuntimeError, ValueError) as exc:
+            self.report({'ERROR'}, f'Export failed: {exc}')
+            return {'CANCELLED'}
 
         finally:
             # Remove temp duplicates (also on error paths — the previous
@@ -570,7 +597,7 @@ class BF_OT_VRC_ExportToUnity(Operator):
                 except (ReferenceError, RuntimeError) as exc:
                     logger.debug("name restore failed: %s", exc)
             # Restore scene state
-            bpy.ops.object.select_all(action='DESELECT')
+            deselect_objects(context)
             for obj_name in saved_selection:
                 try:
                     bpy.data.objects[obj_name].select_set(True)
@@ -594,6 +621,7 @@ def draw_export_settings(layout, context):
     box.label(text="Export Settings", icon='EXPORT')
     box.prop(settings, "export_path", text="Folder")
     box.prop(settings, "avatar_name", text="Avatar")
+    draw_naming(box, settings, context)
 
     row = box.row(align=True)
     row.prop(settings, "export_sidecar", text="Sidecar")

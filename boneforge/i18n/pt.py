@@ -854,3 +854,6 @@ STRINGS.update({
     "Bake Checked Sources": "Gerar atlas das fontes marcadas",
     "Advanced Options": "Op\u00e7\u00f5es avan\u00e7adas"
 })
+
+# Export bone naming presets.
+STRINGS.update({'Bone Names': 'Nomes dos ossos', 'Keep Original Names': 'Manter nomes originais', 'Unity-Preset': 'Predefini??o Unity', 'Unreal-Preset': 'Predefini??o Unreal', 'Export copies only': 'Somente c?pias de exporta??o', 'Working rig unchanged': 'Rig de trabalho inalterado', 'Recognized / renamed': 'Reconhecidos / renomeados', 'Other bones keep their names': 'Outros ossos mant?m seus nomes', 'Select an armature to preview names': 'Selecione uma armadura para visualizar os nomes', 'Export the existing bone names': 'Exportar os nomes de ossos existentes', 'Rename recognized export bones to Unity Humanoid names; keep the working rig unchanged': 'Renomear os ossos reconhecidos da c?pia para nomes Unity Humanoid; manter o rig de trabalho inalterado', 'Rename recognized export bones to Unreal humanoid names; does not rebuild a Manny or Quinn skeleton': 'Renomear os ossos reconhecidos da c?pia para nomes humanoides Unreal; n?o reconstr?i um esqueleto Manny ou Quinn'})

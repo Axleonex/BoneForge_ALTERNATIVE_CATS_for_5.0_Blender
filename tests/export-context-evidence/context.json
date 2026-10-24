@@ -1,0 +1,213 @@
+{
+  "result": "PASS",
+  "host": "5.2.2 LTS",
+  "version": [
+    9,
+    0,
+    17
+  ],
+  "cases": [
+    {
+      "target": "UNITY_EXPORT",
+      "mode": "OBJECT",
+      "preset": "NONE",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNITY_EXPORT",
+      "mode": "OBJECT",
+      "preset": "UNITY",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNITY_EXPORT",
+      "mode": "OBJECT",
+      "preset": "UNREAL",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNITY_EXPORT",
+      "mode": "POSE",
+      "preset": "NONE",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNITY_EXPORT",
+      "mode": "POSE",
+      "preset": "UNITY",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNITY_EXPORT",
+      "mode": "POSE",
+      "preset": "UNREAL",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNITY_EXPORT",
+      "mode": "EDIT",
+      "preset": "NONE",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNITY_EXPORT",
+      "mode": "EDIT",
+      "preset": "UNITY",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNITY_EXPORT",
+      "mode": "EDIT",
+      "preset": "UNREAL",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNREAL_EXPORT",
+      "mode": "OBJECT",
+      "preset": "NONE",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNREAL_EXPORT",
+      "mode": "OBJECT",
+      "preset": "UNITY",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNREAL_EXPORT",
+      "mode": "OBJECT",
+      "preset": "UNREAL",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNREAL_EXPORT",
+      "mode": "POSE",
+      "preset": "NONE",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNREAL_EXPORT",
+      "mode": "POSE",
+      "preset": "UNITY",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNREAL_EXPORT",
+      "mode": "POSE",
+      "preset": "UNREAL",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNREAL_EXPORT",
+      "mode": "EDIT",
+      "preset": "NONE",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNREAL_EXPORT",
+      "mode": "EDIT",
+      "preset": "UNITY",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "UNREAL_EXPORT",
+      "mode": "EDIT",
+      "preset": "UNREAL",
+      "result": [
+        "FINISHED"
+      ],
+      "error": null,
+      "restored": true,
+      "file_exists": true
+    },
+    {
+      "target": "failure cleanup in Pose",
+      "restored": true
+    }
+  ]
+}

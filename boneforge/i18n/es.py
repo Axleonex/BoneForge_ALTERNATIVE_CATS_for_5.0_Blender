@@ -854,3 +854,6 @@ STRINGS.update({
     "Bake Checked Sources": "Hornear fuentes marcadas",
     "Advanced Options": "Opciones avanzadas"
 })
+
+# Export bone naming presets.
+STRINGS.update({'Bone Names': 'Nombres de huesos', 'Keep Original Names': 'Conservar nombres originales', 'Unity-Preset': 'Preajuste Unity', 'Unreal-Preset': 'Preajuste Unreal', 'Export copies only': 'Solo copias de exportaci?n', 'Working rig unchanged': 'El rig de trabajo no cambia', 'Recognized / renamed': 'Reconocidos / renombrados', 'Other bones keep their names': 'Los otros huesos conservan sus nombres', 'Select an armature to preview names': 'Seleccione una armadura para previsualizar los nombres', 'Export the existing bone names': 'Exportar los nombres de huesos existentes', 'Rename recognized export bones to Unity Humanoid names; keep the working rig unchanged': 'Renombrar los huesos reconocidos de la copia a nombres Unity Humanoid; el rig de trabajo no cambia', 'Rename recognized export bones to Unreal humanoid names; does not rebuild a Manny or Quinn skeleton': 'Renombrar los huesos reconocidos de la copia a nombres humanoides de Unreal; no reconstruye un esqueleto Manny o Quinn'})

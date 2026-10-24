@@ -1,0 +1,25 @@
+{
+  "result": "PASS",
+  "host": "5.2.2 LTS",
+  "version": [
+    9,
+    0,
+    17
+  ],
+  "checks": [
+    "UNITY copies: weights, shape keys, action evaluation, drivers, constraints, attachment, sidecar, source preservation",
+    "UNREAL copies: weights, shape keys, action evaluation, drivers, constraints, attachment, sidecar, source preservation",
+    "failure restores selection, active object, names and all datablock counts",
+    "registered settings/defaults in both export sections",
+    "occupied target rejected without scene mutation",
+    "NLA action copies and renamed channels preserve original NLA",
+    "both export settings draw all naming choices and before/after previews",
+    "NONE public Unreal exporter FBX roundtrip: names, weights, shape keys, baked animation",
+    "UNITY public Unreal exporter FBX roundtrip: names, weights, shape keys, baked animation",
+    "UNREAL public Unreal exporter FBX roundtrip: names, weights, shape keys, baked animation",
+    "NONE public Unity exporter FBX/sidecar roundtrip and source preservation",
+    "UNITY public Unity exporter FBX/sidecar roundtrip and source preservation",
+    "UNREAL public Unity exporter FBX/sidecar roundtrip and source preservation",
+    "whole-view-layer named export keeps excluded objects out of FBX"
+  ]
+}

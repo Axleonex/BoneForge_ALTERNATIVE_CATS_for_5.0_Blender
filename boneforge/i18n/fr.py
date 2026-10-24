@@ -854,3 +854,6 @@ STRINGS.update({
     "Bake Checked Sources": "Pr\u00e9calculer les sources coch\u00e9es",
     "Advanced Options": "Options avanc\u00e9es"
 })
+
+# Export bone naming presets.
+STRINGS.update({'Bone Names': 'Noms des os', 'Keep Original Names': 'Conserver les noms d?origine', 'Unity-Preset': 'Pr?r?glage Unity', 'Unreal-Preset': 'Pr?r?glage Unreal', 'Export copies only': 'Copies d?export uniquement', 'Working rig unchanged': 'Rig de travail inchang?', 'Recognized / renamed': 'Reconnus / renomm?s', 'Other bones keep their names': 'Les autres os gardent leurs noms', 'Select an armature to preview names': 'S?lectionnez une armature pour pr?visualiser les noms', 'Export the existing bone names': 'Exporter les noms des os existants', 'Rename recognized export bones to Unity Humanoid names; keep the working rig unchanged': 'Renommer les os reconnus de la copie avec les noms Unity Humanoid ; le rig de travail reste inchang?', 'Rename recognized export bones to Unreal humanoid names; does not rebuild a Manny or Quinn skeleton': 'Renommer les os reconnus de la copie avec les noms humano?des Unreal ; ne reconstruit pas un squelette Manny ou Quinn'})

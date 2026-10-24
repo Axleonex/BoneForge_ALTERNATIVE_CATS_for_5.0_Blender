@@ -187,6 +187,7 @@ class BF_PT_sb_io(Panel):
         op.add_leaf_bones = settings.unreal_add_leaf_bones
         op.bake_anim = settings.unreal_bake_anim
         op.embed_textures = settings.unreal_embed_textures
+        op.bone_naming = settings.bone_naming
         ue_col.operator_context = 'INVOKE_DEFAULT'
         ue_col.operator(
             "boneforge.import_unreal_fbx",
