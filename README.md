@@ -8,7 +8,7 @@ This build is an attempted revival and continuation of no-longer-maintained free
 > If you hit a problem, a screenshot or a short note about what you were doing
 > helps a lot — please open an [issue](../../issues).
 
-**Current repository build: BoneForge 9.0.15.** Includes the MMD/PMX repair and
+**Current release: BoneForge 9.0.15.** Includes the MMD/PMX repair and
 material-combiner fixes for opacity, shader tint/alpha, visibility, preserved
 materials, stale analysis, export UV0, material counts and meshes without UVs.
 [Release notes](releases/README.md#9015---material-and-texture-selection).
@@ -16,7 +16,7 @@ materials, stale analysis, export UV0, material counts and meshes without UVs.
 
 ## Install
 
-1. Download the current repository build: **[BoneForge-9.0.15.zip](releases/BoneForge-9.0.15.zip)**. Tagged releases are listed on the [Releases](../../releases) page.
+1. Download **[BoneForge-9.0.15.zip](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/releases/download/v9.0.15/BoneForge-9.0.15.zip)** from the [BoneForge 9.0.15 release](https://github.com/Axleonex/BoneForge_ALTERNATIVE_CATS_for_5.0_Blender/releases/tag/v9.0.15).
 2. In Blender, open **Edit → Preferences → Add-ons**.
 3. Click the **dropdown arrow (˅) at the top-right of the Add-ons panel → Install from Disk…**
 4. Select the `BoneForge-9.0.15.zip` you downloaded.
